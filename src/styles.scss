@@ -1,1 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html {
+  // MUDANÇA: 'dark' agora é o padrão
+  color-scheme: dark;
+
+  @include mat.theme((
+    color: (
+      // CORRIGIDO: Usando paletas válidas da nova API
+      primary: mat.$blue-palette,
+      tertiary: mat.$violet-palette,
+    ),
+    typography: (
+      plain-family: 'Roboto',
+    ),
+    density: 0,
+  ));
+}
+
+// Estilos globais (sem alteração)
+body {
+  background: var(--mat-sys-color-surface);
+  color: var(--mat-sys-color-on-surface);
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  margin: 0;
+}

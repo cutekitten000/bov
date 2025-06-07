@@ -1,0 +1,95 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.login-page-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+// Estilos da coluna de branding (esquerda)
+.branding-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--mat-sys-color-primary-container), var(--mat-sys-color-tertiary-container));
+  color: var(--mat-sys-color-on-primary-container);
+
+  .branding-logo {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+  }
+
+  .branding-title {
+    font-size: 3rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .branding-subtitle {
+    font-size: 1.25rem;
+    font-weight: 300;
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+}
+
+// Estilos da coluna do formulário (direita)
+.form-pane {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  border: none;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+mat-card-content {
+  padding: 24px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// O BLOCO DE CÓDIGO QUE FORÇAVA A COR DO INPUT FOI REMOVIDO DAQUI.
+// Esta era a causa do problema.
+
+button[mat-raised-button] {
+  padding: 16px 0;
+}
+
+// Regras para telas menores (Responsividade)
+@media (max-width: 960px) {
+  .login-page-container {
+    flex-direction: column;
+  }
+
+  .branding-pane {
+    flex: 0 0 250px;
+  }
+
+  .form-pane {
+    flex-grow: 1;
+  }
+}

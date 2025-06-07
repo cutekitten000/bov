@@ -1,0 +1,50 @@
+<div class="login-page-container" [@pageAnimations]="true">
+
+  <div class="branding-pane">
+    <div class="branding-content">
+      <mat-icon class="branding-logo">assured_workload</mat-icon>
+      <h1 class="branding-title">TLV-BOV</h1>
+      <p class="branding-subtitle">Plataforma de Gestão e Controle</p>
+    </div>
+  </div>
+
+  <div class="form-pane">
+    <mat-card class="login-card">
+      <mat-card-header>
+        <mat-card-title>Login</mat-card-title>
+        <mat-card-subtitle>Bem-vindo de volta</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="seu.email@exemplo.com">
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+              O email é obrigatório.
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+              Formato de email inválido.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Senha</mat-label>
+            <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" aria-label="Mostrar/ocultar senha">
+              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              A senha é obrigatória.
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
+            Entrar
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>
