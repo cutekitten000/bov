@@ -67,26 +67,29 @@ export class Login {
 
   // Mude o método onSubmit para async para usar await
   async onSubmit(): Promise<void> {
-    if (this.loginForm.invalid) {
-      return; // Se o formulário for inválido, não faz nada
-    }
+    if (this.loginForm.invalid) return;
 
     try {
-      const email = this.loginForm.value.email;
-      const password = this.loginForm.value.password;
+        const email = this.loginForm.value.email!;
+        const password = this.loginForm.value.password!;
 
-      // Chama o método de login do nosso serviço
-      await this.authService.login(email, password);
+        const userCredential = await this.authService.login(email, password);
 
-      // Se o login for bem-sucedido, navega para o dashboard
-      this.router.navigate(['/dashboard']);
-
+        // **LÓGICA DE REDIRECIONAMENTO**
+        if (userCredential.user.email?.endsWith('@admin.com')) {
+            this.router.navigate(['/admin/dashboard']);
+        } else if (userCredential.user.email?.endsWith('@tahto.com.br')) {
+            this.router.navigate(['/agent/dashboard']);
+        } else {
+            // Usuário com domínio não reconhecido é deslogado por segurança
+            await this.authService.logout();
+            alert('Tipo de usuário não reconhecido.');
+        }
     } catch (error) {
-      // Em caso de erro (senha errada, etc.), exibe no console
-      console.error('Erro no login:', error);
-      // Futuramente, podemos mostrar uma notificação de erro para o usuário aqui
+        console.error('Erro no login:', error);
+        alert('Email ou senha inválidos.');
     }
-  }
+}
 }
 
 

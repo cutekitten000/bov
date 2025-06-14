@@ -6,6 +6,9 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 
+// --- ADIÇÃO NECESSÁRIA AQUI ---
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+
 const firebaseConfig = {
   apiKey: "AIzaSyDTsgFbYXRIwPK8UD4leIzcmjhnYNmH5xA",
   authDomain: "tlv-bov-d4487.firebaseapp.com",
@@ -22,8 +25,10 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideAnimations(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), 
-    provideFirebaseApp(() => initializeApp(firebaseConfig)), 
-    provideAuth(() => getAuth())
+    provideRouter(routes),
+    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideAuth(() => getAuth()),
+    // --- SOLUÇÃO ADICIONADA AQUI ---
+    provideFirestore(() => getFirestore())
   ]
 };

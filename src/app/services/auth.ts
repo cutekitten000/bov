@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, signOut, authState, User, sendPasswordResetEmail } from '@angular/fire/auth';
+// IMPORTANTE: Adicione 'createUserWithEmailAndPassword' na linha abaixo
+import { Auth, signInWithEmailAndPassword, signOut, authState, User, sendPasswordResetEmail, createUserWithEmailAndPassword, UserCredential } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -12,8 +13,14 @@ export class AuthService {
   readonly authState$: Observable<User | null> = authState(this.auth);
 
   // Função de Login
-  login(email: string, password: string): Promise<any> {
+  login(email: string, password: string): Promise<UserCredential> {
     return signInWithEmailAndPassword(this.auth, email, password);
+  }
+
+  // --- MÉTODO FALTANTE ADICIONADO AQUI ---
+  // Função de Cadastro
+  signUp(email: string, password: string): Promise<UserCredential> {
+    return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
   // Função de Logout
@@ -21,6 +28,7 @@ export class AuthService {
     return signOut(this.auth);
   }
 
+  // Função de Redefinição de Senha
   sendPasswordResetEmail(email: string): Promise<void> {
     return sendPasswordResetEmail(this.auth, email);
   }

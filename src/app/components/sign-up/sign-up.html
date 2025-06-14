@@ -1,0 +1,55 @@
+<div class="container">
+  <mat-card class="sign-up-card">
+    <mat-card-header>
+      <mat-card-title>Criar Conta de Agente</mat-card-title>
+      <mat-card-subtitle>Preencha seus dados para começar</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>TH</mat-label>
+          <input matInput formControlName="th" type="text" pattern="[0-9]*" placeholder="Apenas números">
+          <mat-error *ngIf="signUpForm.get('th')?.hasError('required')">O TH é obrigatório.</mat-error>
+          <mat-error *ngIf="signUpForm.get('th')?.hasError('pattern')">Apenas números são permitidos.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nome e Sobrenome</mat-label>
+          <input matInput formControlName="name">
+           <mat-error>O nome é obrigatório.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email Corporativo</mat-label>
+          <input matInput formControlName="email" type="email">
+           <mat-error *ngIf="signUpForm.get('email')?.hasError('required')">O email é obrigatório.</mat-error>
+           <mat-error *ngIf="signUpForm.get('email')?.hasError('emailDomain')">
+              O email deve ser do domínio &#64;tahto.com.br
+           </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+          <mat-error>A senha deve ter no mínimo 6 caracteres.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Repetir Senha</mat-label>
+          <input matInput formControlName="confirmPassword" [type]="hidePassword ? 'password' : 'text'">
+           <mat-error *ngIf="signUpForm.get('confirmPassword')?.hasError('passwordMismatch')">
+              As senhas não coincidem.
+           </mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="signUpForm.invalid || submitting">
+          <span *ngIf="!submitting">Cadastrar</span>
+          <span *ngIf="submitting">Cadastrando...</span>
+        </button>
+      </form>
+    </mat-card-content>
+     <mat-card-actions>
+      <a mat-button routerLink="/login">Já tem uma conta? Faça o login</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
