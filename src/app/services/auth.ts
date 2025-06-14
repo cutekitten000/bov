@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, authState, signInWithEmailAndPassword, signOut, User } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, signOut, authState, User, sendPasswordResetEmail } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -19,5 +19,9 @@ export class AuthService {
   // Função de Logout
   logout(): Promise<void> {
     return signOut(this.auth);
+  }
+
+  sendPasswordResetEmail(email: string): Promise<void> {
+    return sendPasswordResetEmail(this.auth, email);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router'; // Importe o Router
+import { Router, RouterLink } from '@angular/router'; // Importe o Router
 import { AuthService } from '../../services/auth'; // Importe nosso serviço
 
 // Imports de Animação e Material...
@@ -22,7 +22,8 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    CommonModule
+    CommonModule,
+    RouterLink
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -34,14 +35,14 @@ import { MatInputModule } from '@angular/material/input';
         query('.branding-pane, .form-pane', [
           style({ opacity: 0, transform: 'translateY(50px)' }),
           stagger(150, [
-            animate('800ms cubic-bezier(0.35, 0, 0.25, 1)', style({ opacity: 1, transform: 'none' }))
+            animate('300ms cubic-bezier(0.35, 0, 0.25, 1)', style({ opacity: 1, transform: 'none' }))
           ])
         ]),
         // Animação escalonada para o conteúdo do formulário
         query('.login-card > *', [
           style({ opacity: 0, transform: 'translateY(30px)' }),
           stagger(100, [
-            animate('600ms cubic-bezier(0.35, 0, 0.25, 1)', style({ opacity: 1, transform: 'none' }))
+            animate('300ms cubic-bezier(0.35, 0, 0.25, 1)', style({ opacity: 1, transform: 'none' }))
           ])
         ], { delay: 300 }) // Começa depois que os painéis começam a aparecer
       ])

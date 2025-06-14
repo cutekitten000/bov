@@ -31,7 +31,8 @@
           <mat-form-field appearance="outline">
             <mat-label>Senha</mat-label>
             <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" aria-label="Mostrar/ocultar senha">
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button"
+              aria-label="Mostrar/ocultar senha">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
             <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
@@ -43,6 +44,12 @@
             Entrar
           </button>
         </form>
+
+        <div class="extra-links">
+          <a routerLink="/forgot-password">Esqueceu a senha?</a>
+          <span>•</span>
+          <a routerLink="/sign-up">Não tem uma conta? <strong>Cadastre-se</strong></a>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>

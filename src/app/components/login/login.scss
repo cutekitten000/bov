@@ -93,3 +93,25 @@ button[mat-raised-button] {
     flex-grow: 1;
   }
 }
+
+.extra-links {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  a {
+    color: var(--mat-sys-color-primary);
+    text-decoration: none;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  span {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+}
