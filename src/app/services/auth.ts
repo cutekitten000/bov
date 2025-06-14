@@ -3,6 +3,15 @@ import { inject, Injectable } from '@angular/core';
 import { Auth, signInWithEmailAndPassword, signOut, authState, User, sendPasswordResetEmail, createUserWithEmailAndPassword, UserCredential } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
+export interface AppUser {
+  uid: string;
+  email: string | null;
+  name: string;
+  th: string;
+  role: 'agent' | 'admin';
+  salesGoal: number; // Adicionamos o campo da meta
+}
+
 @Injectable({
   providedIn: 'root'
 })

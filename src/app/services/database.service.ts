@@ -1,42 +1,70 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, addDoc, collection, query, where, getDocs, orderBy, Timestamp } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
+import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
+import { Sale } from '../models/sale.model';
 
-// Definindo uma interface para o nosso modelo de usuário no banco de dados
-export interface AppUser {
-  uid: string;
-  email: string | null;
-  name: string;
-  th: string;
-  role: 'agent' | 'admin';
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DatabaseService {
   private firestore: Firestore = inject(Firestore);
+  private salesCollection = collection(this.firestore, 'sales');
 
-  /**
-   * Cria um novo documento de usuário na coleção 'users' do Firestore.
-   * @param user O objeto User retornado pelo Firebase Authentication.
-   * @param additionalData Dados extras do formulário de cadastro.
-   * @returns Uma promessa que é resolvida quando o documento é escrito.
-   */
+  // --- MÉTODOS DE USUÁRIO (Já existentes e aprimorados) ---
+  
   createUserProfile(user: User, additionalData: { name: string; th: string }): Promise<void> {
-    // Cria uma referência para o documento do usuário. O ID do documento será o mesmo UID da autenticação.
     const userDocRef = doc(this.firestore, `users/${user.uid}`);
-
-    // Define os dados do documento
     const userData: AppUser = {
       uid: user.uid,
       email: user.email,
       name: additionalData.name,
       th: additionalData.th,
-      role: 'agent' // Todo novo usuário cadastrado pelo app é um 'agent'
+      role: 'agent',
+      salesGoal: 26 // Meta padrão
     };
-
-    // Salva o documento no Firestore
     return setDoc(userDocRef, userData);
   }
+
+  // --- NOVOS MÉTODOS PARA VENDAS ---
+
+  /**
+   * Adiciona uma nova venda ao Firestore.
+   */
+  addSale(saleData: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>): Promise<any> {
+    const now = new Date();
+    const dataToSave = {
+      ...saleData,
+      createdAt: Timestamp.fromDate(now),
+      updatedAt: Timestamp.fromDate(now)
+    };
+    return addDoc(this.salesCollection, dataToSave);
+  }
+  
+  /**
+   * Busca as vendas de um agente específico para um determinado mês e ano.
+   */
+  async getSalesForAgent(agentUid: string, year: number, month: number): Promise<Sale[]> {
+    // Calcula o primeiro e o último dia do mês/ano solicitado
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
+    const q = query(
+      this.salesCollection,
+      where('agentUid', '==', agentUid),
+      where('saleDate', '>=', Timestamp.fromDate(startDate)),
+      where('saleDate', '<=', Timestamp.fromDate(endDate)),
+      orderBy('saleDate', 'desc') // Ordena pela data da venda, da mais nova para a mais antiga
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const sales: Sale[] = [];
+    querySnapshot.forEach((doc) => {
+      sales.push({ id: doc.id, ...doc.data() } as Sale);
+    });
+    
+    return sales;
+  }
+  
+  // Futuramente, adicionaremos os métodos de update e delete aqui
+  // updateSale(saleId: string, dataToUpdate: Partial<Sale>): Promise<void> { ... }
+  // deleteSale(saleId: string): Promise<void> { ... }
 }
