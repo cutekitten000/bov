@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, doc, setDoc, addDoc, collection, query, where, getDocs, orderBy, Timestamp } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, addDoc, collection, query, where, getDocs, orderBy, Timestamp, getDoc } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
 import { Sale } from '../models/sale.model';
@@ -25,6 +25,18 @@ export class DatabaseService {
   }
 
   // --- NOVOS MÉTODOS PARA VENDAS ---
+
+  getUserProfile(uid: string): Promise<AppUser | null> {
+    const userDocRef = doc(this.firestore, `users/${uid}`);
+    return getDoc(userDocRef).then(docSnap => {
+      if (docSnap.exists()) {
+        return docSnap.data() as AppUser;
+      } else {
+        // Documento não encontrado
+        return null;
+      }
+    });
+  }
 
   /**
    * Adiciona uma nova venda ao Firestore.
