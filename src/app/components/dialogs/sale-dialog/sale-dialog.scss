@@ -1,7 +1,23 @@
 .sale-form {
-    padding-top: 20px;
+  // Adiciona um espaçamento no topo do formulário para separá-lo do título do modal
+  padding-top: 20px;
 }
 
+// Cada linha do formulário será um container flex
+.form-row {
+  display: flex;
+  // Cria um espaçamento de 24px entre os campos na mesma linha
+  gap: 24px;
+  // Adiciona uma pequena margem abaixo de cada linha
+  margin-bottom: 8px;
+}
+
+// Por padrão, cada campo de formulário ocupa o espaço disponível igualmente
 mat-form-field {
-    width: 100%;
+  flex: 1;
+}
+
+// Uma classe para campos que devem ocupar a linha inteira
+.full-width {
+  width: 100%;
 }

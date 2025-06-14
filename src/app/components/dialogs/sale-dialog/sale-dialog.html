@@ -2,114 +2,102 @@
 
 <div mat-dialog-content>
   <form [formGroup]="saleForm" class="sale-form">
-    <mat-grid-list cols="2" rowHeight="90px" gutterSize="16px">
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Data da Venda</mat-label>
+        <input matInput [matDatepicker]="saleDatePicker" formControlName="saleDate">
+        <mat-datepicker-toggle matSuffix [for]="saleDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #saleDatePicker></mat-datepicker>
+      </mat-form-field>
 
-      <mat-grid-tile>
-        <mat-form-field appearance="outline">
-          <mat-label>Data da Venda</mat-label>
-          <input matInput [matDatepicker]="saleDatePicker" formControlName="saleDate">
-          <mat-datepicker-toggle matSuffix [for]="saleDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #saleDatePicker></mat-datepicker>
-        </mat-form-field>
-      </mat-grid-tile>
+      <mat-form-field appearance="outline">
+        <mat-label>CPF/CNPJ</mat-label>
+        <input matInput formControlName="customerCpfCnpj" mask="000.000.000-00||00.000.000/0000-00">
+      </mat-form-field>
+    </div>
 
-      <mat-grid-tile>
-        <mat-form-field appearance="outline">
-          <mat-label>CPF/CNPJ</mat-label>
-          <input matInput formControlName="customerCpfCnpj" mask="000.000.000-00||00.000.000/0000-00">
-        </mat-form-field>
-      </mat-grid-tile>
-      
-      <mat-grid-tile>
-        <mat-form-field appearance="outline">
-          <mat-label>Data da Instalação</mat-label>
-          <input matInput [matDatepicker]="installDatePicker" formControlName="installationDate">
-          <mat-datepicker-toggle matSuffix [for]="installDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #installDatePicker></mat-datepicker>
-        </mat-form-field>
-      </mat-grid-tile>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Data da Instalação</mat-label>
+        <input matInput [matDatepicker]="installDatePicker" formControlName="installationDate">
+        <mat-datepicker-toggle matSuffix [for]="installDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #installDatePicker></mat-datepicker>
+      </mat-form-field>
 
-      <mat-grid-tile>
-        <mat-form-field appearance="outline">
-          <mat-label>Período</mat-label>
-          <mat-select formControlName="period">
-            <mat-option *ngFor="let option of periodOptions" [value]="option">{{ option }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-grid-tile>
+      <mat-form-field appearance="outline">
+        <mat-label>Período</mat-label>
+        <mat-select formControlName="period">
+          <mat-option *ngFor="let option of periodOptions" [value]="option">{{ option }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-      <mat-grid-tile>
+    <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
           <mat-select formControlName="status">
             <mat-option *ngFor="let option of statusOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
-      </mat-grid-tile>
 
-      <mat-grid-tile>
         <mat-form-field appearance="outline">
           <mat-label>Número do Cliente</mat-label>
           <input matInput formControlName="customerPhone" placeholder="(XX) XXXXX-XXXX" mask="(00) 0000-0000||(00) 0 0000-0000">
         </mat-form-field>
-      </mat-grid-tile>
+    </div>
 
-      <mat-grid-tile>
+    <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Tipo de Venda</mat-label>
           <mat-select formControlName="saleType">
             <mat-option *ngFor="let option of saleTypeOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
-      </mat-grid-tile>
 
-      <mat-grid-tile>
         <mat-form-field appearance="outline">
           <mat-label>Pagamento</mat-label>
           <mat-select formControlName="paymentMethod">
             <mat-option *ngFor="let option of paymentOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
-      </mat-grid-tile>
+    </div>
 
-      <mat-grid-tile>
+    <div class="form-row">
         <mat-form-field appearance="outline">
-        <mat-label>Ticket</mat-label>
-        <input matInput formControlName="ticket">
-      </mat-form-field></mat-grid-tile>
+            <mat-label>Ticket</mat-label>
+            <input matInput formControlName="ticket">
+        </mat-form-field>
 
-      <mat-grid-tile>
         <mat-form-field appearance="outline">
           <mat-label>Velocidade</mat-label>
           <mat-select formControlName="speed">
             <mat-option *ngFor="let option of speedOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
-      </mat-grid-tile>
-
-      <mat-grid-tile>
+    </div>
+    
+    <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>UF</mat-label>
           <mat-select formControlName="uf">
             <mat-option *ngFor="let option of ufOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
-      </mat-grid-tile>
 
-      <mat-grid-tile>
         <mat-form-field appearance="outline">
           <mat-label>OS</mat-label>
           <input matInput formControlName="os">
-      </mat-form-field></mat-grid-tile>
-
-      <mat-grid-tile [colspan]="2">
-        <mat-form-field appearance="outline">
-          <mat-label>Observação</mat-label>
-          <textarea matInput formControlName="notes" rows="3"></textarea>
         </mat-form-field>
-      </mat-grid-tile>
-      
-    </mat-grid-list>
+    </div>
+
+    <div class="form-row">
+       <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Observação</mat-label>
+        <textarea matInput formControlName="notes" rows="4"></textarea>
+      </mat-form-field>
+    </div>
+
   </form>
 </div>
 

@@ -2,8 +2,8 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter } from '@angular/router';
 
 // --- ADIÇÕES PARA DATAS ---
-import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
 // --- 1. IMPORTE O provideNgxMask AQUI ---
 import { provideNgxMask } from 'ngx-mask';
@@ -15,6 +15,19 @@ import { routes } from './app.routes';
 
 // --- ADIÇÃO NECESSÁRIA AQUI ---
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+
+// --- 1. CRIE A CONSTANTE COM OS FORMATOS PT-BR ---
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyDTsgFbYXRIwPK8UD4leIzcmjhnYNmH5xA",
@@ -39,6 +52,7 @@ export const appConfig: ApplicationConfig = {
     provideFirestore(() => getFirestore()),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
     provideMomentDateAdapter(),
+     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }, // <-- 2. ADICIONE O PROVEDOR DE FORMATOS
     provideNgxMask()
   ]
 };

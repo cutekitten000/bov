@@ -1,21 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { Observable, switchMap, of } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 
 // --- Imports do Angular Material ---
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 // --- Imports dos nossos arquivos ---
-import { AuthService, AppUser } from '../../services/auth';
-import { DatabaseService } from '../../services/database.service';
 import { Sale } from '../../models/sale.model'; // <-- FIX: Importação do modelo 'Sale' que faltava.
+import { AppUser, AuthService } from '../../services/auth';
+import { DatabaseService } from '../../services/database.service';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog'; // <-- FIX: Importação do componente de dialog que faltava.
 
 @Component({
@@ -30,10 +30,10 @@ import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog'; // <-- FIX: Imp
     MatCardModule,
     MatTableModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
   ],
   templateUrl: './agent-dashboard.html',
-  styleUrl: './agent-dashboard.scss'
+  styleUrl: './agent-dashboard.scss',
 })
 export class AgentDashboard implements OnInit {
   // --- Injeção de Dependências ---
@@ -54,44 +54,87 @@ export class AgentDashboard implements OnInit {
     { title: 'Canceladas', value: 1, color: 'red' },
     { title: 'Total/Meta', value: '17/26', color: 'purple' },
   ];
-  displayedColumns: string[] = ['status', 'cpfCnpj', 'saleDate', 'installationDate', 'period', 'customerPhone', 'ticket', 'os', 'actions'];
+  displayedColumns: string[] = [
+    'status',
+    'cpfCnpj',
+    'saleDate',
+    'installationDate',
+    'period',
+    'customerPhone',
+    'ticket',
+    'os',
+    'actions',
+  ];
   dataSource = [
-    { status: 'Instalada', cpfCnpj: '123.456.789-00', saleDate: '10/06/2025', installationDate: '12/06/2025', period: 'Manhã', customerPhone: '(11) 98765-4321', ticket: 'TKT-123', os: 'OS-456' },
-    { status: 'Em Aprovisionamento', cpfCnpj: '987.654.321-00', saleDate: '11/06/2025', installationDate: '15/06/2025', period: 'Tarde', customerPhone: '(21) 91234-5678', ticket: 'TKT-124', os: 'OS-457' },
+    {
+      status: 'Instalada',
+      cpfCnpj: '123.456.789-00',
+      saleDate: '10/06/2025',
+      installationDate: '12/06/2025',
+      period: 'Manhã',
+      customerPhone: '(11) 98765-4321',
+      ticket: 'TKT-123',
+      os: 'OS-456',
+    },
+    {
+      status: 'Em Aprovisionamento',
+      cpfCnpj: '987.654.321-00',
+      saleDate: '11/06/2025',
+      installationDate: '15/06/2025',
+      period: 'Tarde',
+      customerPhone: '(21) 91234-5678',
+      ticket: 'TKT-124',
+      os: 'OS-457',
+    },
   ];
 
   ngOnInit(): void {
     // Busca o perfil do usuário do banco de dados
     this.agent$ = this.authService.authState$.pipe(
-      switchMap(user => user ? this.dbService.getUserProfile(user.uid) : of(null))
+      switchMap((user) =>
+        user ? this.dbService.getUserProfile(user.uid) : of(null)
+      )
     );
 
     // <-- FIX: Extrai os dados do agente do observable e guarda na variável 'agent' para uso em outros métodos.
-    this.agent$.subscribe(agentData => {
+    this.agent$.subscribe((agentData) => {
       this.agent = agentData;
     });
   }
 
   openSaleDialog(): void {
     const dialogRef = this.dialog.open(SaleDialog, {
-      width: '800px',
-      disableClose: true
+      width: '1000px', // <-- Aumentamos a largura aqui
+      maxWidth: '95vw', // Garante que não ultrapasse a tela em dispositivos menores
+      disableClose: true,
     });
 
     // <-- FIX: Adicionado o tipo de dado para 'result' para evitar o erro de 'any'.
     dialogRef.afterClosed().subscribe((result: Partial<Sale>) => {
       // <-- FIX: Usa 'this.agent' que agora contém os dados, em vez de 'this.agent$'.
       if (result && this.agent) {
-        console.log('Dados da nova venda:', result);
+        if (result.saleDate && result.installationDate) {
+          const saleDateAsJSDate = (result.saleDate as any).toDate();
+          const installationDateAsJSDate = (result.installationDate as any).toDate();
 
-        const saleData: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'> = {
-          ...result,
-          agentUid: this.agent.uid // <-- FIX: Agora 'this.agent.uid' existe.
-        } as Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>;
+          console.log('Dados da nova venda:', result);
 
-        this.dbService.addSale(saleData)
-          .then(() => console.log('Venda salva com sucesso!'))
-          .catch(err => console.error('Erro ao salvar venda:', err));
+          const saleData: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'> = {
+            ...result,
+            saleDate: saleDateAsJSDate, // Usamos o objeto Date convertido
+            installationDate: installationDateAsJSDate, // Usamos o objeto Date convertido
+
+            agentUid: this.agent.uid, // <-- FIX: Agora 'this.agent.uid' existe.
+          } as Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>;
+
+          this.dbService
+            .addSale(saleData)
+            .then(() => console.log('Venda salva com sucesso!'))
+            .catch((err) => console.error('Erro ao salvar venda:', err));
+        } else {
+          // Log de segurança caso os dados retornem incompletos
+          console.error("Dados de data ausentes no retorno do modal.", result);
+        }
       }
     });
   }
