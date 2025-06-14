@@ -1,6 +1,13 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
+// --- ADIÇÕES PARA DATAS ---
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+
+// --- 1. IMPORTE O provideNgxMask AQUI ---
+import { provideNgxMask } from 'ngx-mask';
+
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -29,6 +36,9 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
     // --- SOLUÇÃO ADICIONADA AQUI ---
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    provideMomentDateAdapter(),
+    provideNgxMask()
   ]
 };
