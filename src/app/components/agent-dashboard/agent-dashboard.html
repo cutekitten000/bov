@@ -1,27 +1,29 @@
 <div class="dashboard-container" *ngIf="agent$ | async as agent">
-    <mat-toolbar class="main-toolbar" color="primary">
+    <mat-toolbar class="main-toolbar">
         <div class="toolbar-section">
             <span>Bem vindo, <strong>{{ agent.name }}</strong></span>
         </div>
-
-        <div class="toolbar-section toolbar-center">
+        <span class="toolbar-spacer"></span>
+        <div class="toolbar-section links-section">
             <a mat-button>BOV EQUIPE</a>
             <a mat-button>Vendas do Dia</a>
             <a mat-button>Vendas de Ontem</a>
             <a mat-button>Links Úteis</a>
-            <a mat-button>Baixar Planilha do Mês</a>
         </div>
-
-        <div class="toolbar-section">
+        <span class="toolbar-spacer"></span>
+        <div class="toolbar-section user-menu-section">
+            <a mat-button><mat-icon>download</mat-icon> Baixar Planilha</a>
             <button
-                mat-icon-button
+                mat-flat-button
+                color="primary"
                 [matMenuTriggerFor]="userMenu"
-                aria-label="Menu do usuário"
+                class="user-menu-button"
             >
-                <mat-icon>account_circle</mat-icon>
+                <mat-icon>person</mat-icon>
+                <span>Meu Usuário</span>
             </button>
             <mat-menu #userMenu="matMenu">
-                <button mat-menu-item>Meu Usuário</button>
+                <button mat-menu-item>Meu Perfil</button>
                 <button mat-menu-item (click)="logout()">Sair</button>
             </mat-menu>
         </div>
@@ -30,44 +32,45 @@
     <main class="dashboard-content">
         <div class="kpi-cards-container">
             <mat-card class="kpi-card blue">
-                <mat-card-header
-                    ><mat-card-title
-                        >{{ kpi.aprovisionamento }}</mat-card-title
-                    ></mat-card-header
-                >
-                <mat-card-content><p>Aprovisionamento</p></mat-card-content>
+                <div class="kpi-content">
+                    <p class="kpi-title">Aprovisionamento</p>
+                    <span class="kpi-value">{{ kpi.aprovisionamento }}</span>
+                </div>
+                <mat-icon class="kpi-icon-bg">hourglass_top</mat-icon>
             </mat-card>
+
             <mat-card class="kpi-card green">
-                <mat-card-header
-                    ><mat-card-title
-                        >{{ kpi.instalada }}</mat-card-title
-                    ></mat-card-header
-                >
-                <mat-card-content><p>Instalada</p></mat-card-content>
+                <div class="kpi-content">
+                    <p class="kpi-title">Instalada</p>
+                    <span class="kpi-value">{{ kpi.instalada }}</span>
+                </div>
+                <mat-icon class="kpi-icon-bg">check_circle</mat-icon>
             </mat-card>
+
             <mat-card class="kpi-card yellow">
-                <mat-card-header
-                    ><mat-card-title
-                        >{{ kpi.pendencia }}</mat-card-title
-                    ></mat-card-header
-                >
-                <mat-card-content><p>Pendência</p></mat-card-content>
+                <div class="kpi-content">
+                    <p class="kpi-title">Pendência</p>
+                    <span class="kpi-value">{{ kpi.pendencia }}</span>
+                </div>
+                <mat-icon class="kpi-icon-bg">pending</mat-icon>
             </mat-card>
+
             <mat-card class="kpi-card red">
-                <mat-card-header
-                    ><mat-card-title
-                        >{{ kpi.canceladas }}</mat-card-title
-                    ></mat-card-header
-                >
-                <mat-card-content><p>Canceladas</p></mat-card-content>
+                <div class="kpi-content">
+                    <p class="kpi-title">Canceladas</p>
+                    <span class="kpi-value">{{ kpi.canceladas }}</span>
+                </div>
+                <mat-icon class="kpi-icon-bg">cancel</mat-icon>
             </mat-card>
+
             <mat-card class="kpi-card purple">
-                <mat-card-header
-                    ><mat-card-title
-                        >{{ kpi.total }}/{{ kpi.meta }}</mat-card-title
-                    ></mat-card-header
-                >
-                <mat-card-content><p>Total/Meta</p></mat-card-content>
+                <div class="kpi-content">
+                    <p class="kpi-title">Total / Meta</p>
+                    <span class="kpi-value"
+                        >{{ kpi.total }}/{{ kpi.meta }}</span
+                    >
+                </div>
+                <mat-icon class="kpi-icon-bg">show_chart</mat-icon>
             </mat-card>
         </div>
 
@@ -93,11 +96,11 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="search-field">
-                    <mat-label>Buscar por CPF/CNPJ, OS...</mat-label>
+                    <mat-label>Buscar...</mat-label>
                     <input
                         matInput
                         (keyup)="applyFilter($event)"
-                        placeholder="Digite para buscar..."
+                        placeholder="CPF/CNPJ, OS..."
                     />
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
@@ -105,55 +108,62 @@
 
             <button mat-flat-button color="primary" (click)="openSaleDialog()">
                 <mat-icon>add</mat-icon>
-                Nova Venda
+                <span>Nova Venda</span>
             </button>
         </div>
 
         <div class="table-container">
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="status">
                     <th mat-header-cell *matHeaderCellDef>Status</th>
                     <td mat-cell *matCellDef="let element">
-                        {{ element.status }}
+                        <span
+                            class="status-chip"
+                            [ngClass]="getStatusClass(element.status)"
+                        >
+                            {{ element.status }}
+                        </span>
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="cpfCnpj">
-                    <th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
+                <ng-container matColumnDef="cpfCnpj"
+                    ><th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.customerCpfCnpj }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="saleDate">
-                    <th mat-header-cell *matHeaderCellDef>Data da Venda</th>
+                    </td></ng-container
+                >
+                <ng-container matColumnDef="saleDate"
+                    ><th mat-header-cell *matHeaderCellDef>Data da Venda</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.saleDate | date: 'dd/MM/yyyy' }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="installationDate">
-                    <th mat-header-cell *matHeaderCellDef>
+                    </td></ng-container
+                >
+                <ng-container matColumnDef="installationDate"
+                    ><th mat-header-cell *matHeaderCellDef>
                         Data da Instalação
                     </th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.installationDate | date: 'dd/MM/yyyy' }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="period">
-                    <th mat-header-cell *matHeaderCellDef>Período</th>
+                    </td></ng-container
+                >
+                <ng-container matColumnDef="period"
+                    ><th mat-header-cell *matHeaderCellDef>Período</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.period }}
-                    </td>
-                </ng-container>
+                    </td></ng-container
+                >
 
                 <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef>Ações</th>
-                    <td mat-cell *matCellDef="let element">
+                    <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        class="actions-header"
+                    >
+                        Ações
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="actions-cell">
                         <button
                             mat-icon-button
-                            color="primary"
                             aria-label="Editar venda"
                             (click)="onEditSale(element)"
                         >
@@ -161,7 +171,6 @@
                         </button>
                         <button
                             mat-icon-button
-                            color="warn"
                             aria-label="Excluir venda"
                             (click)="onDeleteSale(element)"
                         >

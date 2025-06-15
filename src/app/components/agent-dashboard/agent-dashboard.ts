@@ -14,8 +14,8 @@ import { Observable, of, switchMap, tap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
-  MatDatepicker,
-  MatDatepickerModule,
+    MatDatepicker,
+    MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -218,6 +218,23 @@ export class AgentDashboard implements OnInit {
                 }
             }
         });
+    }
+
+    /**
+     * Converte uma string de status em um nome de classe CSS seguro.
+     * Ex: "Em Aprovisionamento" se torna "status-em-aprovisionamento".
+     * @param status A string de status da venda.
+     * @returns O nome da classe CSS.
+     */
+    public getStatusClass(status: string): string {
+        return (
+            'status-' +
+            status
+                .toLowerCase()
+                .normalize('NFD') // Remove acentos
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '-')
+        ); // Substitui espaços por hífens
     }
 
     /**
