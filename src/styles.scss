@@ -25,3 +25,39 @@ body {
   height: 100%;
   margin: 0;
 }
+
+// ... (código existente do @use e do tema)
+
+// =============================================
+// ESTILO GLOBAL PARA MODAIS (DIALOGS)
+// =============================================
+// Usamos uma classe customizada que será aplicada a todos os nossos modais.
+.custom-dialog-container {
+  // Define o fundo usando a mesma cor de "superfície" dos nossos cards e tabelas
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: #1f2937; // Cor Grafite
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  // Estiliza o título do modal
+  .mat-mdc-dialog-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  // Estiliza a área de ações (botões)
+  .mat-mdc-dialog-actions {
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  // ADICIONE ESTA NOVA REGRA PARA O BOTÃO DE EXCLUIR
+  .mat-mdc-button-base[color="warn"] {
+    // Usando a variável de cor que já definimos
+    background-color: #ef4444; // Vermelho Rubi
+    color: #fff; // Texto branco
+  }
+}

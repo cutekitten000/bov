@@ -194,6 +194,7 @@ export class AgentDashboard implements OnInit {
             width: '1000px',
             maxWidth: '95vw',
             disableClose: true,
+            panelClass: 'custom-dialog-container'
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {
@@ -257,6 +258,7 @@ export class AgentDashboard implements OnInit {
             maxWidth: '95vw',
             disableClose: true,
             data: { sale: sale }, // Passa os dados da venda para o modal
+            panelClass: 'custom-dialog-container',
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {
@@ -301,6 +303,7 @@ export class AgentDashboard implements OnInit {
         const dialogRef = this.dialog.open(ConfirmDialog, {
             data: {
                 message: `Tem certeza que deseja excluir a venda do cliente ${sale.customerCpfCnpj}?`,
+                panelClass: 'custom-dialog-container',
             },
         });
 
