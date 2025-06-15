@@ -20,27 +20,20 @@
           <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput formControlName="email" type="email" placeholder="seu.email@exemplo.com">
-            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-              O email é obrigatório.
-            </mat-error>
-            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-              Formato de email inválido.
-            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">O email é obrigatório.</mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">Formato de email inválido.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Senha</mat-label>
             <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button"
-              aria-label="Mostrar/ocultar senha">
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" aria-label="Mostrar/ocultar senha">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
-            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-              A senha é obrigatória.
-            </mat-error>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">A senha é obrigatória.</mat-error>
           </mat-form-field>
-
-          <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
+          
+          <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid" class="login-button">
             Entrar
           </button>
         </form>

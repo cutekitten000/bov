@@ -1,10 +1,22 @@
-@use '@angular/material' as mat;
+// =============================================
+// PALETA DE CORES (Consistente com o Dashboard)
+// =============================================
+$dark-bg: #111827;
+$dark-surface: #1f2937;
+$dark-border: #334155;
+$color-primary: #3b82f6;
 
+// =============================================
+// LAYOUT GERAL
+// =============================================
 :host {
   display: block;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background-color: $dark-bg;
+  background-image: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 40%);
+  color: #fff;
 }
 
 .login-page-container {
@@ -13,7 +25,9 @@
   height: 100%;
 }
 
-// Estilos da coluna de branding (esquerda)
+// =============================================
+// PAINEL DE BRANDING (ESQUERDA)
+// =============================================
 .branding-pane {
   flex: 1;
   display: flex;
@@ -22,31 +36,35 @@
   align-items: center;
   padding: 48px;
   text-align: center;
-  background: linear-gradient(135deg, var(--mat-sys-color-primary-container), var(--mat-sys-color-tertiary-container));
-  color: var(--mat-sys-color-on-primary-container);
+  // Fundo transparente para usar o fundo principal da página
+  background: transparent;
 
   .branding-logo {
-    font-size: 80px;
-    width: 80px;
-    height: 80px;
+    font-size: 96px;
+    width: 96px;
+    height: 96px;
     margin-bottom: 24px;
+    color: $color-primary;
   }
 
   .branding-title {
-    font-size: 3rem;
-    font-weight: 500;
+    font-size: 3.5rem;
+    font-weight: 700;
     margin: 0;
+    letter-spacing: -1px;
   }
 
   .branding-subtitle {
     font-size: 1.25rem;
     font-weight: 300;
     margin-top: 8px;
-    opacity: 0.8;
+    opacity: 0.7;
   }
 }
 
-// Estilos da coluna do formulário (direita)
+// =============================================
+// PAINEL DO FORMULÁRIO (DIREITA)
+// =============================================
 .form-pane {
   flex: 1;
   display: flex;
@@ -56,14 +74,27 @@
 }
 
 .login-card {
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
-  border: none;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  // Usando a mesma cor de superfície e borda do dashboard
+  background-color: $dark-surface;
+  border: 1px solid $dark-border;
+  border-radius: 12px;
+}
+
+mat-card-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+mat-card-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
 }
 
 mat-card-content {
-  padding: 24px;
+  padding-top: 24px;
 }
 
 form {
@@ -72,36 +103,19 @@ form {
   gap: 20px;
 }
 
-// O BLOCO DE CÓDIGO QUE FORÇAVA A COR DO INPUT FOI REMOVIDO DAQUI.
-// Esta era a causa do problema.
-
-button[mat-raised-button] {
-  padding: 16px 0;
-}
-
-// Regras para telas menores (Responsividade)
-@media (max-width: 960px) {
-  .login-page-container {
-    flex-direction: column;
-  }
-
-  .branding-pane {
-    flex: 0 0 250px;
-  }
-
-  .form-pane {
-    flex-grow: 1;
-  }
+.login-button {
+  padding: 20px 0; // Botão maior e mais clicável
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .extra-links {
   text-align: center;
   margin-top: 24px;
   font-size: 0.9rem;
-  cursor: pointer;
 
   a {
-    color: var(--mat-sys-color-primary);
+    color: $color-primary;
     text-decoration: none;
     transition: opacity 0.2s;
 
@@ -113,5 +127,18 @@ button[mat-raised-button] {
   span {
     margin: 0 8px;
     opacity: 0.5;
+  }
+}
+
+// Responsividade para telas menores
+@media (max-width: 960px) {
+  .branding-pane {
+    display: none; // Esconde o painel de branding em telas pequenas
+  }
+
+  .form-pane {
+    // Centraliza o formulário
+    align-items: flex-start;
+    padding-top: 15vh;
   }
 }
