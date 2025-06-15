@@ -1,18 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import {
-  Firestore,
-  Timestamp,
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  setDoc,
-  where,
+    Firestore,
+    Timestamp,
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    setDoc,
+    updateDoc,
+    where,
 } from '@angular/fire/firestore';
+
 import { Sale } from '../models/sale.model';
 import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
 
@@ -108,7 +111,23 @@ export class DatabaseService {
         return sales;
     }
 
-    // Futuramente, adicionaremos os métodos de update e delete aqui
-    // updateSale(saleId: string, dataToUpdate: Partial<Sale>): Promise<void> { ... }
-    // deleteSale(saleId: string): Promise<void> { ... }
+    /**
+     * Atualiza os dados de uma venda existente no Firestore.
+     */
+    updateSale(saleId: string, dataToUpdate: Partial<Sale>): Promise<void> {
+        const saleDocRef = doc(this.firestore, `sales/${saleId}`);
+        const data = {
+            ...dataToUpdate,
+            updatedAt: Timestamp.fromDate(new Date()), // Atualiza a data de modificação
+        };
+        return updateDoc(saleDocRef, data);
+    }
+
+    /**
+     * Exclui uma venda do Firestore.
+     */
+    deleteSale(saleId: string): Promise<void> {
+        const saleDocRef = doc(this.firestore, `sales/${saleId}`);
+        return deleteDoc(saleDocRef);
+    }
 }
