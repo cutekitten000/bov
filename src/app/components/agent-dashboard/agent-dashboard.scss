@@ -60,3 +60,29 @@
 .table-container {
   width: 100%;
 }
+
+// ...
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+// NOVO ESTILO para o container dos filtros
+.filter-inputs {
+  display: flex;
+  gap: 16px; // Espaçamento entre os filtros
+  align-items: center;
+}
+
+.month-picker {
+  // Ajuste de largura se necessário
+  width: 200px;
+}
+
+.search-field {
+  // Ajuste de largura se necessário
+  width: 300px;
+}
+// ...

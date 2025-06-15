@@ -4,6 +4,7 @@
     <div class="toolbar-section">
       <span>Bem vindo, <strong>{{ agent.name }}</strong></span>
     </div>
+
     <div class="toolbar-section toolbar-center">
       <a mat-button>BOV EQUIPE</a>
       <a mat-button>Vendas do Dia</a>
@@ -11,8 +12,9 @@
       <a mat-button>Links Úteis</a>
       <a mat-button>Baixar Planilha do Mês</a>
     </div>
+
     <div class="toolbar-section">
-       <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menu do usuário">
         <mat-icon>account_circle</mat-icon>
       </button>
       <mat-menu #userMenu="matMenu">
@@ -23,7 +25,7 @@
   </mat-toolbar>
 
   <main class="dashboard-content">
-    
+
     <div class="kpi-cards-container">
       <mat-card class="kpi-card blue">
         <mat-card-header><mat-card-title>{{ kpi.aprovisionamento }}</mat-card-title></mat-card-header>
@@ -49,8 +51,20 @@
 
     <div class="actions-bar">
       <div class="filter-inputs">
-        Filtros aqui
+        <mat-form-field appearance="outline" class="month-picker">
+          <mat-label>Mês e Ano</mat-label>
+          <input matInput [matDatepicker]="picker" [formControl]="monthYearControl" readonly>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker startView="multi-year" (monthSelected)="monthYearSelected($event, picker)"></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar por CPF/CNPJ, OS...</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Digite para buscar...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
       </div>
+
       <button mat-flat-button color="primary" (click)="openSaleDialog()">
         <mat-icon>add</mat-icon>
         Nova Venda
@@ -61,41 +75,46 @@
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
         
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
-          <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">{{ element.status }}</td>
         </ng-container>
 
         <ng-container matColumnDef="cpfCnpj">
-          <th mat-header-cell *matHeaderCellDef> CPF/CNPJ </th>
-          <td mat-cell *matCellDef="let element"> {{element.customerCpfCnpj}} </td>
+          <th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
+          <td mat-cell *matCellDef="let element">{{ element.customerCpfCnpj }}</td>
         </ng-container>
 
         <ng-container matColumnDef="saleDate">
-          <th mat-header-cell *matHeaderCellDef> Data da Venda </th>
-          <td mat-cell *matCellDef="let element"> {{ element.saleDate | date: 'dd/MM/yyyy' }} </td>
+          <th mat-header-cell *matHeaderCellDef>Data da Venda</th>
+          <td mat-cell *matCellDef="let element">{{ element.saleDate | date: 'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="installationDate">
-          <th mat-header-cell *matHeaderCellDef> Data da Instalação </th>
-          <td mat-cell *matCellDef="let element"> {{ element.installationDate | date: 'dd/MM/yyyy' }} </td>
+          <th mat-header-cell *matHeaderCellDef>Data da Instalação</th>
+          <td mat-cell *matCellDef="let element">{{ element.installationDate | date: 'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="period">
-          <th mat-header-cell *matHeaderCellDef> Período </th>
-          <td mat-cell *matCellDef="let element"> {{element.period}} </td>
+          <th mat-header-cell *matHeaderCellDef>Período</th>
+          <td mat-cell *matCellDef="let element">{{ element.period }}</td>
         </ng-container>
         
         <ng-container matColumnDef="actions">
-           <th mat-header-cell *matHeaderCellDef> Ações </th>
-           <td mat-cell *matCellDef="let element">
-             <button mat-icon-button color="primary" aria-label="Editar venda"><mat-icon>edit</mat-icon></button>
-             <button mat-icon-button color="warn" aria-label="Excluir venda"><mat-icon>delete</mat-icon></button>
-           </td>
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="primary" aria-label="Editar venda">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" aria-label="Excluir venda">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
         </ng-container>
-        
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
+    
   </main>
 </div>
