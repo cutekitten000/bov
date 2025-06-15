@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 
 // --- Imports do Angular Material ---
 import { MatButtonModule } from '@angular/material/button';
@@ -9,20 +9,21 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 // --- Imports dos nossos arquivos ---
-import { Sale } from '../../models/sale.model'; // <-- FIX: Importação do modelo 'Sale' que faltava.
-import { AppUser, AuthService } from '../../services/auth';
+import { Sale } from '../../models/sale.model';
+import { AppUser, AuthService } from '../../services/auth'; // Corrigido o caminho do import
 import { DatabaseService } from '../../services/database.service';
-import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog'; // <-- FIX: Importação do componente de dialog que faltava.
+import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
 
 @Component({
   selector: 'app-agent-dashboard',
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     RouterModule,
     MatToolbarModule,
     MatButtonModule,
@@ -40,99 +41,96 @@ export class AgentDashboard implements OnInit {
   authService = inject(AuthService);
   dbService = inject(DatabaseService);
   router = inject(Router);
-  dialog = inject(MatDialog); // <-- FIX: Injeção do serviço MatDialog que faltava.
+  dialog = inject(MatDialog);
 
   // --- Propriedades da Classe ---
-  agent$: Observable<AppUser | null> | undefined;
-  private agent: AppUser | null = null; // <-- FIX: Propriedade para guardar os dados do agente resolvido.
 
-  // Dados estáticos (placeholders)
-  kpiCards = [
-    { title: 'Aprovisionamento', value: 5, color: 'blue' },
-    { title: 'Instalada', value: 12, color: 'green' },
-    { title: 'Pendência', value: 2, color: 'yellow' },
-    { title: 'Canceladas', value: 1, color: 'red' },
-    { title: 'Total/Meta', value: '17/26', color: 'purple' },
-  ];
-  displayedColumns: string[] = [
-    'status',
-    'cpfCnpj',
-    'saleDate',
-    'installationDate',
-    'period',
-    'customerPhone',
-    'ticket',
-    'os',
-    'actions',
-  ];
-  dataSource = [
-    {
-      status: 'Instalada',
-      cpfCnpj: '123.456.789-00',
-      saleDate: '10/06/2025',
-      installationDate: '12/06/2025',
-      period: 'Manhã',
-      customerPhone: '(11) 98765-4321',
-      ticket: 'TKT-123',
-      os: 'OS-456',
-    },
-    {
-      status: 'Em Aprovisionamento',
-      cpfCnpj: '987.654.321-00',
-      saleDate: '11/06/2025',
-      installationDate: '15/06/2025',
-      period: 'Tarde',
-      customerPhone: '(21) 91234-5678',
-      ticket: 'TKT-124',
-      os: 'OS-457',
-    },
-  ];
+  // <<<< SOLUÇÃO APLICADA AQUI >>>>
+  // A lógica foi movida do constructor para a declaração da propriedade.
+  // Isso garante ao TypeScript que 'agent$' NUNCA será 'undefined'.
+  agent$: Observable<AppUser | null> = this.authService.authState$.pipe(
+    switchMap(user => user ? this.dbService.getUserProfile(user.uid) : of(null)),
+    tap(agent => {
+      this.agent = agent;
+      if (agent) {
+        this.kpi.meta = agent.salesGoal || 26;
+        this.loadSalesData();
+      }
+    })
+  );
+
+  private agent: AppUser | null = null;
+
+  kpi = {
+    aprovisionamento: 0,
+    instalada: 0,
+    pendencia: 0,
+    canceladas: 0,
+    total: 0,
+    meta: 26
+  };
+
+  displayedColumns: string[] = ['status', 'cpfCnpj', 'saleDate', 'installationDate', 'period', 'actions'];
+  dataSource = new MatTableDataSource<Sale>();
+
+  // O constructor agora pode ficar vazio ou ser removido se não houver mais nada nele.
+  constructor() {}
 
   ngOnInit(): void {
-    // Busca o perfil do usuário do banco de dados
-    this.agent$ = this.authService.authState$.pipe(
-      switchMap((user) =>
-        user ? this.dbService.getUserProfile(user.uid) : of(null)
-      )
-    );
+    // Agora esta chamada é 100% segura, pois o TypeScript sabe que 'agent$' sempre terá um valor.
+    this.agent$.subscribe();
+  }
 
-    // <-- FIX: Extrai os dados do agente do observable e guarda na variável 'agent' para uso em outros métodos.
-    this.agent$.subscribe((agentData) => {
-      this.agent = agentData;
+  loadSalesData(): void {
+    if (!this.agent) return;
+    
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    this.dbService.getSalesForAgent(this.agent.uid, year, month).then(sales => {
+      this.dataSource.data = sales;
+      this.updateKpis(sales);
     });
   }
 
+  updateKpis(sales: Sale[]): void {
+    this.kpi.aprovisionamento = sales.filter(s => s.status === 'Em Aprovisionamento').length;
+    this.kpi.instalada = sales.filter(s => s.status === 'Instalada').length;
+    this.kpi.pendencia = sales.filter(s => s.status === 'Pendência').length;
+    this.kpi.canceladas = sales.filter(s => s.status === 'Cancelada').length;
+    this.kpi.total = this.kpi.instalada;
+  }
+
   openSaleDialog(): void {
+    if (!this.agent) return;
     const dialogRef = this.dialog.open(SaleDialog, {
-      width: '1000px', // <-- Aumentamos a largura aqui
-      maxWidth: '95vw', // Garante que não ultrapasse a tela em dispositivos menores
+      width: '1000px',
+      maxWidth: '95vw',
       disableClose: true,
     });
 
-    // <-- FIX: Adicionado o tipo de dado para 'result' para evitar o erro de 'any'.
-    dialogRef.afterClosed().subscribe((result: Partial<Sale>) => {
-      // <-- FIX: Usa 'this.agent' que agora contém os dados, em vez de 'this.agent$'.
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result && this.agent) {
         if (result.saleDate && result.installationDate) {
           const saleDateAsJSDate = (result.saleDate as any).toDate();
           const installationDateAsJSDate = (result.installationDate as any).toDate();
 
-          console.log('Dados da nova venda:', result);
-
           const saleData: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'> = {
             ...result,
-            saleDate: saleDateAsJSDate, // Usamos o objeto Date convertido
-            installationDate: installationDateAsJSDate, // Usamos o objeto Date convertido
-
-            agentUid: this.agent.uid, // <-- FIX: Agora 'this.agent.uid' existe.
+            saleDate: saleDateAsJSDate,
+            installationDate: installationDateAsJSDate,
+            agentUid: this.agent.uid,
           } as Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>;
 
           this.dbService
             .addSale(saleData)
-            .then(() => console.log('Venda salva com sucesso!'))
+            .then(() => {
+              console.log('Venda salva com sucesso!');
+              this.loadSalesData();
+            })
             .catch((err) => console.error('Erro ao salvar venda:', err));
         } else {
-          // Log de segurança caso os dados retornem incompletos
           console.error("Dados de data ausentes no retorno do modal.", result);
         }
       }

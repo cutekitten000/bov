@@ -23,14 +23,27 @@
   </mat-toolbar>
 
   <main class="dashboard-content">
+    
     <div class="kpi-cards-container">
-      <mat-card *ngFor="let card of kpiCards" class="kpi-card" [ngClass]="card.color">
-        <mat-card-header>
-          <mat-card-title>{{ card.value }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ card.title }}</p>
-        </mat-card-content>
+      <mat-card class="kpi-card blue">
+        <mat-card-header><mat-card-title>{{ kpi.aprovisionamento }}</mat-card-title></mat-card-header>
+        <mat-card-content><p>Aprovisionamento</p></mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card green">
+        <mat-card-header><mat-card-title>{{ kpi.instalada }}</mat-card-title></mat-card-header>
+        <mat-card-content><p>Instalada</p></mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card yellow">
+        <mat-card-header><mat-card-title>{{ kpi.pendencia }}</mat-card-title></mat-card-header>
+        <mat-card-content><p>Pendência</p></mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card red">
+        <mat-card-header><mat-card-title>{{ kpi.canceladas }}</mat-card-title></mat-card-header>
+        <mat-card-content><p>Canceladas</p></mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card purple">
+        <mat-card-header><mat-card-title>{{ kpi.total }}/{{ kpi.meta }}</mat-card-title></mat-card-header>
+        <mat-card-content><p>Total/Meta</p></mat-card-content>
       </mat-card>
     </div>
 
@@ -54,39 +67,24 @@
 
         <ng-container matColumnDef="cpfCnpj">
           <th mat-header-cell *matHeaderCellDef> CPF/CNPJ </th>
-          <td mat-cell *matCellDef="let element"> {{element.cpfCnpj}} </td>
+          <td mat-cell *matCellDef="let element"> {{element.customerCpfCnpj}} </td>
         </ng-container>
 
         <ng-container matColumnDef="saleDate">
           <th mat-header-cell *matHeaderCellDef> Data da Venda </th>
-          <td mat-cell *matCellDef="let element"> {{element.saleDate}} </td>
+          <td mat-cell *matCellDef="let element"> {{ element.saleDate | date: 'dd/MM/yyyy' }} </td>
         </ng-container>
 
         <ng-container matColumnDef="installationDate">
           <th mat-header-cell *matHeaderCellDef> Data da Instalação </th>
-          <td mat-cell *matCellDef="let element"> {{element.installationDate}} </td>
+          <td mat-cell *matCellDef="let element"> {{ element.installationDate | date: 'dd/MM/yyyy' }} </td>
         </ng-container>
 
         <ng-container matColumnDef="period">
           <th mat-header-cell *matHeaderCellDef> Período </th>
           <td mat-cell *matCellDef="let element"> {{element.period}} </td>
         </ng-container>
-
-        <ng-container matColumnDef="customerPhone">
-          <th mat-header-cell *matHeaderCellDef> N° do Cliente </th>
-          <td mat-cell *matCellDef="let element"> {{element.customerPhone}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="ticket">
-          <th mat-header-cell *matHeaderCellDef> Ticket </th>
-          <td mat-cell *matCellDef="let element"> {{element.ticket}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="os">
-          <th mat-header-cell *matHeaderCellDef> OS </th>
-          <td mat-cell *matCellDef="let element"> {{element.os}} </td>
-        </ng-container>
-
+        
         <ng-container matColumnDef="actions">
            <th mat-header-cell *matHeaderCellDef> Ações </th>
            <td mat-cell *matCellDef="let element">
