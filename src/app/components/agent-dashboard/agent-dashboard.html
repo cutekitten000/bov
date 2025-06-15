@@ -70,6 +70,13 @@
                         >{{ kpi.total }}/{{ kpi.meta }}</span
                     >
                 </div>
+
+                <div
+                    class="kpi-chart"
+                    role="progressbar"
+                    [style.--progress]="kpi.metaPercentage"
+                    [attr.aria-valuenow]="kpi.metaPercentage"
+                ></div>
                 <mat-icon class="kpi-icon-bg">show_chart</mat-icon>
             </mat-card>
         </div>

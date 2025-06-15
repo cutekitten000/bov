@@ -83,6 +83,7 @@ export class AgentDashboard implements OnInit {
         canceladas: 0,
         total: 0,
         meta: 26, // Valor padrão que será atualizado com os dados do agente
+        metaPercentage: 0,
     };
 
     /** Controle do formulário para o seletor de Mês/Ano. */
@@ -155,6 +156,15 @@ export class AgentDashboard implements OnInit {
      * @param sales A lista de vendas do período.
      */
     private updateKpis(sales: Sale[]): void {
+        this.kpi.total = this.kpi.instalada;
+        if (this.kpi.meta > 0) {
+            this.kpi.metaPercentage = Math.round(
+                (this.kpi.total / this.kpi.meta) * 100
+            );
+        } else {
+            this.kpi.metaPercentage = 0;
+        }
+
         this.kpi.aprovisionamento = sales.filter(
             (s) => s.status === 'Em Aprovisionamento'
         ).length;
