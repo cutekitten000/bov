@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Meu Perfil</h2>
+
+<mat-dialog-content>
+  <mat-list role="list">
+    <mat-list-item role="listitem">
+      <mat-icon matListItemIcon>badge</mat-icon>
+      <div matListItemTitle>{{ data.user.name }}</div>
+      <div matListItemLine>Nome</div>
+    </mat-list-item>
+    <mat-list-item role="listitem">
+      <mat-icon matListItemIcon>pin</mat-icon>
+      <div matListItemTitle>{{ data.user.th }}</div>
+      <div matListItemLine>TH</div>
+    </mat-list-item>
+    <mat-list-item role="listitem">
+      <mat-icon matListItemIcon>email</mat-icon>
+      <div matListItemTitle>{{ data.user.email }}</div>
+      <div matListItemLine>Email</div>
+    </mat-list-item>
+  </mat-list>
+
+  <mat-divider></mat-divider>
+
+  <form class="goal-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Minha Meta de Vendas Mensal</mat-label>
+      <input matInput type="number" [formControl]="goalControl">
+      <mat-error *ngIf="goalControl.invalid">A meta deve ser um número maior que zero.</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]>Cancelar</button>
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="goalControl.invalid">Salvar Meta</button>
+</mat-dialog-actions>

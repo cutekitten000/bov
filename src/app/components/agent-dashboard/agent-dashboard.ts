@@ -33,6 +33,7 @@ import { AppUser, AuthService } from '../../services/auth';
 import { DatabaseService } from '../../services/database.service';
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
+import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 
 /**
  * Componente principal do Dashboard do Agente.
@@ -122,6 +123,37 @@ export class AgentDashboard implements OnInit {
         })
     );
 
+    /**
+     * Abre o modal de perfil do usuário.
+     */
+    openUserProfileDialog(): void {
+        if (!this.agent) return; // Checagem de segurança
+
+        const dialogRef = this.dialog.open(UserProfileDialog, {
+            width: '500px',
+            panelClass: 'custom-dialog-container',
+            data: { user: this.agent }, // Passa os dados do agente para o modal
+        });
+
+        dialogRef.afterClosed().subscribe((newGoal: number | undefined) => {
+            // Se o usuário salvou uma nova meta...
+            if (newGoal && this.agent) {
+                this.dbService
+                    .updateUserSalesGoal(this.agent.uid, newGoal)
+                    .then(() => {
+                        // Atualiza a meta na UI instantaneamente
+                        this.kpi.meta = newGoal;
+                        // Atualiza o objeto do agente local para consistência
+                        this.agent!.salesGoal = newGoal;
+                        console.log('Meta atualizada com sucesso!');
+                    })
+                    .catch((err) =>
+                        console.error('Erro ao atualizar a meta:', err)
+                    );
+            }
+        });
+    }
+
     // =============================================
     // LIFECYCLE HOOKS
     // =============================================
@@ -194,7 +226,7 @@ export class AgentDashboard implements OnInit {
             width: '1000px',
             maxWidth: '95vw',
             disableClose: true,
-            panelClass: 'custom-dialog-container'
+            panelClass: 'custom-dialog-container',
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {

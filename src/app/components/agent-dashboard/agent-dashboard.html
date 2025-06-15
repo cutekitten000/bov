@@ -23,7 +23,9 @@
                 <span>Meu Usuário</span>
             </button>
             <mat-menu #userMenu="matMenu">
-                <button mat-menu-item>Meu Perfil</button>
+                <button mat-menu-item (click)="openUserProfileDialog()">
+                    Meu Perfil
+                </button>
                 <button mat-menu-item (click)="logout()">Sair</button>
             </mat-menu>
         </div>

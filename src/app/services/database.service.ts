@@ -124,6 +124,18 @@ export class DatabaseService {
     }
 
     /**
+     * Atualiza a meta de vendas de um usuário específico.
+     * @param uid O ID do usuário a ser atualizado.
+     * @param newGoal A nova meta de vendas.
+     */
+    updateUserSalesGoal(uid: string, newGoal: number): Promise<void> {
+        const userDocRef = doc(this.firestore, `users/${uid}`);
+        return updateDoc(userDocRef, {
+            salesGoal: newGoal,
+        });
+    }
+
+    /**
      * Exclui uma venda do Firestore.
      */
     deleteSale(saleId: string): Promise<void> {
