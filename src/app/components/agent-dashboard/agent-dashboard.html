@@ -12,7 +12,10 @@
         </div>
         <span class="toolbar-spacer"></span>
         <div class="toolbar-section user-menu-section">
-            <a mat-button><mat-icon>download</mat-icon> Baixar Planilha</a>
+            <button mat-button (click)="onDownloadSheet()">
+                <mat-icon>download</mat-icon>
+                <span>Baixar Planilha do Mês</span>
+            </button>
             <button
                 mat-flat-button
                 color="primary"

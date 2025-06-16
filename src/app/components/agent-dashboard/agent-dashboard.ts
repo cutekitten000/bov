@@ -31,6 +31,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Sale } from '../../models/sale.model';
 import { AppUser, AuthService } from '../../services/auth';
 import { DatabaseService } from '../../services/database.service';
+import { ExportService } from '../../services/export.service'; // <-- Importe o novo serviço
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
@@ -60,6 +61,7 @@ import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-d
     ],
     templateUrl: './agent-dashboard.html',
     styleUrl: './agent-dashboard.scss',
+    providers: [DatePipe],
 })
 export class AgentDashboard implements OnInit {
     // =============================================
@@ -69,6 +71,8 @@ export class AgentDashboard implements OnInit {
     private dbService = inject(DatabaseService);
     private router = inject(Router);
     private dialog = inject(MatDialog);
+    private exportService = inject(ExportService); // <-- Injete o ExportService
+    private datePipe = inject(DatePipe); // <-- Injete o DatePipe
 
     // =============================================
     // PROPRIEDADES DE ESTADO E DADOS
@@ -102,6 +106,51 @@ export class AgentDashboard implements OnInit {
         'period',
         'actions',
     ];
+
+    /**
+     * Acionado pelo clique no botão "Baixar Planilha".
+     * Formata os dados da tabela atual e os exporta para um arquivo .xlsx.
+     */
+    onDownloadSheet(): void {
+        if (this.dataSource.data.length === 0) {
+            alert('Não há dados na tabela para exportar.');
+            return;
+        }
+
+        // 1. Mapeia os dados da tabela para um formato mais legível para a planilha.
+        const dataToExport = this.dataSource.data.map((sale) => ({
+            Status: sale.status,
+            'CPF/CNPJ': sale.customerCpfCnpj,
+            'Data da Venda': this.datePipe.transform(
+                sale.saleDate,
+                'dd/MM/yyyy'
+            ),
+            'Data da Instalação': this.datePipe.transform(
+                sale.installationDate,
+                'dd/MM/yyyy'
+            ),
+            Período: sale.period,
+            'Telefone Cliente': sale.customerPhone,
+            'Tipo de Venda': sale.saleType,
+            Pagamento: sale.paymentMethod,
+            Ticket: sale.ticket,
+            Velocidade: sale.speed,
+            UF: sale.uf,
+            OS: sale.os,
+            Observações: sale.notes,
+        }));
+
+        // 2. Define o nome do arquivo.
+        const monthName = this.monthYearControl.value?.format('MMMM');
+        const year = this.monthYearControl.value?.year();
+        const fileName = `Vendas_${this.agent?.name?.replace(
+            ' ',
+            '_'
+        )}_${monthName}_${year}`;
+
+        // 3. Chama o serviço para exportar.
+        this.exportService.exportToExcel(dataToExport, fileName);
+    }
 
     /** Observable que busca e mantém os dados do perfil do agente logado. */
     agent$: Observable<AppUser | null> = this.authService.authState$.pipe(
