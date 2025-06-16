@@ -34,6 +34,7 @@ import { DatabaseService } from '../../services/database.service';
 import { ExportService } from '../../services/export.service'; // <-- Importe o novo serviço
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
+import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-dialog';
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 
 /**
@@ -104,6 +105,9 @@ export class AgentDashboard implements OnInit {
         'saleDate',
         'installationDate',
         'period',
+        'customerPhone',
+        'ticket',
+        'os',
         'actions',
     ];
 
@@ -150,6 +154,17 @@ export class AgentDashboard implements OnInit {
 
         // 3. Chama o serviço para exportar.
         this.exportService.exportToExcel(dataToExport, fileName);
+    }
+
+    /**
+     * Abre o modal com o ranking da equipe.
+     */
+    openTeamRankingDialog(): void {
+        this.dialog.open(TeamRankingDialog, {
+            width: '90vw',
+            maxWidth: '1200px',
+            panelClass: 'custom-dialog-container',
+        });
     }
 
     /** Observable que busca e mantém os dados do perfil do agente logado. */

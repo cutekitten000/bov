@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  // Define um tamanho máximo para o conteúdo do modal
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 12px;
+  border-bottom: 1px solid var(--mat-sys-color-outline-variant);
+}
+
+mat-dialog-content {
+  padding: 24px;
+  flex-grow: 1; // Faz o conteúdo ocupar o espaço disponível
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+// Estilos da tabela de ranking
+.table-container {
+  overflow-y: auto;
+}
+
+.rank-icon {
+  vertical-align: middle;
+  &.rank-0 { color: #FFD700; } // Ouro
+  &.rank-1 { color: #C0C0C0; } // Prata
+  &.rank-2 { color: #CD7F32; } // Bronze
+}

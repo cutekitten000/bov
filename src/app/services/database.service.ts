@@ -22,6 +22,7 @@ import { AppUser } from './auth'; // Vamos criar essa interface no próximo pass
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
     private firestore: Firestore = inject(Firestore);
+    private usersCollection = collection(this.firestore, 'users');
     private salesCollection = collection(this.firestore, 'sales');
 
     // --- MÉTODOS DE USUÁRIO (Já existentes e aprimorados) ---
@@ -95,6 +96,47 @@ export class DatabaseService {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             // CORREÇÃO: Converte os Timestamps do Firestore para objetos Date do JS
+            const sale: Sale = {
+                id: doc.id,
+                ...data,
+                saleDate: (data['saleDate'] as Timestamp).toDate(),
+                installationDate: (
+                    data['installationDate'] as Timestamp
+                ).toDate(),
+                createdAt: (data['createdAt'] as Timestamp).toDate(),
+                updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+            } as Sale;
+            sales.push(sale);
+        });
+
+        return sales;
+    }
+
+    /**
+     * NOVO MÉTODO: Busca todos os usuários (agentes) da coleção 'users'.
+     */
+    async getAllUsers(): Promise<AppUser[]> {
+        const querySnapshot = await getDocs(this.usersCollection);
+        return querySnapshot.docs.map((doc) => doc.data() as AppUser);
+    }
+
+    /**
+     * NOVO MÉTODO: Busca TODAS as vendas de um determinado mês e ano.
+     */
+    async getAllSalesForMonth(year: number, month: number): Promise<Sale[]> {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59);
+
+        const q = query(
+            this.salesCollection,
+            where('saleDate', '>=', Timestamp.fromDate(startDate)),
+            where('saleDate', '<=', Timestamp.fromDate(endDate))
+        );
+
+        const querySnapshot = await getDocs(q);
+        const sales: Sale[] = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
             const sale: Sale = {
                 id: doc.id,
                 ...data,

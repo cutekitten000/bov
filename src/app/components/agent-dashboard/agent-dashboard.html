@@ -5,7 +5,7 @@
         </div>
         <span class="toolbar-spacer"></span>
         <div class="toolbar-section links-section">
-            <a mat-button>BOV EQUIPE</a>
+            <button mat-button (click)="openTeamRankingDialog()">BOV EQUIPE</button>
             <a mat-button>Vendas do Dia</a>
             <a mat-button>Vendas de Ontem</a>
             <a mat-button>Links Úteis</a>
@@ -138,32 +138,54 @@
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="cpfCnpj"
-                    ><th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
+                <ng-container matColumnDef="cpfCnpj">
+                    <th mat-header-cell *matHeaderCellDef>CPF/CNPJ</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.customerCpfCnpj }}
-                    </td></ng-container
-                >
-                <ng-container matColumnDef="saleDate"
-                    ><th mat-header-cell *matHeaderCellDef>Data da Venda</th>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="saleDate">
+                    <th mat-header-cell *matHeaderCellDef>Data da Venda</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.saleDate | date: 'dd/MM/yyyy' }}
-                    </td></ng-container
-                >
-                <ng-container matColumnDef="installationDate"
-                    ><th mat-header-cell *matHeaderCellDef>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="installationDate">
+                    <th mat-header-cell *matHeaderCellDef>
                         Data da Instalação
                     </th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.installationDate | date: 'dd/MM/yyyy' }}
-                    </td></ng-container
-                >
-                <ng-container matColumnDef="period"
-                    ><th mat-header-cell *matHeaderCellDef>Período</th>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="period">
+                    <th mat-header-cell *matHeaderCellDef>Período</th>
                     <td mat-cell *matCellDef="let element">
                         {{ element.period }}
-                    </td></ng-container
-                >
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerPhone">
+                    <th mat-header-cell *matHeaderCellDef>N° do Cliente</th>
+                    <td mat-cell *matCellDef="let element">
+                        {{ element.customerPhone }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ticket">
+                    <th mat-header-cell *matHeaderCellDef>Ticket</th>
+                    <td mat-cell *matCellDef="let element">
+                        {{ element.ticket }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="os">
+                    <th mat-header-cell *matHeaderCellDef>OS</th>
+                    <td mat-cell *matCellDef="let element">{{ element.os }}</td>
+                </ng-container>
 
                 <ng-container matColumnDef="actions">
                     <th
