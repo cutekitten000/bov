@@ -62,11 +62,12 @@ export class TeamRankingDialog implements OnInit {
     }
   }
 
-  private processRankingData(users: AppUser[], sales: Sale[]): void {
+   private processRankingData(users: AppUser[], sales: Sale[]): void {
     const agentSalesMap = new Map<string, RankingData>();
 
+    // Inicializa o mapa com todos os agentes
     users.forEach(user => {
-      if (user.role === 'agent') {
+      if(user.role === 'agent') {
         agentSalesMap.set(user.uid, {
           th: user.th,
           name: user.name,
@@ -78,6 +79,7 @@ export class TeamRankingDialog implements OnInit {
       }
     });
 
+    // Processa cada venda e atualiza os contadores
     sales.forEach(sale => {
       const agentData = agentSalesMap.get(sale.agentUid);
       if (agentData) {
@@ -86,14 +88,27 @@ export class TeamRankingDialog implements OnInit {
         if (sale.status === 'Em Aprovisionamento') agentData.aprovisionamento++;
       }
     });
-
+    
+    // Calcula o total e converte o mapa para um array
     const rankingArray = Array.from(agentSalesMap.values()).map(agent => ({
       ...agent,
       total: agent.concluidas + agent.canceladas + agent.aprovisionamento
     }));
-
-    rankingArray.sort((a, b) => b.concluidas - a.concluidas);
-
+    
+    // --- NOVA LÓGICA DE ORDENAÇÃO COM MÚLTIPLOS CRITÉRIOS ---
+    rankingArray.sort((a, b) => {
+      // 1. Critério primário: Mais vendas 'Concluídas'
+      if (b.concluidas !== a.concluidas) {
+        return b.concluidas - a.concluidas;
+      }
+      // 2. Critério de desempate: Mais vendas no 'Total'
+      if (b.total !== a.total) {
+        return b.total - a.total;
+      }
+      // 3. Critério de desempate final: Mais vendas em 'Aprovisionamento'
+      return b.aprovisionamento - a.aprovisionamento;
+    });
+    
     this.dataSource.data = rankingArray;
   }
 }

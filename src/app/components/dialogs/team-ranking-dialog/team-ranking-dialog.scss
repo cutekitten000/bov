@@ -1,7 +1,17 @@
+// =============================================
+// PALETA DE CORES (Apenas para as medalhas)
+// =============================================
+$color-gold: #f59e0b;
+$color-silver: #a8a29e;
+$color-bronze: #a16207;
+$border-color: rgba(255, 255, 255, 0.1);
+
+// =============================================
+// ESTILOS GERAIS DO MODAL
+// =============================================
 :host {
-  display: block;
   // Define um tamanho máximo para o conteúdo do modal
-  max-height: 80vh;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
 }
@@ -10,13 +20,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 12px;
-  border-bottom: 1px solid var(--mat-sys-color-outline-variant);
+  padding: 0 12px 0 24px;
+  border-bottom: 1px solid $border-color;
+
+  // Título do Modal
+  h2[mat-dialog-title] {
+    margin: 0;
+    padding: 16px 0;
+  }
 }
 
+// Remove padding padrão para termos controle total
 mat-dialog-content {
-  padding: 24px;
-  flex-grow: 1; // Faz o conteúdo ocupar o espaço disponível
+  padding: 0;
+  flex-grow: 1;
+}
+
+mat-dialog-actions {
+  padding: 8px 24px;
 }
 
 .spinner-container {
@@ -26,14 +47,55 @@ mat-dialog-content {
   height: 300px;
 }
 
-// Estilos da tabela de ranking
+// =============================================
+// ESTILOS DA TABELA (Consistente com o Dashboard)
+// =============================================
 .table-container {
   overflow-y: auto;
+  height: 100%;
 }
 
+table.mat-mdc-table {
+  width: 100%;
+  background: transparent;
+}
+
+th.mat-mdc-header-cell {
+  background: var(--mat-sys-color-surface-container-high);
+  color: var(--mat-sys-color-on-surface-variant);
+  font-weight: 500;
+}
+
+td.mat-mdc-cell {
+  border-bottom-color: $border-color;
+  color: var(--mat-sys-color-on-surface);
+  padding: 12px 16px;
+}
+
+tr.mat-mdc-row {
+  border-bottom-color: $border-color;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--mat-sys-color-surface-container-high);
+  }
+
+  &:last-of-type {
+    td.mat-mdc-cell {
+      border-bottom: none;
+    }
+  }
+}
+
+// Ícones de Ranking
 .rank-icon {
   vertical-align: middle;
-  &.rank-0 { color: #FFD700; } // Ouro
-  &.rank-1 { color: #C0C0C0; } // Prata
-  &.rank-2 { color: #CD7F32; } // Bronze
+  font-size: 28px;
+  height: 28px;
+  width: 28px;
+  opacity: 0.5;
+
+  &.rank-0 { color: $color-gold; opacity: 1; }
+  &.rank-1 { color: $color-silver; opacity: 1; }
+  &.rank-2 { color: $color-bronze; opacity: 1; }
 }
