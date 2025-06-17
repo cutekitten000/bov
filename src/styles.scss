@@ -183,3 +183,30 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
+
+// ESTILO GLOBAL PARA PAINÉIS DE MENU (mat-menu)
+// =============================================
+// A classe .mat-mdc-menu-panel é aplicada por padrão pelo Angular Material
+.mat-mdc-menu-panel {
+  // Usando a mesma cor de superfície dos nossos cards e modais
+  background-color: #1f2937 !important; // Cor "Grafite"
+  border-radius: 8px !important;
+}
+
+// Estiliza cada item dentro do menu
+.mat-mdc-menu-item {
+  // Garante que o ícone e o texto fiquem alinhados
+  display: flex;
+  align-items: center;
+
+  // Cor do ícone
+  .mat-icon {
+    color: rgba(255, 255, 255, 0.7);
+    margin-right: 12px;
+  }
+  
+  // Efeito de hover/focus no item
+  &:hover:not([disabled]), &:focus:not([disabled]) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}

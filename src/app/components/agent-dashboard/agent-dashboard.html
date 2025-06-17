@@ -5,7 +5,9 @@
         </div>
         <span class="toolbar-spacer"></span>
         <div class="toolbar-section links-section">
-            <button mat-button (click)="openTeamRankingDialog()">BOV EQUIPE</button>
+            <button mat-button (click)="openTeamRankingDialog()">
+                BOV EQUIPE
+            </button>
             <a mat-button>Vendas do Dia</a>
             <a mat-button>Vendas de Ontem</a>
             <a mat-button>Links Úteis</a>
@@ -16,6 +18,7 @@
                 <mat-icon>download</mat-icon>
                 <span>Baixar Planilha do Mês</span>
             </button>
+
             <button
                 mat-flat-button
                 color="primary"
@@ -25,11 +28,16 @@
                 <mat-icon>person</mat-icon>
                 <span>Meu Usuário</span>
             </button>
-            <mat-menu #userMenu="matMenu">
+
+            <mat-menu #userMenu="matMenu" xPosition="before">
                 <button mat-menu-item (click)="openUserProfileDialog()">
-                    Meu Perfil
+                    <mat-icon>manage_accounts</mat-icon>
+                    <span>Meu Perfil</span>
                 </button>
-                <button mat-menu-item (click)="logout()">Sair</button>
+                <button mat-menu-item (click)="logout()">
+                    <mat-icon>logout</mat-icon>
+                    <span>Sair</span>
+                </button>
             </mat-menu>
         </div>
     </mat-toolbar>
