@@ -95,3 +95,91 @@ body {
 .cdk-overlay-pane:not(.mat-mdc-select-panel-above) div.mat-mdc-select-panel {
   background-color: #334155;
 }
+
+// =============================================
+// ESTILO GLOBAL PARA O PAINEL DO CALENDÁRIO (Datepicker)
+// =============================================
+.mat-datepicker-popup {
+  // Remove qualquer cor de fundo do container mais externo
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  // Aplica nosso estilo ao container de conteúdo do calendário
+  .mat-datepicker-content {
+    // Usando a mesma cor de superfície dos nossos cards e modais
+    background-color: #334155; // Cor "Grafite"
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  // Cor dos botões de navegação de mês/ano e do período
+  .mat-calendar-arrow {
+    border-top-color: #fff;
+  }
+
+  .mat-calendar-period-button {
+    color: #fff;
+  }
+
+  // Cor dos dias da semana (Dom, Seg, Ter...)
+  .mat-calendar-table-header th {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  // Cor dos números dos dias
+  .mat-calendar-body-label,
+  .mat-calendar-body-cell-content {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  // Estilo do dia de hoje (não selecionado)
+  .mat-calendar-body-today {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  // Estilo do dia selecionado
+  .mat-calendar-body-selected {
+    background-color: #3b82f6; // Nossa cor primária "Azul Intenso"
+    color: #fff;
+  }
+}
+
+// =============================================
+// ESTILO GLOBAL PARA A BARRA DE ROLAGEM (SCROLLBAR)
+// =============================================
+
+// --- Para Firefox ---
+// Define a largura e as cores da barra de rolagem de forma simples.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937; // Cor do "polegar" e do "trilho"
+}
+
+// --- Para Chrome, Edge, Safari e outros navegadores baseados em WebKit ---
+
+// Define a largura da barra de rolagem
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+// O "trilho" por onde a barra corre
+::-webkit-scrollbar-track {
+  background: #1f2937; // Cor "Grafite" da nossa superfície
+  border-radius: 10px;
+}
+
+// O "polegar" (a parte que você arrasta)
+::-webkit-scrollbar-thumb {
+  background-color: #4b5563; // Um cinza médio que contrasta bem
+  border-radius: 10px;
+  // Cria uma borda com a mesma cor do trilho para um efeito de "padding"
+  border: 3px solid #1f2937; 
+}
+
+// Efeito ao passar o mouse sobre o polegar
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+}
