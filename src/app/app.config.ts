@@ -32,13 +32,12 @@ export const MY_DATE_FORMATS = {
 };
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDTsgFbYXRIwPK8UD4leIzcmjhnYNmH5xA",
-  authDomain: "tlv-bov-d4487.firebaseapp.com",
-  projectId: "tlv-bov-d4487",
-  storageBucket: "tlv-bov-d4487.firebasestorage.app",
-  messagingSenderId: "554675154075",
-  appId: "1:554675154075:web:fb5cf9c272c77803422a3e",
-  measurementId: "G-L5HKGP56N6"
+  apiKey: "AIzaSyCGi7TvemPfENy7KMrTwqV01NoUKa1dORI",
+  authDomain: "carol-tlvbov.firebaseapp.com",
+  projectId: "carol-tlvbov",
+  storageBucket: "carol-tlvbov.firebasestorage.app",
+  messagingSenderId: "26360768",
+  appId: "1:26360768:web:5169f0e555e60eea89e625"
 };
 
 
