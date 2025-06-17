@@ -37,6 +37,17 @@ $received-bubble-bg: #334155;
   color: $primary-color;
 }
 
+a.mat-mdc-list-item.active .links-content {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+
 // --- ÁREA DE MENSAGENS ---
 .message-area-wrapper {
   display: flex;
@@ -68,15 +79,34 @@ $received-bubble-bg: #334155;
   align-items: center;
   flex-shrink: 0;
   background-color: var(--mat-sys-color-surface);
+  
+  .expand {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+
+  }
 
   // O campo de formulário agora ocupa todo o espaço disponível
   .message-input {
-    flex-grow: 1; // <-- ESSA LINHA FAZ O INPUT CRESCER
+    flex-grow: 1;
   }
 
   // Ajuste para o botão 'fab' (redondo)
   button[mat-fab] {
     flex-shrink: 0; // Impede que o botão seja espremido
+  }
+
+  .btn-expand {
+    margin-bottom: 25px;
+    background-color: #1a74c9;
+    transition: background .2s;
+  }
+
+  .btn-expand:disabled {
+    background-color: #334155;
   }
 }
 
@@ -110,3 +140,4 @@ $received-bubble-bg: #334155;
   justify-content: center;
   align-items: center;
 }
+
