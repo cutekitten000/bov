@@ -24,6 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip'; // <-- Importe o Tooltip
 
 // =============================================
 // IMPORTS LOCAIS DA APLICAÇÃO
@@ -38,6 +39,7 @@ import { SalesByDateDialog } from '../dialogs/sales-by-date-dialog/sales-by-date
 import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-dialog';
 import { UsefulLinksDialog } from '../dialogs/useful-links-dialog/useful-links-dialog'; // <-- Importe o novo dialog
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
+import { ViewNotesDialog } from '../dialogs/view-notes-dialog/view-notes-dialog'; // <-- Importe o novo dialog
 
 /**
  * Componente principal do Dashboard do Agente.
@@ -61,6 +63,7 @@ import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-d
         MatInputModule,
         MatDatepickerModule,
         MatFormFieldModule,
+        MatTooltipModule,
     ],
     templateUrl: './agent-dashboard.html',
     styleUrl: './agent-dashboard.scss',
@@ -112,6 +115,22 @@ export class AgentDashboard implements OnInit {
         'os',
         'actions',
     ];
+
+    /**
+     * Abre um modal para visualizar a observação de uma venda.
+     * @param notes A string contendo a observação.
+     */
+    openNotesDialog(notes: string): void {
+        // Checagem extra para não abrir se a nota for vazia
+        if (!notes || notes.trim() === '') return;
+
+        this.dialog.open(ViewNotesDialog, {
+            width: '500px',
+            data: { notes: notes },
+            panelClass: 'custom-dialog-container',
+        });
+    }
+
     /**
      * Abre o modal com os links úteis.
      */

@@ -12,7 +12,9 @@
             <button mat-button (click)="openYesterdaySales()">
                 Vendas de Ontem
             </button>
-            <button mat-button (click)="openUsefulLinksDialog()">Links Úteis</button>
+            <button mat-button (click)="openUsefulLinksDialog()">
+                Links Úteis
+            </button>
         </div>
         <span class="toolbar-spacer"></span>
         <div class="toolbar-section user-menu-section">
@@ -219,6 +221,16 @@
                             (click)="onDeleteSale(element)"
                         >
                             <mat-icon>delete</mat-icon>
+                        </button>
+
+                        <button
+                            mat-icon-button
+                            aria-label="Ver observação"
+                            (click)="openNotesDialog(element.notes)"
+                            [disabled]="!element.notes"
+                            [matTooltip]="element.notes ? 'Ver observação' : 'Nenhuma observação registrada'"
+                        >
+                            <mat-icon>comment</mat-icon>
                         </button>
                     </td>
                 </ng-container>

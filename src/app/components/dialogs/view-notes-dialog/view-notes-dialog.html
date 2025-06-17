@@ -1,0 +1,15 @@
+<div class="header">
+  <h2 mat-dialog-title>
+    <mat-icon>sticky_note_2</mat-icon>
+    Observação da Venda
+  </h2>
+  <button mat-icon-button mat-dialog-close aria-label="Fechar modal"><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="mat-typography">
+  <p class="notes-content">{{ data.notes }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close color="primary">Fechar</button>
+</mat-dialog-actions>
