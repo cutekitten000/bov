@@ -36,6 +36,7 @@ import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
 import { SalesByDateDialog } from '../dialogs/sales-by-date-dialog/sales-by-date-dialog';
 import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-dialog';
+import { UsefulLinksDialog } from '../dialogs/useful-links-dialog/useful-links-dialog'; // <-- Importe o novo dialog
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 
 /**
@@ -111,6 +112,16 @@ export class AgentDashboard implements OnInit {
         'os',
         'actions',
     ];
+    /**
+     * Abre o modal com os links úteis.
+     */
+    openUsefulLinksDialog(): void {
+        this.dialog.open(UsefulLinksDialog, {
+            width: '80vw',
+            maxWidth: '1000px',
+            panelClass: 'custom-dialog-container',
+        });
+    }
 
     /**
      * Abre o modal com as vendas do dia de hoje.

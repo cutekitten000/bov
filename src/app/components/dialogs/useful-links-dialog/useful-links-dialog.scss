@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2[mat-dialog-title] {
+    margin: 0;
+    padding: 20px 0;
+  }
+}
+
+mat-dialog-content {
+  padding: 24px;
+}
+
+.links-grid {
+  display: grid;
+  // Cria colunas que se ajustam automaticamente, com um tamanho mínimo de 200px
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px; // Espaçamento entre os botões
+}
+
+// Estilo de cada botão na grade
+.links-grid button {
+  display: flex;
+  justify-content: center; // Alinha o conteúdo (ícone e texto) à esquerda
+  padding: 16px;
+  height: 60px;
+  font-size: 1rem;
+  border-color: rgba(255, 255, 255, 0.2);
+
+  mat-icon {
+    margin-right: 12px;
+  }
+}
+
+// Cores específicas para os botões de senha, como na imagem
+.senhaBc, .senhaTh {
+  --mdc-outlined-button-label-text-color: #f87171;
+  --mat-mdc-button-persistent-ripple-color: #f87171;
+  --mdc-outlined-button-outline-color: rgba(248, 113, 113, 0.5);
+
+  &:hover {
+    background-color: rgba(248, 113, 113, 0.05);
+  }
+}
