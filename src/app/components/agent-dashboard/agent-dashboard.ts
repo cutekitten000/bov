@@ -33,6 +33,7 @@ import { Sale } from '../../models/sale.model';
 import { AppUser, AuthService } from '../../services/auth';
 import { DatabaseService } from '../../services/database.service';
 import { ExportService } from '../../services/export.service'; // <-- Importe o novo serviço
+import { ChatDialog } from '../dialogs/chat-dialog/chat-dialog';
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
 import { SalesByDateDialog } from '../dialogs/sales-by-date-dialog/sales-by-date-dialog';
@@ -41,7 +42,6 @@ import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-d
 import { UsefulLinksDialog } from '../dialogs/useful-links-dialog/useful-links-dialog'; // <-- Importe o novo dialog
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 import { ViewNotesDialog } from '../dialogs/view-notes-dialog/view-notes-dialog'; // <-- Importe o novo dialog
-
 
 /**
  * Componente principal do Dashboard do Agente.
@@ -129,6 +129,16 @@ export class AgentDashboard implements OnInit {
         this.dialog.open(ViewNotesDialog, {
             width: '500px',
             data: { notes: notes },
+            panelClass: 'custom-dialog-container',
+        });
+    }
+
+    openChatDialog(): void {
+        this.dialog.open(ChatDialog, {
+            width: '90vw',
+            height: '90vh',
+            maxWidth: '1400px',
+            // Nossa classe que aplica o fundo e bordas customizadas
             panelClass: 'custom-dialog-container',
         });
     }
@@ -248,17 +258,17 @@ export class AgentDashboard implements OnInit {
         })
     );
 
-     /**
-   * Abre o modal de tela cheia com os scripts.
-   */
-  openScriptTakeDialog(): void {
-    this.dialog.open(ScriptTakeDialog, {
-      width: '95vw',
-      height: '90vh',
-      maxWidth: '1400px', // Garante que ocupe toda a largura
-      panelClass: 'fullscreen-dialog-container' // Uma classe para remover paddings padrão
-    });
-  }
+    /**
+     * Abre o modal de tela cheia com os scripts.
+     */
+    openScriptTakeDialog(): void {
+        this.dialog.open(ScriptTakeDialog, {
+            width: '95vw',
+            height: '90vh',
+            maxWidth: '1400px', // Garante que ocupe toda a largura
+            panelClass: 'fullscreen-dialog-container', // Uma classe para remover paddings padrão
+        });
+    }
 
     /**
      * Abre o modal de perfil do usuário.

@@ -1,0 +1,112 @@
+// Paleta de Cores do Tema
+$border-color: rgba(255, 255, 255, 0.12);
+$primary-color: #3b82f6;
+$surface-color: #1f2937;
+$received-bubble-bg: #334155;
+
+// Estrutura principal do modal para ocupar todo o espaço
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.chat-container {
+  height: 100%;
+  background-color: var(--mat-sys-color-surface);
+}
+
+// --- BARRA LATERAL ---
+.conversations-list {
+  width: 280px;
+  background-color: $surface-color;
+  border-right: 1px solid $border-color;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  height: 65px;
+  border-bottom: 1px solid $border-color;
+  flex-shrink: 0;
+  h2 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+}
+.mat-nav-list a.mat-mdc-list-item.active {
+  background-color: rgba($primary-color, 0.15);
+  color: $primary-color;
+}
+
+// --- ÁREA DE MENSAGENS ---
+.message-area-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px 0 24px;
+  border-bottom: 1px solid $border-color;
+  flex-shrink: 0;
+  h3 { margin: 0; padding: 20px 0; font-size: 1.25rem; font-weight: 500; }
+}
+.message-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.message-input-area {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid $border-color;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: var(--mat-sys-color-surface);
+
+  // O campo de formulário agora ocupa todo o espaço disponível
+  .message-input {
+    flex-grow: 1; // <-- ESSA LINHA FAZ O INPUT CRESCER
+  }
+
+  // Ajuste para o botão 'fab' (redondo)
+  button[mat-fab] {
+    flex-shrink: 0; // Impede que o botão seja espremido
+  }
+}
+
+// --- Bolhas de Mensagem ---
+.message-bubble-wrapper {
+  display: flex;
+  max-width: 75%;
+  &.sent { align-self: flex-end; }
+  &.received { align-self: flex-start; }
+}
+.message-bubble {
+  padding: 12px 18px;
+  border-radius: 20px;
+  line-height: 1.5;
+  .sender-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; opacity: 0.9; }
+  .message-timestamp { font-size: 0.7rem; text-align: right; opacity: 0.7; margin-top: 8px; display: block; }
+}
+.sent .message-bubble {
+  background-color: $primary-color;
+  color: #fff;
+  border-top-right-radius: 5px;
+}
+.received .message-bubble {
+  background-color: $received-bubble-bg;
+  border-top-left-radius: 5px;
+}
+
+.spinner-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
