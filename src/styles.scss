@@ -61,3 +61,37 @@ body {
     color: #fff; // Texto branco
   }
 }
+
+
+// =============================================
+// ESTILO GLOBAL PARA PAINÉIS FLUTUANTES (VERSÃO FINAL E FORÇADA)
+// =============================================
+.custom-overlay-panel {
+  
+  // Forçamos o estilo na 'superfície' interna do painel
+  .mdc-menu-surface {
+    background-color: #1f2937 !important; // <-- ADICIONADO !important
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: none !important;
+  }
+
+  // Estilo para a opção selecionada dentro do dropdown
+  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  // Cor do texto das opções
+  .mat-mdc-option .mdc-list-item__primary-text {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  // Cor do ícone de 'check' quando uma opção está selecionada
+  .mat-mdc-option-check-mark {
+    color: #a78bfa;
+  }
+}
+
+.cdk-overlay-pane:not(.mat-mdc-select-panel-above) div.mat-mdc-select-panel {
+  background-color: #334155;
+}

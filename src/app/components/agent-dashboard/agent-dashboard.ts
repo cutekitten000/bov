@@ -163,7 +163,7 @@ export class AgentDashboard implements OnInit {
         this.dialog.open(TeamRankingDialog, {
             width: '90vw',
             maxWidth: '1200px',
-            panelClass: 'custom-dialog-container',
+            panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
         });
     }
 
@@ -195,7 +195,7 @@ export class AgentDashboard implements OnInit {
 
         const dialogRef = this.dialog.open(UserProfileDialog, {
             width: '500px',
-            panelClass: 'custom-dialog-container',
+            panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
             data: { user: this.agent }, // Passa os dados do agente para o modal
         });
 
@@ -290,7 +290,7 @@ export class AgentDashboard implements OnInit {
             width: '1000px',
             maxWidth: '95vw',
             disableClose: true,
-            panelClass: 'custom-dialog-container',
+            panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {
@@ -354,7 +354,7 @@ export class AgentDashboard implements OnInit {
             maxWidth: '95vw',
             disableClose: true,
             data: { sale: sale }, // Passa os dados da venda para o modal
-            panelClass: 'custom-dialog-container',
+            panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {
@@ -399,7 +399,7 @@ export class AgentDashboard implements OnInit {
         const dialogRef = this.dialog.open(ConfirmDialog, {
             data: {
                 message: `Tem certeza que deseja excluir a venda do cliente ${sale.customerCpfCnpj}?`,
-                panelClass: 'custom-dialog-container',
+                panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
             },
         });
 

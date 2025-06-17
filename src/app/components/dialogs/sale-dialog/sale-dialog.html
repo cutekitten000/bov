@@ -27,7 +27,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Período</mat-label>
-        <mat-select formControlName="period">
+        <mat-select formControlName="period"  panelClass="custom-overlay-panel">
           <mat-option *ngFor="let option of periodOptions" [value]="option">{{ option }}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -36,7 +36,7 @@
     <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
+          <mat-select formControlName="status" panelClass="custom-overlay-panel">
             <mat-option *ngFor="let option of statusOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -50,14 +50,14 @@
     <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Tipo de Venda</mat-label>
-          <mat-select formControlName="saleType">
+          <mat-select formControlName="saleType" panelClass="custom-overlay-panel">
             <mat-option *ngFor="let option of saleTypeOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Pagamento</mat-label>
-          <mat-select formControlName="paymentMethod">
+          <mat-select formControlName="paymentMethod" panelClass="custom-overlay-panel">
             <mat-option *ngFor="let option of paymentOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -71,7 +71,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Velocidade</mat-label>
-          <mat-select formControlName="speed">
+          <mat-select formControlName="speed" panelClass="custom-overlay-panel">
             <mat-option *ngFor="let option of speedOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -80,7 +80,7 @@
     <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>UF</mat-label>
-          <mat-select formControlName="uf">
+          <mat-select formControlName="uf" panelClass="custom-overlay-panel">
             <mat-option *ngFor="let option of ufOptions" [value]="option">{{ option }}</mat-option>
           </mat-select>
         </mat-form-field>
