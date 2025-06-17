@@ -1,0 +1,102 @@
+// Cores e Bordas do nosso tema
+$dark-surface: #1f2937;
+$dark-border: rgba(255, 255, 255, 0.12);
+$primary-color: #3b82f6;
+
+// --- ESTRUTURA GERAL ---
+.script-take-container {
+  height: 100%;
+  // Cor de fundo principal do modal
+  background-color: #111827; 
+}
+
+// --- BARRA LATERAL (SIDEBAR) ---
+.sidebar {
+  width: 280px;
+  background-color: $dark-surface;
+  border-right: 1px solid $dark-border;
+  color: #fff;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  height: 65px; // Altura consistente com a toolbar principal
+  border-bottom: 1px solid $dark-border;
+  box-sizing: border-box;
+
+  mat-icon { font-size: 28px; }
+  h2 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+}
+
+.mat-nav-list a.mat-mdc-list-item {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  margin: 4px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &.active {
+    background-color: $primary-color;
+    color: #fff;
+  }
+}
+
+// --- CONTEÚDO PRINCIPAL ---
+.main-content {
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  
+  h1 { margin: 0; font-size: 2rem; font-weight: 600; }
+  .spacer { flex: 1 1 auto; }
+}
+
+.spinner-container { padding-top: 50px; display: flex; justify-content: center; }
+
+// --- CARDS DE SCRIPT ---
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.script-card {
+  background-color: $dark-surface;
+  border: 1px solid $dark-border;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+
+  mat-card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .script-text {
+    white-space: pre-wrap; // Mantém as quebras de linha do texto
+    opacity: 0.9;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  mat-card-actions {
+    padding: 16px 0 0 0 !important;
+    margin-top: 16px;
+    border-top: 1px solid $dark-border;
+  }
+}

@@ -36,10 +36,12 @@ import { ExportService } from '../../services/export.service'; // <-- Importe o 
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
 import { SalesByDateDialog } from '../dialogs/sales-by-date-dialog/sales-by-date-dialog';
+import { ScriptTakeDialog } from '../dialogs/script-take-dialog/script-take-dialog'; // <-- Importe o novo dialog
 import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-dialog';
 import { UsefulLinksDialog } from '../dialogs/useful-links-dialog/useful-links-dialog'; // <-- Importe o novo dialog
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 import { ViewNotesDialog } from '../dialogs/view-notes-dialog/view-notes-dialog'; // <-- Importe o novo dialog
+
 
 /**
  * Componente principal do Dashboard do Agente.
@@ -241,9 +243,22 @@ export class AgentDashboard implements OnInit {
                     new Date().getFullYear(),
                     new Date().getMonth() + 1
                 );
+                this.dbService.checkAndCreateDefaultScripts(agent);
             }
         })
     );
+
+     /**
+   * Abre o modal de tela cheia com os scripts.
+   */
+  openScriptTakeDialog(): void {
+    this.dialog.open(ScriptTakeDialog, {
+      width: '95vw',
+      height: '90vh',
+      maxWidth: '1400px', // Garante que ocupe toda a largura
+      panelClass: 'fullscreen-dialog-container' // Uma classe para remover paddings padrão
+    });
+  }
 
     /**
      * Abre o modal de perfil do usuário.

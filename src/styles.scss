@@ -210,3 +210,20 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
   }
 }
+
+
+// Estilo para o container de modais em tela cheia
+.fullscreen-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 16px !important; // <-- ADICIONE/GARANTA ESTA LINHA
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important; // Adiciona uma sombra
+}
+
+.cdk-overlay-backdrop.cdk-overlay-dark-backdrop {
+  // Aumentamos a opacidade do preto para 85% para escurecer mais o fundo
+  background: rgba(0, 0, 0, 0.85);
+
+  // EFEITO EXTRA: Adicionamos um desfoque no conteúdo que está atrás
+  // para um visual ainda mais moderno e focado.
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}

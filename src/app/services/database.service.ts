@@ -14,9 +14,11 @@ import {
     setDoc,
     updateDoc,
     where,
+    writeBatch,
 } from '@angular/fire/firestore';
 
 import { Sale } from '../models/sale.model';
+import { Script } from '../models/script.model';
 import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
 
 @Injectable({ providedIn: 'root' })
@@ -233,4 +235,51 @@ export class DatabaseService {
         const saleDocRef = doc(this.firestore, `sales/${saleId}`);
         return deleteDoc(saleDocRef);
     }
+
+    /**
+   * Busca todos os scripts de um usuário específico, ordenados pela propriedade 'order'.
+   */
+  async getScriptsForUser(userId: string): Promise<Script[]> {
+    const scriptsColRef = collection(this.firestore, `users/${userId}/scripts`);
+    const q = query(scriptsColRef, orderBy('order'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Script));
+  }
+
+  /**
+   * Verifica se o usuário já tem scripts e, se não tiver, cria o conjunto padrão.
+   */
+  async checkAndCreateDefaultScripts(user: AppUser): Promise<void> {
+    const currentScripts = await this.getScriptsForUser(user.uid);
+    if (currentScripts.length > 0) {
+      // O usuário já tem scripts, não faz nada.
+      return;
+    }
+
+    // O usuário não tem scripts, vamos criar os padrões.
+    const batch = writeBatch(this.firestore);
+    const defaultScripts = this.getDefaultScripts();
+
+    defaultScripts.forEach(script => {
+      const scriptDocRef = doc(collection(this.firestore, `users/${user.uid}/scripts`));
+      batch.set(scriptDocRef, script);
+    });
+
+    console.log(`Criando scripts padrão para o usuário ${user.name}...`);
+    return batch.commit();
+  }
+
+  /**
+   * Retorna a lista de scripts padrão para um novo agente.
+   */
+  private getDefaultScripts(): Omit<Script, 'id'>[] {
+    return [
+      { category: 'Fraseologia', title: 'Fraseologia Inicial', content: 'Oi, tudo bem com você?\nSou <Seu Nome>, consultor especialista da NIO e estou à sua disposição.\n\nPara verificar viabilidade e te passar as ofertas eu preciso dos seguintes dados:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*', order: 1 },
+      { category: 'Ofertas', title: 'Ofertas Básicas', content: 'Viabilidade técnica 100% confirmada\n\nNIO Fibra 500 Megas - R$ 90,00 cartão de crédito\n\nNIO Fibra 700 Megas - R$ 120,00 cartão de crédito\n(Globo Play por 12 meses sem custo adicional)', order: 2 },
+      { category: 'Ofertas', title: 'Valor Fixo', content: 'O valor é fixo até 2029, ou seja, você não sofrerá com nenhum reajuste até essa data.\n\nTambém vale ressaltar que a instalação é gratuita.', order: 3 },
+      { category: 'Ofertas', title: 'Formas de Pagamento', content: 'Qual será a forma de pagamento?\n\n1. Cartão de Crédito 💳\n2. Débito em conta 🧾\n3. Boleto 📄', order: 4 },
+      { category: 'Cartão de Crédito', title: 'Informações importantes', content: 'Olá. Como você optou pelo pagamento via cartão de crédito, gostaria de compartilhar algumas informações importantes:\n\n1. Assim que for realizado o cadastro do cartão de crédito, será feita uma pré-reserva do valor da primeira mensalidade. No dia da instalação da Fibra, essa pré-reserva é lançada como cobrança na fatura do cartão. Nos meses seguintes, o dia do lançamento da cobrança será o dia da instalação. A data de pagamento dependerá da data de vencimento do cartão.', order: 5 },
+      // Adicione outros scripts padrão aqui...
+    ];
+  }
 }

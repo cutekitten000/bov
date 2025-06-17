@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 // IMPORTANTE: Adicione 'createUserWithEmailAndPassword' na linha abaixo
-import { Auth, signInWithEmailAndPassword, signOut, authState, User, sendPasswordResetEmail, createUserWithEmailAndPassword, UserCredential } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+import { Auth, authState, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User, UserCredential } from '@angular/fire/auth';
+import { firstValueFrom, Observable } from 'rxjs';
 
 export interface AppUser {
   uid: string;
@@ -24,6 +24,10 @@ export class AuthService {
   // Função de Login
   login(email: string, password: string): Promise<UserCredential> {
     return signInWithEmailAndPassword(this.auth, email, password);
+  }
+  /** Retorna o usuário logado atualmente como uma Promise */
+  getCurrentUser(): Promise<User | null> {
+    return firstValueFrom(this.authState$);
   }
 
   // --- MÉTODO FALTANTE ADICIONADO AQUI ---
