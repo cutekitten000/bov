@@ -449,7 +449,7 @@ export class DatabaseService {
                 category: 'Infos Úteis',
                 title: 'Outros serviços',
                 content:
-                    '*Oi* Sou especialista em *venda da NIO Fibra*, então não consigo tratar seu pedido por aqui. Você pode resolver tudo pelas nossas redes sociais, ou por telefone. Vou te passar nossos canais de atendimento:\n\n*Nio Whatsapp:* wa.me/552139051000\n*Atendimento Internet:* Ligue 0800031100',
+                    '*Oi* Sou especialista em *venda da NIO Fibra*, então não consigo tratar seu pedido por aqui. Você pode resolver tudo pelas nossas redes sociais, ou por telefone. Vou te passar nossos canais de atendimento:\n\n*Nio Whatsapp:* wa.me/552139051000\n*Atendimento Internet:* Ligue 08000311000',
                 order: 72,
             },
         ];

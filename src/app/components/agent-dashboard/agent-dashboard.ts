@@ -263,8 +263,8 @@ export class AgentDashboard implements OnInit {
     openScriptTakeDialog(): void {
         this.dialog.open(ScriptTakeDialog, {
             width: '95vw',
-            height: '90vh',
-            maxWidth: '1400px', // Garante que ocupe toda a largura
+            height: '95vh',
+            maxWidth: '1600px', // Garante que ocupe toda a largura
             panelClass: 'fullscreen-dialog-container', // Uma classe para remover paddings padrão
         });
     }

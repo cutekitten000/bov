@@ -71,15 +71,19 @@ $primary-color: #3b82f6;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 24px;
+
+  & .script-card:last-child {
+    margin-bottom: 90px;
+  }
 }
 
 .script-card {
   background-color: $dark-surface;
   border: 1px solid $dark-border;
   border-radius: 8px;
+  height: max-content;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  // justify-content: space-between;
   padding: 24px;
 
   mat-card-title {
@@ -91,7 +95,7 @@ $primary-color: #3b82f6;
     white-space: pre-wrap; // Mantém as quebras de linha do texto
     opacity: 0.9;
     line-height: 1.6;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 
   mat-card-actions {
