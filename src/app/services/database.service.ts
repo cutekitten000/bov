@@ -273,9 +273,12 @@ export class DatabaseService {
         const batch = writeBatch(this.firestore);
         const defaultScripts = this.getDefaultScripts();
 
-        defaultScripts.forEach((script) => {
+        
+        defaultScripts.forEach(async (script) => {
+            console.log("script: " + script);
             const scriptDocRef = doc(scriptsColRef); // Cria uma nova referência de documento
-            batch.set(scriptDocRef, script);
+            console.log("scriptsColRef: " + scriptsColRef);
+            await batch.set(scriptDocRef, script);
         });
 
         console.log(`Criando scripts padrão para o usuário ${user.name}...`);
@@ -292,7 +295,7 @@ export class DatabaseService {
                 category: 'Fraseologia',
                 title: 'Fraseologia Inicial',
                 content:
-                    'Oi, tudo bem com você?\nSou Danilo, consultor especialista da NIO e estou à sua disposição.\n\nPara verificar viabilidade e te passar as ofertas eu preciso dos seguintes dados:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*',
+                    'Oi, tudo bem com você?\nSou Danilo, consultor especialista da NIO e estou à sua disposição.\n\n1 - Já possuo\n2 - Aguardando instalação\n3 - Desejo contratar\n\nCaso deseje contratar, vou precisar que me informe os seguintes dados para verificar viabilidade:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*',
                 order: 1,
             },
 
@@ -301,14 +304,14 @@ export class DatabaseService {
                 category: 'Ofertas',
                 title: 'Ofertas Básicas',
                 content:
-                    'Viabilidade técnica 100% confirmada\n\nNIO Fibra 500 Megas - R$ 90,00 cartão de crédito\n\nNIO Fibra 700 Megas - R$ 120,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nNIO Fibra 1 Giga + 1 ponto - R$ 150,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nBoleto ou débito automático: +10 reais\n\nQual das ofertas você gostaria e qual seria o meio de pagamento?',
+                    'Viabilidade técnica 100% confirmada\n\nNIO Fibra 500 Megas - R$ 90,00 cartão de crédito\n\nNIO Fibra 700 Megas - R$ 120,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nNIO Fibra 1 Giga + 1 ponto - R$ 150,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nQual das ofertas você gostaria?',
                 order: 10,
             },
             {
                 category: 'Ofertas',
                 title: 'Valor Fixo',
                 content:
-                    'O valor é fixo até 2029, ou seja, você não sofrerá com nenhum reajuste até essa data.\n\nTambém vale ressaltar que a instalação é gratuita.',
+                    'O valor é fixo até 2028, ou seja, você não sofrerá com nenhum reajuste até essa data.\n\nTambém vale ressaltar que a instalação é gratuita.',
                 order: 11,
             },
             {

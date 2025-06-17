@@ -35,7 +35,7 @@ export class TeamRankingDialog implements OnInit {
 
   isLoading = true;
   title = 'BOV do Mês'; // Será dinâmico no futuro
-  displayedColumns: string[] = ['rank', 'th', 'name', 'concluidas', 'canceladas', 'aprovisionamento', 'total'];
+  displayedColumns: string[] = ['rank', 'th', 'concluidas', 'canceladas', 'aprovisionamento', 'total'];
   dataSource = new MatTableDataSource<RankingData>();
 
   ngOnInit(): void {

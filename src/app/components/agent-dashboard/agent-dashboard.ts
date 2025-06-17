@@ -253,7 +253,6 @@ export class AgentDashboard implements OnInit {
                     new Date().getFullYear(),
                     new Date().getMonth() + 1
                 );
-                this.dbService.checkAndCreateDefaultScripts(agent);
             }
         })
     );

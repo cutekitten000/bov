@@ -13,7 +13,7 @@
   <div class="table-container" *ngIf="!isLoading">
     <table mat-table [dataSource]="dataSource">
       <ng-container matColumnDef="rank">
-        <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef>Rank</th>
         <td mat-cell *matCellDef="let element; let i = index">
           <mat-icon class="rank-icon rank-{{i}}">{{ i < 3 ? 'military_tech' : 'star' }}</mat-icon>
         </td>
