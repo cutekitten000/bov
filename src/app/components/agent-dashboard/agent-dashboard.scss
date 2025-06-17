@@ -119,6 +119,16 @@ $dark-border: #334155;          // Borda
   display: flex;
   gap: 16px;
   align-items: center;
+  justify-content: start;
+  padding: 10px;
+  width: 80%;
+  margin-top: 20px;
+
+  .search-field {
+    max-width: 600px;
+    width: 100%;
+    margin-left: 230px;
+  }
 }
 
 // =============================================
