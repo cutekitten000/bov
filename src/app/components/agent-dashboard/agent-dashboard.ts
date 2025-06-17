@@ -34,6 +34,7 @@ import { DatabaseService } from '../../services/database.service';
 import { ExportService } from '../../services/export.service'; // <-- Importe o novo serviço
 import { ConfirmDialog } from '../dialogs/confirm-dialog/confirm-dialog';
 import { SaleDialog } from '../dialogs/sale-dialog/sale-dialog';
+import { SalesByDateDialog } from '../dialogs/sales-by-date-dialog/sales-by-date-dialog';
 import { TeamRankingDialog } from '../dialogs/team-ranking-dialog/team-ranking-dialog';
 import { UserProfileDialog } from '../dialogs/user-profile-dialog/user-profile-dialog'; // <-- Importe o novo dialog
 
@@ -110,6 +111,33 @@ export class AgentDashboard implements OnInit {
         'os',
         'actions',
     ];
+
+    /**
+     * Abre o modal com as vendas do dia de hoje.
+     */
+    openTodaySales(): void {
+        const today = new Date();
+        this.dialog.open(SalesByDateDialog, {
+            width: '90vw',
+            maxWidth: '1200px',
+            panelClass: 'custom-dialog-container',
+            data: { title: 'Vendas do Dia', date: today },
+        });
+    }
+
+    /**
+     * Abre o modal com as vendas do dia de ontem.
+     */
+    openYesterdaySales(): void {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        this.dialog.open(SalesByDateDialog, {
+            width: '90vw',
+            maxWidth: '1200px',
+            panelClass: 'custom-dialog-container',
+            data: { title: 'Vendas de Ontem', date: yesterday },
+        });
+    }
 
     /**
      * Acionado pelo clique no botão "Baixar Planilha".

@@ -1,6 +1,7 @@
 export interface Sale {
   id: string; // O ID do documento no Firestore
   agentUid: string; // O UID do agente que fez a venda
+  agentName?: string;
 
   saleDate: Date;
   customerCpfCnpj: string;

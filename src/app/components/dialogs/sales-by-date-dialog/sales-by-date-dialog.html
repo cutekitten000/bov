@@ -1,0 +1,44 @@
+<div class="header">
+  <h2 mat-dialog-title>{{ data.title }} - {{ data.date | date: 'dd/MM/yyyy' }}</h2>
+  
+  <span class="header-spacer"></span>
+
+  <div class="summary-container" *ngIf="!isLoading && sales.length > 0">
+    <span>Total de Vendas:</span>
+    <span class="total-count">{{ sales.length }}</span>
+  </div>
+
+  <button mat-icon-button mat-dialog-close aria-label="Fechar modal"><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="mat-typography">
+  <div class="spinner-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="list-container" *ngIf="!isLoading">
+    <div *ngIf="sales.length > 0; else noSales">
+      <div class="sale-list-header">
+        <span>Agente</span>
+        <span>CPF/CNPJ</span>
+        <span>Tipo</span>
+        <span>UF</span>
+      </div>
+      <div class="sale-list">
+        <div *ngFor="let sale of sales" class="sale-item">
+          <span>{{ sale.agentName }}</span>
+          <span>{{ sale.customerCpfCnpj }}</span>
+          <span>{{ sale.saleType }}</span>
+          <span>{{ sale.uf }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <ng-template #noSales>
+      <div class="no-sales-message">
+        <mat-icon>info_outline</mat-icon>
+        <p>Nenhuma venda encontrada para esta data.</p>
+      </div>
+    </ng-template>
+  </div>
+</mat-dialog-content>

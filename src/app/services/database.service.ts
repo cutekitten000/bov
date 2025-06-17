@@ -73,6 +73,55 @@ export class DatabaseService {
     }
 
     /**
+     * Busca TODAS as vendas da equipe para um dia específico.
+     * @param date O dia para o qual as vendas serão buscadas.
+     */
+    async getSalesForDate(date: Date): Promise<Sale[]> {
+        // Define o início do dia (00:00:00)
+        const startOfDay = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            0,
+            0,
+            0
+        );
+        // Define o fim do dia (23:59:59)
+        const endOfDay = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            23,
+            59,
+            59
+        );
+
+        const q = query(
+            this.salesCollection,
+            where('saleDate', '>=', Timestamp.fromDate(startOfDay)),
+            where('saleDate', '<=', Timestamp.fromDate(endOfDay)),
+            orderBy('saleDate', 'desc')
+        );
+
+        const querySnapshot = await getDocs(q);
+        const sales: Sale[] = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Converte Timestamps para objetos Date do JS
+            sales.push({
+                id: doc.id,
+                ...data,
+                saleDate: (data['saleDate'] as Timestamp).toDate(),
+                installationDate: (
+                    data['installationDate'] as Timestamp
+                ).toDate(),
+            } as Sale);
+        });
+
+        return sales;
+    }
+
+    /**
      * Busca as vendas de um agente específico para um determinado mês e ano.
      */
     async getSalesForAgent(

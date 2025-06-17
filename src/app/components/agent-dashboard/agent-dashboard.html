@@ -8,8 +8,10 @@
             <button mat-button (click)="openTeamRankingDialog()">
                 BOV EQUIPE
             </button>
-            <a mat-button>Vendas do Dia</a>
-            <a mat-button>Vendas de Ontem</a>
+            <button mat-button (click)="openTodaySales()">Vendas do Dia</button>
+            <button mat-button (click)="openYesterdaySales()">
+                Vendas de Ontem
+            </button>
             <a mat-button>Links Úteis</a>
         </div>
         <span class="toolbar-spacer"></span>

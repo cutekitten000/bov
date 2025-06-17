@@ -1,0 +1,106 @@
+$border-color: rgba(255, 255, 255, 0.1);
+
+// Estrutura Geral do Modal
+:host {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px 0 24px;
+  border-bottom: 1px solid $border-color;
+  flex-shrink: 0;
+
+  h2[mat-dialog-title] {
+    margin: 0;
+    padding: 20px 0;
+  }
+
+  .header-spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.summary-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 16px;
+  flex-shrink: 0;
+
+  .total-count {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--mat-sys-color-primary);
+  }
+}
+
+// Conteúdo Principal
+mat-dialog-content {
+  padding: 24px;
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.spinner-container, .no-sales-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+// Container da lista
+.list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// Cabeçalho da lista
+.sale-list-header {
+  display: grid;
+  grid-template-columns: 2.5fr 1.5fr 1.5fr 1fr;
+  gap: 16px;
+  // --- CORREÇÃO DE PADDING ---
+  padding: 12px 24px;
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
+// Container da lista com scroll
+.sale-list {
+  overflow-y: auto;
+}
+
+// Cada item da lista
+.sale-item {
+  display: grid;
+  grid-template-columns: 2.5fr 1.5fr 1.5fr 1fr;
+  gap: 16px;
+  // --- CORREÇÃO DE PADDING ---
+  padding: 16px 24px;
+  border-top: 1px solid $border-color; // Usamos border-top para separar as linhas
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}
