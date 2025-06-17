@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Script' : 'Adicionar Novo Script' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="scriptForm">
+    <mat-form-field appearance="outline" style="width: 100%;">
+      <mat-label>Título do Card</mat-label>
+      <input matInput formControlName="title">
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="width: 100%;">
+      <mat-label>Conteúdo do Script</mat-label>
+      <textarea matInput formControlName="content" rows="10"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]>Cancelar</button>
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="scriptForm.invalid">Salvar</button>
+</mat-dialog-actions>

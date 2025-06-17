@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 // --- ADIÇÕES PARA DATAS ---
@@ -15,6 +15,8 @@ import { routes } from './app.routes';
 
 // --- ADIÇÃO NECESSÁRIA AQUI ---
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // --- 1. CRIE A CONSTANTE COM OS FORMATOS PT-BR ---
 export const MY_DATE_FORMATS = {
@@ -53,6 +55,7 @@ export const appConfig: ApplicationConfig = {
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
     provideMomentDateAdapter(),
      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }, // <-- 2. ADICIONE O PROVEDOR DE FORMATOS
-    provideNgxMask()
+    provideNgxMask(),
+    importProvidersFrom(MatSnackBarModule)
   ]
 };

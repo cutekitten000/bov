@@ -20,7 +20,7 @@
         <div class="content-header">
             <h1>{{ selectedCategory }}</h1>
             <span class="spacer"></span>
-            <button mat-flat-button color="primary">
+            <button mat-flat-button color="primary" (click)="onAddScript()">
                 <mat-icon>add</mat-icon>
                 <span>Adicionar Card</span>
             </button>
@@ -50,11 +50,21 @@
                     <p class="script-text">{{ script.content }}</p>
                 </mat-card-content>
                 <mat-card-actions align="end">
-                    <button mat-button>
+                    <button
+                        mat-button
+                        color="primary"
+                        (click)="onCopy(script.content)"
+                    >
                         <mat-icon>content_copy</mat-icon> Copiar
                     </button>
-                    <button mat-button><mat-icon>edit</mat-icon> Editar</button>
-                    <button mat-button color="warn">
+                    <button mat-button (click)="onEditScript(script)">
+                        <mat-icon>edit</mat-icon> Editar
+                    </button>
+                    <button
+                        mat-button
+                        color="warn"
+                        (click)="onDeleteScript(script)"
+                    >
                         <mat-icon>delete</mat-icon> Excluir
                     </button>
                 </mat-card-actions>

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import {
+    DocumentReference,
     Firestore,
     Timestamp,
     addDoc,
@@ -236,50 +237,258 @@ export class DatabaseService {
         return deleteDoc(saleDocRef);
     }
 
-    /**
-   * Busca todos os scripts de um usuário específico, ordenados pela propriedade 'order'.
-   */
-  async getScriptsForUser(userId: string): Promise<Script[]> {
-    const scriptsColRef = collection(this.firestore, `users/${userId}/scripts`);
-    const q = query(scriptsColRef, orderBy('order'));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Script));
-  }
+    // --- MÉTODOS PARA SCRIPTS ---
 
-  /**
-   * Verifica se o usuário já tem scripts e, se não tiver, cria o conjunto padrão.
-   */
-  async checkAndCreateDefaultScripts(user: AppUser): Promise<void> {
-    const currentScripts = await this.getScriptsForUser(user.uid);
-    if (currentScripts.length > 0) {
-      // O usuário já tem scripts, não faz nada.
-      return;
+    /**
+     * Busca todos os scripts de um usuário específico, ordenados pela propriedade 'order'.
+     */
+    async getScriptsForUser(userId: string): Promise<Script[]> {
+        const scriptsColRef = collection(
+            this.firestore,
+            `users/${userId}/scripts`
+        );
+        const q = query(scriptsColRef, orderBy('order'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() } as Script)
+        );
     }
 
-    // O usuário não tem scripts, vamos criar os padrões.
-    const batch = writeBatch(this.firestore);
-    const defaultScripts = this.getDefaultScripts();
+    /**
+     * Verifica se o usuário já tem scripts e, se não tiver, cria o conjunto padrão.
+     */
+    async checkAndCreateDefaultScripts(user: AppUser): Promise<void> {
+        const scriptsColRef = collection(
+            this.firestore,
+            `users/${user.uid}/scripts`
+        );
+        const snapshot = await getDocs(query(scriptsColRef)); // Apenas checa se existe algo
 
-    defaultScripts.forEach(script => {
-      const scriptDocRef = doc(collection(this.firestore, `users/${user.uid}/scripts`));
-      batch.set(scriptDocRef, script);
-    });
+        if (snapshot.size > 0) {
+            // O usuário já tem scripts, não faz nada.
+            return;
+        }
 
-    console.log(`Criando scripts padrão para o usuário ${user.name}...`);
-    return batch.commit();
-  }
+        // O usuário não tem scripts, vamos criar os padrões.
+        const batch = writeBatch(this.firestore);
+        const defaultScripts = this.getDefaultScripts();
 
-  /**
-   * Retorna a lista de scripts padrão para um novo agente.
-   */
-  private getDefaultScripts(): Omit<Script, 'id'>[] {
-    return [
-      { category: 'Fraseologia', title: 'Fraseologia Inicial', content: 'Oi, tudo bem com você?\nSou <Seu Nome>, consultor especialista da NIO e estou à sua disposição.\n\nPara verificar viabilidade e te passar as ofertas eu preciso dos seguintes dados:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*', order: 1 },
-      { category: 'Ofertas', title: 'Ofertas Básicas', content: 'Viabilidade técnica 100% confirmada\n\nNIO Fibra 500 Megas - R$ 90,00 cartão de crédito\n\nNIO Fibra 700 Megas - R$ 120,00 cartão de crédito\n(Globo Play por 12 meses sem custo adicional)', order: 2 },
-      { category: 'Ofertas', title: 'Valor Fixo', content: 'O valor é fixo até 2029, ou seja, você não sofrerá com nenhum reajuste até essa data.\n\nTambém vale ressaltar que a instalação é gratuita.', order: 3 },
-      { category: 'Ofertas', title: 'Formas de Pagamento', content: 'Qual será a forma de pagamento?\n\n1. Cartão de Crédito 💳\n2. Débito em conta 🧾\n3. Boleto 📄', order: 4 },
-      { category: 'Cartão de Crédito', title: 'Informações importantes', content: 'Olá. Como você optou pelo pagamento via cartão de crédito, gostaria de compartilhar algumas informações importantes:\n\n1. Assim que for realizado o cadastro do cartão de crédito, será feita uma pré-reserva do valor da primeira mensalidade. No dia da instalação da Fibra, essa pré-reserva é lançada como cobrança na fatura do cartão. Nos meses seguintes, o dia do lançamento da cobrança será o dia da instalação. A data de pagamento dependerá da data de vencimento do cartão.', order: 5 },
-      // Adicione outros scripts padrão aqui...
-    ];
-  }
+        defaultScripts.forEach((script) => {
+            const scriptDocRef = doc(scriptsColRef); // Cria uma nova referência de documento
+            batch.set(scriptDocRef, script);
+        });
+
+        console.log(`Criando scripts padrão para o usuário ${user.name}...`);
+        return batch.commit();
+    }
+
+    /**
+     * Retorna a lista COMPLETA de scripts padrão para um novo agente.
+     */
+    private getDefaultScripts(): Omit<Script, 'id'>[] {
+        return [
+            // Fraseologia
+            {
+                category: 'Fraseologia',
+                title: 'Fraseologia Inicial',
+                content:
+                    'Oi, tudo bem com você?\nSou Danilo, consultor especialista da NIO e estou à sua disposição.\n\nPara verificar viabilidade e te passar as ofertas eu preciso dos seguintes dados:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*',
+                order: 1,
+            },
+
+            // Ofertas
+            {
+                category: 'Ofertas',
+                title: 'Ofertas Básicas',
+                content:
+                    'Viabilidade técnica 100% confirmada\n\nNIO Fibra 500 Megas - R$ 90,00 cartão de crédito\n\nNIO Fibra 700 Megas - R$ 120,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nNIO Fibra 1 Giga + 1 ponto - R$ 150,00 cartão de crédito (Globo Play por 12 meses sem custo adicional)\n\nBoleto ou débito automático: +10 reais\n\nQual das ofertas você gostaria e qual seria o meio de pagamento?',
+                order: 10,
+            },
+            {
+                category: 'Ofertas',
+                title: 'Valor Fixo',
+                content:
+                    'O valor é fixo até 2029, ou seja, você não sofrerá com nenhum reajuste até essa data.\n\nTambém vale ressaltar que a instalação é gratuita.',
+                order: 11,
+            },
+            {
+                category: 'Ofertas',
+                title: 'Formas de Pagamento',
+                content:
+                    'Qual será a forma de pagamento?\n\n1. Cartão de Crédito 💳\n2. Débito em conta 🧾\n3. Boleto 📄',
+                order: 12,
+            },
+
+            // Cartão de Crédito
+            {
+                category: 'Cartão de Crédito',
+                title: 'Informações importantes',
+                content:
+                    'Olá. Como você optou pelo pagamento via cartão de crédito, gostaria de compartilhar algumas informações importantes:\n\n1. Assim que for realizado o cadastro do cartão de crédito, será feita uma pré-reserva do valor da primeira mensalidade. No dia da instalação da Fibra, essa pré-reserva é lançada como cobrança na fatura do cartão. Nos meses seguintes, o dia do lançamento da cobrança será o dia da instalação. A data de pagamento dependerá da data de vencimento do cartão.\n\n2. Após o agendamento, você receberá um link em seu e-mail e WhatsApp para cadastrar seu cartão de crédito. Para sua segurança e conveniência, o cadastro do cartão é realizado no conforto de sua casa. A NIO nunca solicitará dados do seu cartão por meio desse processo.\n\n3. É crucial que você cadastre o cartão o mais rápido possível, pois o link possui um prazo de expiração. Além disso, sua compra só será liberada após o cadastro. Qualquer dúvida ou assistência adicional, estou à disposição para ajudar.',
+                order: 20,
+            },
+            {
+                category: 'Cartão de Crédito',
+                title: 'Avisar ao cliente que o link foi enviado',
+                content:
+                    '*O link para cadastrar o cartão foi enviado com sucesso. Assim que finalizar o cadastro ou, caso encontre alguma dificuldade, por favor, me avise.*',
+                order: 21,
+            },
+
+            // Análise de Crédito
+            {
+                category: 'Análise de Crédito',
+                title: 'Boleto / Cartão de Crédito',
+                content:
+                    'Me informa por gentileza os seguintes dados para realizar a análise de crédito:\n\n- CPF ou CNPJ:\n- E-mail:\n- Telefone de contato sendo ele WhatsApp:\n- Ponto de referência:',
+                order: 30,
+            },
+            {
+                category: 'Análise de Crédito',
+                title: 'Débito em Conta',
+                content:
+                    'Me informa por gentileza os seguintes dados para realizar a análise de crédito:\n\n- CPF ou CNPJ:\n- E-mail:\n- Telefone de contato sendo ele WhatsApp:\n- Ponto de referência:\n- Banco:\n- Agência:\n- Conta:',
+                order: 31,
+            },
+            {
+                category: 'Análise de Crédito',
+                title: 'Bancos disponíveis',
+                content:
+                    '*Esses são os bancos disponíveis.*\n\n- Itaú\n- Bradesco\n- Banco do Brasil\n- Bansul\n- Santander\n- Next\n- Nubank\n- Inter\n- C6\n- PagSeguro',
+                order: 32,
+            },
+            {
+                category: 'Análise de Crédito',
+                title: 'Biometria',
+                content:
+                    'Agora vamos seguir com o cadastro de sua biometria. Você receberá um link da NIO, nossa assistente virtual, através do WhatsApp, número (21)3905-1000.\n\nCaso o link não tenha chegado eu peço por gentileza que adicione ela pelo número (21)3905-1000 e mande um Olá.\n\nA biometria deve ser feita pelo responsável do CPF informado.\n\nSe tiver qualquer dúvida ou precisar de ajuda, nossa equipe está aqui para te apoiar! 🤝',
+                order: 33,
+            },
+            {
+                category: 'Análise de Crédito',
+                title: 'CPF Aprovado somente cartão de crédito',
+                content:
+                    '➡ Olá! Tudo certo?\n\nVocê foi aprovado pro nosso plano de internet fibra ótica - é o melhor, com *desconto de R$10 por mês* pagando no cartão de crédito 🔥\n\nFunciona assim:\nA mensalidade vem direto na fatura do cartão, todo mês, sem precisar se preocupar com boletos ou atrasos. Mais praticidade no seu dia a dia e *economia garantindo todo mês*.\n\nAlém disso, *não ocupa limite total*, só o valor da mensalidade. Fácil, seguro e mais vantajoso.\n\nTopa aproveitar esse benefício agora mesmo? ✓',
+                order: 34,
+            },
+
+            // Agendamento
+            {
+                category: 'Agendamento',
+                title: 'Informar horários',
+                content:
+                    'Tenho disponibilidade para realizar a instalação às <...> Seguem os horários disponíveis:\n\n*Manhã: 8h às 12h*\n*Tarde: 13h às 18h*\n\nQual período seria mais conveniente para você? 🤔',
+                order: 40,
+            },
+            {
+                category: 'Agendamento',
+                title: 'Extra info',
+                content:
+                    'Feito! ✅\n\n⚠ Só quero te lembrar que é muito importante que tenha um adulto (acima de 18 anos)\ncom documento com foto ( para receber nosso) técnico.\n\nEle irá no dia (data), no turno (matutino ou vespertino), das (período em horas).\n\nNo dia do agendamento você receberá uma mensagem da NIO, nossa assistente virtual, para confirmar a instalação, e é necessário confirmá-la!',
+                order: 41,
+            },
+
+            // Checklist
+            {
+                category: 'Checklist',
+                title: 'Débito em Conta',
+                content:
+                    'Vamos revisar a proposta juntos? Assim você pode tirar qualquer dúvida que tenha restado e alinhar qualquer detalhe necessário:\n\n📋 CPF:\n📋 Nome Completo:\n📋 Nome Completo Mãe:\n📅 Data nascimento:\n📍 Endereço:\n📋 Plano:\n💲 Valor:\n➖ Forma de pagamento:\n🏦 Banco: Agência: Conta:\n🗓 Data agendada de instalação:\n⏰ Período: | Horas:\n✅ E-mail:\n\n*Está tudo certo?*',
+                order: 50,
+            },
+            {
+                category: 'Checklist',
+                title: 'Boleto / Cartão de Crédito',
+                content:
+                    'Vamos revisar a proposta juntos? Assim você pode tirar qualquer dúvida que tenha restado e alinhar qualquer detalhe necessário:\n\n📋 CPF:\n📋 Nome Completo:\n📋 Nome Completo Mãe:\n📅 Data nascimento:\n📍 Endereço:\n📋 Plano:\n💲 Valor:\n➖ Forma de pagamento:\n🗓 Data agendada de instalação:\n⏰ Período: | Horas:\n✅ E-mail:\n\n*Está tudo certo?*',
+                order: 51,
+            },
+
+            // Avisos Finais
+            {
+                category: 'Avisos Finais',
+                title: 'Multa de cancelamento',
+                content:
+                    'A oferta inclui uma taxa de fidelidade no valor de R$540,00. Essa taxa será aplicada somente se o serviço de banda larga for cancelado antes de completar 12 meses. Ela será cobrada de forma proporcional aos meses restantes, em uma única parcela. Durante os 12 meses, será aplicado um desconto automático de R$45,00 na taxa de fidelidade a cada mês de uso.\n\nNão se preocupe, esse desconto não afetará o valor contratado da sua futura mensal. Aqui está como funcionará a redução ao longo dos meses:\n\n1. mês de uso: R$540,00\n2. mês de uso: R$495,00\n3. mês de uso: R$450,00\n4. mês de uso: R$405,00\n5. mês de uso: R$360,00\n... e assim por diante até ser zerada ao fim dos 12 meses.',
+                order: 60,
+            },
+            {
+                category: 'Avisos Finais',
+                title: 'Mais algumas informações',
+                content:
+                    '1 - A NIO, nossa assistente virtual, enviou para você em seu WhatsApp todo o resumo da venda. Peço por gentileza que confirme para ela com um SIM ou 1, conforme solicitado.\n\n2 - Caso alguém entre em contato com você dizendo que sua venda teve algum erro, ou foi cancelada eu peço que você ignore pois pode ser alguma tentativa de fraude. A única pessoa que pode entrar em contato com você sou eu (Danilo, BC788068) e a auditoria da NIO para confirmar os dados da venda. Em momento algum será solicitado novos dados. Se houver qualquer erro que seja eu mesmo te ligo da nossa central e te informo.',
+                order: 61,
+            },
+            {
+                category: 'Avisos Finais',
+                title: 'Aviso sobre DACC',
+                content:
+                    'O valor cobrado na sua primeira fatura será proporcional aos dias instalados. Assim, você pagará um valor abaixo do contratado inicialmente. A partir da segunda fatura, será cobrado o valor contratado integralmente.\n\nÉ importante destacar que apenas a primeira fatura será enviada através de boleto para o seu e-mail e WhatsApp cadastrados. As demais faturas serão automaticamente debitadas.',
+                order: 62,
+            },
+
+            // Infos Úteis
+            {
+                category: 'Infos Úteis',
+                title: 'Recuperar Cliente',
+                content:
+                    '✔ Se não tiver interesse em contratar o plano da NIO Fibra, por favor, informe o motivo selecionando o número correspondente:\n\n1. Já sou cliente NIO Fibra.\n2. Não tenho interesse no momento.\n3. Estou com contrato de fidelidade com outra operadora.\n4. Achei o preço elevado.\n0. Para prosseguir.',
+                order: 70,
+            },
+            {
+                category: 'Infos Úteis',
+                title: 'Inviabilidade',
+                content:
+                    'Olha só... verifiquei que a NIO Fibra ainda não chegou no seu endereço 😢 A notícia boa é que como a NIO está em expansão na sua região, vou continuar acompanhando e assim que for disponibilizada vou lembrar de você e entrarei em contato.',
+                order: 71,
+            },
+            {
+                category: 'Infos Úteis',
+                title: 'Outros serviços',
+                content:
+                    '*Oi* Sou especialista em *venda da NIO Fibra*, então não consigo tratar seu pedido por aqui. Você pode resolver tudo pelas nossas redes sociais, ou por telefone. Vou te passar nossos canais de atendimento:\n\n*Nio Whatsapp:* wa.me/552139051000\n*Atendimento Internet:* Ligue 0800031100',
+                order: 72,
+            },
+        ];
+    }
+
+    /**
+     * Adiciona um novo script para um usuário.
+     */
+    addScript(
+        userId: string,
+        scriptData: Omit<Script, 'id'>
+    ): Promise<DocumentReference> {
+        const scriptsColRef = collection(
+            this.firestore,
+            `users/${userId}/scripts`
+        );
+        return addDoc(scriptsColRef, scriptData);
+    }
+
+    /**
+     * Atualiza um script existente de um usuário.
+     */
+    updateScript(
+        userId: string,
+        scriptId: string,
+        dataToUpdate: Partial<Omit<Script, 'id'>>
+    ): Promise<void> {
+        const scriptDocRef = doc(
+            this.firestore,
+            `users/${userId}/scripts/${scriptId}`
+        );
+        return updateDoc(scriptDocRef, dataToUpdate);
+    }
+
+    /**
+     * Exclui um script de um usuário.
+     */
+    deleteScript(userId: string, scriptId: string): Promise<void> {
+        const scriptDocRef = doc(
+            this.firestore,
+            `users/${userId}/scripts/${scriptId}`
+        );
+        return deleteDoc(scriptDocRef);
+    }
 }
