@@ -4,7 +4,7 @@ $primary-color: #3b82f6;
 $surface-color: #1f2937;
 $received-bubble-bg: #334155;
 
-// Estrutura principal do modal para ocupar todo o espaço
+// Estrutura principal do modal
 :host {
   display: block;
   height: 100%;
@@ -19,11 +19,12 @@ $received-bubble-bg: #334155;
 // --- BARRA LATERAL ---
 .conversations-list {
   width: 280px;
-  background-color: $surface-color; // Sua variável de cor
-  border-right: 1px solid $border-color; // Sua variável de cor
+  background-color: $surface-color;
+  border-right: 1px solid $border-color;
   display: flex;
   flex-direction: column;
 }
+
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -32,22 +33,11 @@ $received-bubble-bg: #334155;
   height: 65px;
   border-bottom: 1px solid $border-color;
   flex-shrink: 0;
-
   h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
   mat-icon { font-size: 28px; height: 28px; width: 28px; }
 }
-.mat-nav-list a.mat-mdc-list-item.active {
-  background-color: rgba($primary-color, 0.15);
-  color: $primary-color;
-}
 
-a.mat-mdc-list-item.active .links-content {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-
+// ESTILOS UNIFICADOS E CORRIGIDOS PARA A LISTA DE NAVEGAÇÃO
 .navlist {
   padding-top: 8px !important;
   flex-grow: 1;
@@ -62,13 +52,13 @@ a.mat-mdc-list-item.active .links-content {
     padding: 16px 24px 4px;
   }
 
-  // Estilo para todos os itens da lista
+  // Estilo base para TODOS os itens da lista
   a.mat-mdc-list-item {
     color: rgba(255, 255, 255, 0.8);
     margin: 4px 12px;
     border-radius: 6px;
     width: auto;
-    position: relative; // Essencial para a barra de notificação
+    position: relative; // Essencial para a barra 'unread'
     
     .links-content {
       display: flex;
@@ -78,43 +68,36 @@ a.mat-mdc-list-item.active .links-content {
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    // Estilo para o item ATIVO (SELECIONADO)
+    &.active {
+      background-color: rgba($primary-color, 0.25); // Fundo azul suave
+      color: #fff; // Texto branco para destaque
+      // Sem font-weight para não deslocar o texto
+    }
+
+    // Estilo para o item NÃO LIDO
+    &.unread::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 4px;
+      background-color: $primary-color;
+      border-radius: 0 4px 4px 0;
+      animation: pulse-opacity 1.2s infinite alternate;
     }
   }
-
-  // Estilo para o item ATUALMENTE SELECIONADO
-  a.mat-mdc-list-item.active {
-    background-color: $primary-color;
-    color: #fff;
-    font-weight: 500;
-  }
-
-  // Estilo para MENSAGEM NÃO LIDA com a NOVA ANIMAÇÃO
-  a.mat-mdc-list-item.unread::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 25%;
-    bottom: 25%;
-    width: 4px;
-    background-color: $primary-color; // A cor sólida da barra
-    border-radius: 0 4px 4px 0;
-    
-    // NOVA ANIMAÇÃO DE OPACIDADE
-    animation: pulse-opacity 1.2s infinite alternate;
-  }
 }
 
-// NOVA ANIMAÇÃO que pisca a opacidade da barra
+// Animação para a barra de não lido
 @keyframes pulse-opacity {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.4;
-  }
+  from { opacity: 1; }
+  to { opacity: 0.4; }
 }
-
 
 // --- ÁREA DE MENSAGENS ---
 .message-area-wrapper {
@@ -154,25 +137,18 @@ a.mat-mdc-list-item.active .links-content {
     align-items: center;
     justify-content: center;
     outline: none;
-
   }
-
-  // O campo de formulário agora ocupa todo o espaço disponível
   .message-input {
     flex-grow: 1;
   }
-
-  // Ajuste para o botão 'fab' (redondo)
   button[mat-fab] {
-    flex-shrink: 0; // Impede que o botão seja espremido
+    flex-shrink: 0;
   }
-
   .btn-expand {
     margin-bottom: 25px;
     background-color: #1a74c9;
     transition: background .2s;
   }
-
   .btn-expand:disabled {
     background-color: #334155;
   }
@@ -208,4 +184,3 @@ a.mat-mdc-list-item.active .links-content {
   justify-content: center;
   align-items: center;
 }
-
