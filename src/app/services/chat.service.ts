@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, Timestamp, addDoc, collection, collectionData, limit, orderBy, query } from '@angular/fire/firestore';
+import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, setDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AppUser } from './auth';
@@ -10,37 +10,102 @@ import { AppUser } from './auth';
 export class ChatService {
   private firestore: Firestore = inject(Firestore);
 
+   /**
+   * NOVO MÉTODO: Garante que uma sala de DM exista entre dois usuários.
+   * Cria o documento da sala com os membros se ele ainda não existir.
+   */
+  async ensureChatRoomExists(uid1: string, uid2: string): Promise<string> {
+    const chatRoomId = this.getChatRoomId(uid1, uid2);
+    const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
+
+    // Usa setDoc com 'merge: true' para criar o documento apenas se ele não existir,
+    // sem sobrescrever dados se ele já existir.
+    await setDoc(chatRoomRef, {
+      members: [uid1, uid2]
+    }, { merge: true });
+
+    return chatRoomId;
+  }
+
   /**
    * Busca as mensagens do chat em grupo em tempo real, ordenadas por data.
    * @returns Um Observable com o array de mensagens.
    */
+  /**
+   * Busca as mensagens do chat em grupo em tempo real, ordenadas por data.
+   */
   getGroupChatMessages(): Observable<ChatMessage[]> {
     const messagesColRef = collection(this.firestore, 'group-chat');
-    // Cria uma query para ordenar as mensagens pela data e pegar as últimas 100
     const q = query(messagesColRef, orderBy('timestamp', 'asc'), limit(100));
-
-    // collectionData escuta as mudanças em tempo real
     return collectionData(q, { idField: 'id' }) as Observable<ChatMessage[]>;
   }
 
   /**
    * Envia uma nova mensagem para o chat em grupo.
-   * @param text O conteúdo da mensagem.
-   * @param user O usuário que está enviando.
    */
   sendGroupChatMessage(text: string, user: AppUser): Promise<any> {
     const messagesColRef = collection(this.firestore, 'group-chat');
     const newMessage: Omit<ChatMessage, 'id'> = {
       text: text,
       senderUid: user.uid,
-      senderName: user.name,
+      senderName: user.name, // Assumindo que AppUser tem 'name'
       timestamp: Timestamp.now()
     };
     return addDoc(messagesColRef, newMessage);
   }
 
-  // --- MÉTODOS PARA MENSAGENS DIRETAS (serão implementados na Parte 3) ---
+  // --- MÉTODOS PARA MENSAGENS DIRETAS (IMPLEMENTADOS) ---
 
-  // getDirectMessages(chatRoomId: string): Observable<ChatMessage[]> { ... }
-  // sendDirectMessage(chatRoomId: string, text: string, user: AppUser) { ... }
+  /**
+   * Gera um ID de sala de chat único e consistente entre dois usuários.
+   * @param uid1 UID do primeiro usuário.
+   * @param uid2 UID do segundo usuário.
+   * @returns O ID da sala de chat.
+   */
+  private getChatRoomId(uid1: string, uid2: string): string {
+    // Ordena os UIDs alfabeticamente para garantir consistência
+    return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+  }
+
+  /**
+   * Busca as mensagens de uma conversa direta em tempo real.
+   * @param user1Uid UID do usuário logado.
+   * @param user2Uid UID do outro usuário na conversa.
+   * @returns Um Observable com o array de mensagens da DM.
+   */
+  getDirectMessages(user1Uid: string, user2Uid: string): Observable<ChatMessage[]> {
+    const chatRoomId = this.getChatRoomId(user1Uid, user2Uid);
+    const messagesCollectionRef = collection(this.firestore, `direct-messages/${chatRoomId}/messages`);
+    const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'), limit(100));
+    return collectionData(q, { idField: 'id' }) as Observable<ChatMessage[]>;
+  }
+
+  /**
+   * Envia uma mensagem direta para outro usuário.
+   * @param text O conteúdo da mensagem.
+   * @param sender O usuário que está enviando.
+   * @param recipientUid O UID do usuário que receberá a mensagem.
+   */
+  async sendDirectMessage(text: string, sender: AppUser, recipientUid: string) {
+    if (!sender.uid) return;
+
+    const chatRoomId = this.getChatRoomId(sender.uid, recipientUid);
+    const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
+    const messagesCollectionRef = collection(chatRoomRef, 'messages');
+
+    // Garante que o documento da sala exista com os membros corretos.
+    // Suas regras do Firebase dependem deste array 'members'.
+    await setDoc(chatRoomRef, {
+      members: [sender.uid, recipientUid]
+    }, { merge: true });
+
+    // Adiciona a nova mensagem na subcoleção
+    const newMessage: Omit<ChatMessage, 'id'> = {
+        text: text,
+        senderUid: sender.uid,
+        senderName: sender.name,
+        timestamp: Timestamp.now()
+    };
+    return addDoc(messagesCollectionRef, newMessage);
+  }
 }

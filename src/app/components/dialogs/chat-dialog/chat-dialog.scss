@@ -19,8 +19,10 @@ $received-bubble-bg: #334155;
 // --- BARRA LATERAL ---
 .conversations-list {
   width: 280px;
-  background-color: $surface-color;
-  border-right: 1px solid $border-color;
+  background-color: $surface-color; // Sua variável de cor
+  border-right: 1px solid $border-color; // Sua variável de cor
+  display: flex;
+  flex-direction: column;
 }
 .sidebar-header {
   display: flex;
@@ -30,7 +32,9 @@ $received-bubble-bg: #334155;
   height: 65px;
   border-bottom: 1px solid $border-color;
   flex-shrink: 0;
-  h2 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+
+  h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+  mat-icon { font-size: 28px; height: 28px; width: 28px; }
 }
 .mat-nav-list a.mat-mdc-list-item.active {
   background-color: rgba($primary-color, 0.15);
@@ -44,6 +48,49 @@ a.mat-mdc-list-item.active .links-content {
   justify-content: center;
 }
 
+.navlist {
+  padding-top: 8px !important; // Adiciona um respiro no topo
+  flex-grow: 1;
+  overflow-y: auto;
+
+  // Título da seção "Mensagens Diretas"
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 16px 24px 4px;
+  }
+
+  // Estilo para todos os itens da lista
+  a.mat-mdc-list-item {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 4px 12px;
+    border-radius: 6px;
+    width: auto; // Para o margin funcionar
+    
+    // Conteúdo interno (ícone + texto)
+    .links-content {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    // Efeito ao passar o mouse
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  // Estilo específico do item ATIVO
+  a.mat-mdc-list-item.active {
+    background-color: $primary-color; // Sua variável
+    color: #fff;
+    font-weight: 500;
+  }
+}
 
 
 

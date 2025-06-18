@@ -334,7 +334,7 @@ export class AgentDashboard implements OnInit {
      * @param sales A lista de vendas do período.
      */
     private updateKpis(sales: Sale[]): void {
-        this.kpi.total = this.kpi.instalada;
+        this.kpi.total = this.kpi.aprovisionamento + this.kpi.instalada;
         if (this.kpi.meta > 0) {
             this.kpi.metaPercentage = Math.round(
                 (this.kpi.total / this.kpi.meta) * 100
@@ -355,7 +355,7 @@ export class AgentDashboard implements OnInit {
         this.kpi.canceladas = sales.filter(
             (s) => s.status === 'Cancelada'
         ).length;
-        this.kpi.total = this.kpi.instalada; // A regra de negócio define que o total de vendas é o total de instaladas
+        this.kpi.total = this.kpi.aprovisionamento + this.kpi.instalada + this.kpi.canceladas + this.kpi.pendencia; // A regra de negócio define que o total de vendas é o total de instaladas
     }
 
     // =============================================

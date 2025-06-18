@@ -5,12 +5,25 @@
       <mat-icon>forum</mat-icon>
       <h2>Chat</h2>
     </div>
+
     <mat-nav-list class="navlist">
-      <a mat-list-item class="active">
+      <a mat-list-item
+         (click)="selectChat({ type: 'group', id: 'equipe', name: 'Chat da Equipe' })"
+         [class.active]="selectedChat.type === 'group'">
         <div class="links-content">
           <mat-icon class="icon">groups</mat-icon>
           <span>Chat da Equipe</span>
         </div>
+      </a>
+
+      <div class="section-title">Mensagens Diretas</div>
+
+      <a mat-list-item *ngFor="let user of users"
+         (click)="selectChat({ type: 'dm', id: user.uid, name: user.name })"
+         [class.active]="selectedChat.id === user.uid">
+        <div class="links-content">
+          <mat-icon class="icon">person</mat-icon>
+          <span>{{ user.name }}</span> </div>
       </a>
     </mat-nav-list>
   </mat-sidenav>
@@ -18,7 +31,7 @@
   <mat-sidenav-content class="message-area-wrapper">
 
     <div class="header">
-      <h3>Chat da Equipe</h3>
+      <h3>{{ selectedChat.name }}</h3>
       <button mat-icon-button (click)="close()" aria-label="Fechar chat">
         <mat-icon>close</mat-icon>
       </button>
