@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, setDoc, writeBatch, serverTimestamp, updateDoc, where } from '@angular/fire/firestore';import { Observable } from 'rxjs';
+import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AppUser } from './auth';
 
@@ -85,33 +86,48 @@ export class ChatService {
    * @param sender O usuário que está enviando.
    * @param recipientUid O UID do usuário que receberá a mensagem.
    */
-  async sendDirectMessage(text: string, sender: AppUser, recipientUid: string) {
-    if (!sender.uid) return;
+   async sendDirectMessage(text: string, sender: AppUser, recipientUid: string) {
+     console.log('7. [CHAT SERVICE] Método sendDirectMessage RECEBEU A CHAMADA!', {
+      text,
+      senderName: sender.name,
+      recipientUid
+    });
+
+    if (!sender.uid) {
+      console.error('8. [CHAT SERVICE] Bloqueado: UID do remetente é nulo!');
+      return;
+    }
 
     const chatRoomId = this.getChatRoomId(sender.uid, recipientUid);
+    console.log('9. [CHAT SERVICE] ID da sala de chat gerado:', chatRoomId);
+
     const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
     const messagesCollectionRef = collection(chatRoomRef, 'messages');
 
     // Usar um batch para garantir que todas as escritas aconteçam juntas
     const batch = writeBatch(this.firestore);
-
-    // 1. Adiciona a nova mensagem
-    const newMessageRef = doc(messagesCollectionRef); // Cria a referência primeiro
-    batch.set(newMessageRef, {
+    
+    // 1. Prepara a nova mensagem
+    const newMessageRef = doc(messagesCollectionRef); // Cria a referência para a nova mensagem
+    const newTimestamp = Timestamp.now(); // <-- USA A MESMA TIMESTAMP PARA TUDO
+    
+    const newMessageData = {
       text: text,
       senderUid: sender.uid,
       senderName: sender.name,
-      timestamp: serverTimestamp()
-    });
+      timestamp: newTimestamp // <-- Usa a timestamp gerada
+    };
+    
+    batch.set(newMessageRef, newMessageData);
 
     // 2. Atualiza o documento principal da sala
     batch.update(chatRoomRef, {
-      lastMessage: { // Atualiza a última mensagem
+      lastMessage: { // Atualiza a cópia da última mensagem
         text: text,
-        timestamp: serverTimestamp()
+        timestamp: newTimestamp // <-- Usa a mesma timestamp
       },
       // Atualiza o timestamp de 'lido' para quem enviou a mensagem
-      [`lastRead.${sender.uid}`]: serverTimestamp()
+      [`lastRead.${sender.uid}`]: newTimestamp // <-- Usa a mesma timestamp
     });
 
     return await batch.commit();

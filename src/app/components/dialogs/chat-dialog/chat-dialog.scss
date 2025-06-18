@@ -49,11 +49,10 @@ a.mat-mdc-list-item.active .links-content {
 }
 
 .navlist {
-  padding-top: 8px !important; // Adiciona um respiro no topo
+  padding-top: 8px !important;
   flex-grow: 1;
   overflow-y: auto;
 
-  // Título da seção "Mensagens Diretas"
   .section-title {
     font-size: 0.75rem;
     font-weight: 600;
@@ -68,9 +67,9 @@ a.mat-mdc-list-item.active .links-content {
     color: rgba(255, 255, 255, 0.8);
     margin: 4px 12px;
     border-radius: 6px;
-    width: auto; // Para o margin funcionar
+    width: auto;
+    position: relative; // Essencial para a barra de notificação
     
-    // Conteúdo interno (ícone + texto)
     .links-content {
       display: flex;
       gap: 16px;
@@ -78,21 +77,43 @@ a.mat-mdc-list-item.active .links-content {
       font-size: 0.9rem;
     }
 
-    // Efeito ao passar o mouse
     &:hover {
       background-color: rgba(255, 255, 255, 0.05);
     }
   }
 
-  // Estilo específico do item ATIVO
+  // Estilo para o item ATUALMENTE SELECIONADO
   a.mat-mdc-list-item.active {
-    background-color: $primary-color; // Sua variável
+    background-color: $primary-color;
     color: #fff;
     font-weight: 500;
   }
+
+  // Estilo para MENSAGEM NÃO LIDA com a NOVA ANIMAÇÃO
+  a.mat-mdc-list-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 25%;
+    bottom: 25%;
+    width: 4px;
+    background-color: $primary-color; // A cor sólida da barra
+    border-radius: 0 4px 4px 0;
+    
+    // NOVA ANIMAÇÃO DE OPACIDADE
+    animation: pulse-opacity 1.2s infinite alternate;
+  }
 }
 
-
+// NOVA ANIMAÇÃO que pisca a opacidade da barra
+@keyframes pulse-opacity {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.4;
+  }
+}
 
 
 // --- ÁREA DE MENSAGENS ---

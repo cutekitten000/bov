@@ -1,73 +1,89 @@
 <mat-sidenav-container class="chat-container">
-
-  <mat-sidenav mode="side" opened class="conversations-list">
-    <div class="sidebar-header">
-      <mat-icon>forum</mat-icon>
-      <h2>Chat</h2>
-    </div>
-
-    <mat-nav-list class="navlist">
-      <a mat-list-item
-         (click)="selectChat({ type: 'group', id: 'equipe', name: 'Chat da Equipe' })"
-         [class.active]="selectedChat.type === 'group'">
-        <div class="links-content">
-          <mat-icon class="icon">groups</mat-icon>
-          <span>Chat da Equipe</span>
-        </div>
-      </a>
-
-      <div class="section-title">Mensagens Diretas</div>
-
-      <a mat-list-item *ngFor="let conv of conversations$ | async"
-         (click)="selectChat({ type: 'dm', id: getOtherMemberId(conv)!, name: conv.otherUserName }, conv.id)"
-         [class.active]="selectedChat.id === getOtherMemberId(conv)">
-
-        <div class="links-content">
-          <mat-icon class="icon">person</mat-icon>
-          <span>{{ conv.otherUserName }}</span>
+    <mat-sidenav mode="side" opened class="conversations-list">
+        <div class="sidebar-header">
+            <mat-icon>forum</mat-icon>
+            <h2>Chat</h2>
         </div>
 
-        <span class="notification-dot"
-              *ngIf="currentUser && conv.lastMessage?.timestamp?.toDate() > conv.lastRead?.[currentUser.uid]?.toDate()">
-        </span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
+        <mat-nav-list class="navlist">
+            <a
+                mat-list-item
+                (click)="selectChat({ type: 'group', id: 'equipe', name: 'Chat da Equipe' })"
+                [class.active]="selectedChat.type === 'group'"
+            >
+                <div class="links-content">
+                    <mat-icon class="icon">groups</mat-icon>
+                    <span>Chat da Equipe</span>
+                </div>
+            </a>
 
+            <div class="section-title">Mensagens Diretas</div>
 
-  <mat-sidenav-content class="message-area-wrapper">
+            <a mat-list-item *ngFor="let item of chatListItems$ | async"
+   (click)="selectChat({ type: 'dm', id: item.uid, name: item.name }, item.id)"
+   [class.active]="selectedChat.id === item.uid"
+   [class.unread]="currentUser && item.lastMessage?.timestamp?.toDate() > item.lastRead?.[currentUser.uid]?.toDate()">
 
-    <div class="header">
-      <h3>{{ selectedChat.name }}</h3>
-      <button mat-icon-button (click)="close()" aria-label="Fechar chat">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+  <div class="links-content">
+    <mat-icon class="icon">person</mat-icon>
+    <span>{{ item.name }}</span>
+  </div>
+</a>
+        </mat-nav-list>
+    </mat-sidenav>
 
-    <div class="message-area" #messageContainer>
-      <div class="spinner-container" *ngIf="isLoading">
-        <mat-spinner diameter="50"></mat-spinner>
-      </div>
-      <div *ngFor="let msg of messages$ | async" class="message-bubble-wrapper"
-        [class.sent]="msg.senderUid === currentUser?.uid" [class.received]="msg.senderUid !== currentUser?.uid">
-        <div class="message-bubble">
-          <div class="sender-name" *ngIf="msg.senderUid !== currentUser?.uid">{{ msg.senderName }}</div>
-          <div class="message-text">{{ msg.text }}</div>
-          <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
+    <mat-sidenav-content class="message-area-wrapper">
+        <div class="header">
+            <h3>{{ selectedChat.name }}</h3>
+            <button mat-icon-button (click)="close()" aria-label="Fechar chat">
+                <mat-icon>close</mat-icon>
+            </button>
         </div>
-      </div>
-    </div>
 
-    <div class="message-input-area">
-      <mat-form-field class="expand" appearance="outline">
-        <input matInput placeholder="Digite sua mensagem..." [formControl]="newMessageControl"
-          (keydown.enter)="sendMessage(); $event.preventDefault()">
-      </mat-form-field>
-      <button class="btn-expand" mat-fab color="accent" (click)="sendMessage()" [disabled]="newMessageControl.invalid"
-        aria-label="Enviar mensagem">
-        <mat-icon>send</mat-icon>
-      </button>
-    </div>
+        <div class="message-area" #messageContainer>
+            <div class="spinner-container" *ngIf="isLoading">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            <div
+                *ngFor="let msg of messages$ | async"
+                class="message-bubble-wrapper"
+                [class.sent]="msg.senderUid === currentUser?.uid"
+                [class.received]="msg.senderUid !== currentUser?.uid"
+            >
+                <div class="message-bubble">
+                    <div
+                        class="sender-name"
+                        *ngIf="msg.senderUid !== currentUser?.uid"
+                    >
+                        {{ msg.senderName }}
+                    </div>
+                    <div class="message-text">{{ msg.text }}</div>
+                    <div class="message-timestamp">
+                        {{ msg.timestamp?.toDate() | date:'HH:mm' }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  </mat-sidenav-content>
+        <div class="message-input-area">
+            <mat-form-field class="expand" appearance="outline">
+                <input
+                    matInput
+                    placeholder="Digite sua mensagem..."
+                    [formControl]="newMessageControl"
+                    (keydown.enter)="sendMessage(); $event.preventDefault()"
+                />
+            </mat-form-field>
+            <button
+                class="btn-expand"
+                mat-fab
+                color="accent"
+                (click)="sendMessage()"
+                [disabled]="newMessageControl.invalid"
+                aria-label="Enviar mensagem"
+            >
+                <mat-icon>send</mat-icon>
+            </button>
+        </div>
+    </mat-sidenav-content>
 </mat-sidenav-container>
