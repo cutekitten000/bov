@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, setDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, setDoc, writeBatch, serverTimestamp, updateDoc, where } from '@angular/fire/firestore';import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AppUser } from './auth';
 
@@ -10,10 +9,10 @@ import { AppUser } from './auth';
 export class ChatService {
   private firestore: Firestore = inject(Firestore);
 
-   /**
-   * NOVO MÉTODO: Garante que uma sala de DM exista entre dois usuários.
-   * Cria o documento da sala com os membros se ele ainda não existir.
-   */
+  /**
+  * NOVO MÉTODO: Garante que uma sala de DM exista entre dois usuários.
+  * Cria o documento da sala com os membros se ele ainda não existir.
+  */
   async ensureChatRoomExists(uid1: string, uid2: string): Promise<string> {
     const chatRoomId = this.getChatRoomId(uid1, uid2);
     const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
@@ -93,19 +92,44 @@ export class ChatService {
     const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
     const messagesCollectionRef = collection(chatRoomRef, 'messages');
 
-    // Garante que o documento da sala exista com os membros corretos.
-    // Suas regras do Firebase dependem deste array 'members'.
-    await setDoc(chatRoomRef, {
-      members: [sender.uid, recipientUid]
-    }, { merge: true });
+    // Usar um batch para garantir que todas as escritas aconteçam juntas
+    const batch = writeBatch(this.firestore);
 
-    // Adiciona a nova mensagem na subcoleção
-    const newMessage: Omit<ChatMessage, 'id'> = {
+    // 1. Adiciona a nova mensagem
+    const newMessageRef = doc(messagesCollectionRef); // Cria a referência primeiro
+    batch.set(newMessageRef, {
+      text: text,
+      senderUid: sender.uid,
+      senderName: sender.name,
+      timestamp: serverTimestamp()
+    });
+
+    // 2. Atualiza o documento principal da sala
+    batch.update(chatRoomRef, {
+      lastMessage: { // Atualiza a última mensagem
         text: text,
-        senderUid: sender.uid,
-        senderName: sender.name,
-        timestamp: Timestamp.now()
-    };
-    return addDoc(messagesCollectionRef, newMessage);
+        timestamp: serverTimestamp()
+      },
+      // Atualiza o timestamp de 'lido' para quem enviou a mensagem
+      [`lastRead.${sender.uid}`]: serverTimestamp()
+    });
+
+    return await batch.commit();
+  }
+
+  // NOVO MÉTODO: Marca uma conversa como lida
+  markAsRead(chatRoomId: string, userId: string): Promise<void> {
+    const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
+    return updateDoc(chatRoomRef, {
+      [`lastRead.${userId}`]: serverTimestamp()
+    });
+  }
+
+  // NOVO MÉTODO: Busca a lista de conversas, e não as mensagens
+  getConversations(userId: string): Observable<any[]> {
+    const roomsCollection = collection(this.firestore, 'direct-messages');
+    // Query para pegar apenas as salas das quais o usuário é membro
+    const q = query(roomsCollection, where('members', 'array-contains', userId));
+    return collectionData(q, { idField: 'id' });
   }
 }

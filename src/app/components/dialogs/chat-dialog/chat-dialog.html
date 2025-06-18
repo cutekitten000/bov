@@ -18,15 +18,22 @@
 
       <div class="section-title">Mensagens Diretas</div>
 
-      <a mat-list-item *ngFor="let user of users"
-         (click)="selectChat({ type: 'dm', id: user.uid, name: user.name })"
-         [class.active]="selectedChat.id === user.uid">
+      <a mat-list-item *ngFor="let conv of conversations$ | async"
+         (click)="selectChat({ type: 'dm', id: getOtherMemberId(conv)!, name: conv.otherUserName }, conv.id)"
+         [class.active]="selectedChat.id === getOtherMemberId(conv)">
+
         <div class="links-content">
           <mat-icon class="icon">person</mat-icon>
-          <span>{{ user.name }}</span> </div>
+          <span>{{ conv.otherUserName }}</span>
+        </div>
+
+        <span class="notification-dot"
+              *ngIf="currentUser && conv.lastMessage?.timestamp?.toDate() > conv.lastRead?.[currentUser.uid]?.toDate()">
+        </span>
       </a>
     </mat-nav-list>
   </mat-sidenav>
+
 
   <mat-sidenav-content class="message-area-wrapper">
 
@@ -46,7 +53,7 @@
         <div class="message-bubble">
           <div class="sender-name" *ngIf="msg.senderUid !== currentUser?.uid">{{ msg.senderName }}</div>
           <div class="message-text">{{ msg.text }}</div>
-          <div class="message-timestamp">{{ msg.timestamp.toDate() | date:'HH:mm' }}</div>
+          <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
         </div>
       </div>
     </div>
@@ -61,5 +68,6 @@
         <mat-icon>send</mat-icon>
       </button>
     </div>
+
   </mat-sidenav-content>
 </mat-sidenav-container>

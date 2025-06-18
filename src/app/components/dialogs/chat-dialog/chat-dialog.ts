@@ -1,10 +1,10 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
-// Imports do Material (sem alterações)
+// Imports do Material
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -50,13 +50,12 @@ export class ChatDialog implements OnInit, AfterViewChecked {
 
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
-  messages$: Observable<ChatMessage[]> = of([]); // Inicia com um array vazio
+  messages$: Observable<ChatMessage[]> = of([]);
   newMessageControl = new FormControl('', [Validators.required]);
   currentUser: AppUser | null = null;
   isLoading = true;
 
-  // Propriedades para gerenciar a lista de usuários e a seleção
-  users: AppUser[] = [];
+  conversations$: Observable<any[]> = of([]);
   selectedChat: ChatSelection = { type: 'group', id: 'equipe', name: 'Chat da Equipe' };
 
   ngOnInit(): void {
@@ -72,15 +71,29 @@ export class ChatDialog implements OnInit, AfterViewChecked {
     try {
       const firebaseUser = await this.authService.getCurrentUser();
       if (!firebaseUser) throw new Error("Usuário não autenticado.");
-      
+
       this.currentUser = await this.dbService.getUserProfile(firebaseUser.uid);
       if (!this.currentUser) throw new Error("Perfil do usuário não encontrado.");
 
-      const allUsers = await this.dbService.getAllUsers();
-      
-      // MUDANÇA AQUI: Adicionamos um filtro para ignorar usuários sem UID ou sem nome
-      this.users = allUsers.filter(u => 
-        u && u.uid && u.name && u.uid !== this.currentUser?.uid
+      // Carrega a lista de conversas e busca o nome do outro participante
+      this.conversations$ = this.chatService.getConversations(this.currentUser.uid).pipe(
+        switchMap(conversations => {
+          if (conversations.length === 0) {
+            return of([]);
+          }
+          // Para cada conversa, busca o perfil do outro usuário para pegar o nome
+          const enrichedConversations$ = conversations.map(conv => {
+            const otherUserId = conv.members.find((uid: string) => uid !== this.currentUser?.uid);
+            if (!otherUserId) {
+              return of({ ...conv, otherUserName: 'Desconhecido' });
+            }
+            return this.dbService.getUserProfile(otherUserId).then(userProfile => {
+              // Retorna a conversa original com o nome do outro usuário adicionado
+              return { ...conv, otherUserName: userProfile?.name || 'Agente' };
+            });
+          });
+          return forkJoin(enrichedConversations$);
+        })
       );
 
       this.loadMessagesForSelection();
@@ -91,7 +104,14 @@ export class ChatDialog implements OnInit, AfterViewChecked {
     }
   }
 
-  // Carrega as mensagens com base no `this.selectedChat`
+  // ****** ADICIONE ESTA NOVA FUNÇÃO AQUI ******
+  public getOtherMemberId(conversation: any): string | undefined {
+    if (!this.currentUser || !conversation?.members) {
+      return undefined;
+    }
+    return conversation.members.find((id: string) => id !== this.currentUser!.uid);
+  }
+
   loadMessagesForSelection(): void {
     if (!this.currentUser) return;
     this.isLoading = true;
@@ -102,31 +122,28 @@ export class ChatDialog implements OnInit, AfterViewChecked {
       this.messages$ = this.chatService.getDirectMessages(this.currentUser.uid, this.selectedChat.id);
     }
 
-    // Se inscreve para saber quando as mensagens chegam e parar o loading
     const subscription = this.messages$.subscribe(() => {
       this.isLoading = false;
       setTimeout(() => this.scrollToBottom(), 50);
-      subscription.unsubscribe(); // Cancela a inscrição após o primeiro carregamento
+      subscription.unsubscribe();
     });
   }
 
-  // Método chamado ao clicar em um chat na barra lateral
-  // ATUALIZAÇÃO: Transforme o método selectChat em 'async'
-  async selectChat(selection: ChatSelection): Promise<void> {
+  async selectChat(selection: ChatSelection, chatRoomId?: string): Promise<void> {
     if (this.selectedChat.id === selection.id) return;
 
     this.selectedChat = selection;
 
-    // Se for uma DM, primeiro garanta que a sala existe
-    if (this.selectedChat.type === 'dm' && this.currentUser) {
-      this.isLoading = true; // Mostra o spinner enquanto cria a sala
-      await this.chatService.ensureChatRoomExists(this.currentUser.uid, this.selectedChat.id);
+    if (selection.type === 'dm' && this.currentUser && chatRoomId) {
+      this.isLoading = true;
+      // Garante que a sala existe e marca como lida
+      await this.chatService.ensureChatRoomExists(this.currentUser.uid, selection.id);
+      await this.chatService.markAsRead(chatRoomId, this.currentUser.uid);
     }
-    
-    // Agora, carregue as mensagens com segurança
+
     this.loadMessagesForSelection();
   }
-  
+
   sendMessage(): void {
     if (this.newMessageControl.invalid || !this.currentUser) return;
 
@@ -137,7 +154,7 @@ export class ChatDialog implements OnInit, AfterViewChecked {
     } else {
       this.chatService.sendDirectMessage(messageText, this.currentUser, this.selectedChat.id);
     }
-    
+
     this.newMessageControl.reset();
   }
 
@@ -150,6 +167,6 @@ export class ChatDialog implements OnInit, AfterViewChecked {
       if (this.messageContainer) {
         this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
       }
-    } catch(err) { }
+    } catch (err) { }
   }
 }
