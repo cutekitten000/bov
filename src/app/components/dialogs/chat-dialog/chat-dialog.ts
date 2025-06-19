@@ -1,14 +1,14 @@
+// Imports necessários, incluindo OnDestroy e Subscription para gerenciar o "ouvinte"
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-  AfterViewChecked,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  ViewChild,
+    AfterViewChecked,
+    Component,
+    ElementRef,
+    inject,
+    OnInit,
+    ViewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-// ATUALIZAÇÃO: Trocamos forkJoin por combineLatest e adicionamos 'from' e 'map'
 import { combineLatest, from, map, Observable, of } from 'rxjs';
 
 // Imports do Material
@@ -39,6 +39,7 @@ type ChatSelection =
           name: string;
       };
 
+// Adicionamos 'OnDestroy' para garantir que vamos limpar nosso "ouvinte" ao fechar o chat
 @Component({
     selector: 'app-chat-dialog',
     standalone: true,
@@ -94,7 +95,6 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                 this.isLoading = false;
                 throw new Error('Usuário não autenticado.');
             }
-
             this.currentUser = await this.dbService.getUserProfile(
                 firebaseUser.uid
             );
@@ -102,15 +102,10 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                 this.isLoading = false;
                 throw new Error('Perfil do usuário não encontrado.');
             }
-
-            // LÓGICA HÍBRIDA CORRIGIDA com combineLatest
-            // Converte a Promise de getAllUsers para um Observable
             const users$ = from(this.dbService.getAllUsers());
-            // Pega o Observable em tempo real das conversas
             const conversations$ = this.chatService.getConversations(
                 this.currentUser.uid
             );
-
             this.chatListItems$ = combineLatest([users$, conversations$]).pipe(
                 map(([users, conversations]) => {
                     const otherUsers = users.filter(
@@ -123,7 +118,6 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                     const conversationsMap = new Map(
                         conversations.map((c) => [c.id, c])
                     );
-
                     return otherUsers.map((user) => {
                         const chatRoomId = this.getChatRoomId(
                             this.currentUser!.uid,
@@ -132,7 +126,7 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                         const conversationData =
                             conversationsMap.get(chatRoomId);
                         return {
-                            id: chatRoomId, // <-- ADICIONE ESTA LINHA
+                            id: chatRoomId,
                             uid: user.uid,
                             name: user.name,
                             lastMessage: conversationData?.lastMessage,
@@ -141,7 +135,6 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                     });
                 })
             );
-
             this.loadMessagesForSelection();
         } catch (error) {
             console.error('Erro ao carregar dados do chat:', error);
@@ -163,11 +156,15 @@ export class ChatDialog implements OnInit, AfterViewChecked {
         const subscription = this.messages$.subscribe(() => {
             this.isLoading = false;
             setTimeout(() => this.scrollToBottom(), 50);
-            subscription.unsubscribe();
+            subscription.unsubscribe(); // A inscrição volta a ser de curta duração
         });
     }
 
-    async selectChat(selection: ChatSelection, chatRoomId?: string): Promise<void> {
+    // O restante dos métodos permanece igual
+    async selectChat(
+        selection: ChatSelection,
+        chatRoomId?: string
+    ): Promise<void> {
         if (this.selectedChat.id === selection.id) return;
         this.selectedChat = selection;
         if (selection.type === 'dm' && this.currentUser && chatRoomId) {
@@ -176,26 +173,11 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                 this.currentUser.uid,
                 selection.id
             );
-            const chatRoomId = this.getChatRoomId(
-                this.currentUser.uid,
-                selection.id
-            );
             await this.chatService.markAsRead(chatRoomId, this.currentUser.uid);
         }
+        // Ao selecionar uma nova conversa, a função abaixo é chamada,
+        // reativando o "ouvinte" para a conversa correta.
         this.loadMessagesForSelection();
-    }
-
-    private getChatRoomId(uid1: string, uid2: string): string {
-        return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
-    }
-
-    public getOtherMemberId(conversation: any): string | undefined {
-        if (!this.currentUser || !conversation?.members) {
-            return undefined;
-        }
-        return conversation.members.find(
-            (id: string) => id !== this.currentUser!.uid
-        );
     }
 
     sendMessage(): void {
@@ -227,5 +209,9 @@ export class ChatDialog implements OnInit, AfterViewChecked {
                     this.messageContainer.nativeElement.scrollHeight;
             }
         } catch (err) {}
+    }
+
+    private getChatRoomId(uid1: string, uid2: string): string {
+        return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
     }
 }

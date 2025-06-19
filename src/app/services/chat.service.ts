@@ -87,11 +87,7 @@ export class ChatService {
    * @param recipientUid O UID do usuário que receberá a mensagem.
    */
    async sendDirectMessage(text: string, sender: AppUser, recipientUid: string) {
-     console.log('7. [CHAT SERVICE] Método sendDirectMessage RECEBEU A CHAMADA!', {
-      text,
-      senderName: sender.name,
-      recipientUid
-    });
+    
 
     if (!sender.uid) {
       console.error('8. [CHAT SERVICE] Bloqueado: UID do remetente é nulo!');
@@ -99,7 +95,6 @@ export class ChatService {
     }
 
     const chatRoomId = this.getChatRoomId(sender.uid, recipientUid);
-    console.log('9. [CHAT SERVICE] ID da sala de chat gerado:', chatRoomId);
 
     const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
     const messagesCollectionRef = collection(chatRoomRef, 'messages');
