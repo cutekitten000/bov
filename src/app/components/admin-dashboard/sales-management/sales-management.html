@@ -2,7 +2,27 @@
     <h1>Gerenciar Vendas</h1>
     <p>Visualize todas as vendas registradas por toda a equipe.</p>
 
-    <table mat-table [dataSource]="sales$" class="mat-elevation-z4">
+    <div class="filters-container">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar...</mat-label>
+            <input matInput [formControl]="textFilter" placeholder="Agente, CPF, Ticket, OS...">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-range-field">
+            <mat-label>Período das Vendas</mat-label>
+
+            <mat-date-range-input [formGroup]="dateRangeFilter" [rangePicker]="picker">
+                <input matStartDate formControlName="start" placeholder="Data inicial">
+                <input matEndDate formControlName="end" placeholder="Data final">
+            </mat-date-range-input>
+
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z4">
 
         <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef> Status </th>
