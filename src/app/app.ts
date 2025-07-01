@@ -13,6 +13,6 @@ export class App {
   title = 'tlv-bov';
 
   constructor() {
-    inject(NotificationService);
+    //inject(NotificationService);
   }
 }

@@ -106,6 +106,9 @@ export class ChatDialog implements OnInit, AfterViewChecked {
             const conversations$ = this.chatService.getConversations(
                 this.currentUser.uid
             );
+
+            console.log('%c[ESPIÃO ChatDialog] Tentando chamar getConversations com o userId:', 'color: cyan; font-weight: bold;', this.currentUser.uid);
+
             this.chatListItems$ = combineLatest([users$, conversations$]).pipe(
                 map(([users, conversations]) => {
                     const otherUsers = users.filter(

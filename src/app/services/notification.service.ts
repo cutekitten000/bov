@@ -18,15 +18,14 @@ export class NotificationService {
   private notificationSound = new Audio('assets/notification.mp3');
   private isFirstLoad = true;
 
-  constructor() {
-    // Observa o estado de autenticação do usuário
-    // MUDANÇA AQUI: de currentUser$ para authState$
-    this.authService.authState$.pipe(
-      filter(user => !!user) // Continua apenas se o usuário estiver logado
-    ).subscribe(user => {
-      if (user) {
+   constructor() {
+    this.authService.authState$.subscribe(user => {
+      // CORREÇÃO: Checa se o objeto 'user' E a propriedade 'user.uid' existem.
+      // Isso previne que a função seja chamada com um valor indefinido durante o login.
+      if (user && user.uid) {
         this.startListeningForNotifications(user.uid);
       } else {
+        // Isso é chamado no logout ou em estados intermediários, parando o monitoramento.
         this.stopListeningForNotifications();
       }
     });
@@ -36,6 +35,8 @@ export class NotificationService {
     if (this.conversationsSubscription) {
       return;
     }
+
+     console.log('%c[ESPIÃO NotificationService] Tentando chamar getConversations com o userId:', 'color: magenta; font-weight: bold;', userId);
 
     console.log('[NotificationService] Iniciando ouvinte de notificações para o usuário:', userId);
 
