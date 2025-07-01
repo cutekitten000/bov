@@ -1,0 +1,44 @@
+// Variáveis para consistência
+$border-color: rgba(255, 255, 255, 0.1);
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    p {
+        margin: 0 0 16px 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+// Estilização da tabela do Angular Material
+table.mat-mdc-table {
+    background-color: #1f2937; // Fundo da tabela
+}
+
+th.mat-mdc-header-cell {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+td.mat-mdc-cell {
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom-color: $border-color;
+}
+
+tr.mat-mdc-header-row, tr.mat-mdc-row {
+    border-bottom-color: $border-color;
+}
+
+.mat-mdc-table .mat-mdc-row:hover .mat-mdc-cell {
+    background-color: rgba(255, 255, 255, 0.03);
+}

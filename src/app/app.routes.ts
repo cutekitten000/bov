@@ -5,11 +5,12 @@ import { SignUp } from './components/sign-up/sign-up';
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
 import { AgentDashboard } from './components/agent-dashboard/agent-dashboard';
 import { authGuard } from './auth/auth-guard';
-import { adminGuard } from './auth/admin-guard'; // <-- Importe o novo guard
+import { adminGuard } from './auth/admin-guard';
 
-// Importe os novos componentes que acabamos de criar
+// Importe os componentes filhos do admin
 import { Overview } from './components/admin-dashboard/overview/overview';
 import { TeamManagement } from './components/admin-dashboard/team-management/team-management';
+import { SalesManagement } from './components/admin-dashboard/sales-management/sales-management'; // <-- IMPORTE O NOVO COMPONENTE
 
 export const routes: Routes = [
   // Rotas Públicas
@@ -17,20 +18,19 @@ export const routes: Routes = [
   { path: 'sign-up', component: SignUp },
   { path: 'forgot-password', component: ForgotPassword },
 
-  // Rota do Agente (protegida por login simples)
+  // Rota do Agente
   { path: 'agent/dashboard', component: AgentDashboard, canActivate: [authGuard] },
-
-  // ESTRUTURA DE ROTAS DO ADMIN
+  
+  // Estrutura de Rotas do Admin
   { 
     path: 'admin', 
-    component: AdminDashboard, // Este será nosso componente de "layout"
-    canActivate: [authGuard, adminGuard], // Protegido pelos dois guardas em sequência
+    component: AdminDashboard,
+    canActivate: [authGuard, adminGuard],
     children: [
       { path: 'overview', component: Overview },
       { path: 'team', component: TeamManagement },
-      // Adicionaremos mais rotas filhas aqui depois
-
-      // Redirecionamento padrão da área de admin para a overview
+      { path: 'sales', component: SalesManagement }, // <-- ROTA ADICIONADA AQUI
+      
       { path: '', redirectTo: 'overview', pathMatch: 'full' }
     ]
   },

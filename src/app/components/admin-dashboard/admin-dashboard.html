@@ -5,20 +5,34 @@
       <h3>{{ adminName }}</h3>
     </div>
     <mat-nav-list>
-      <a mat-list-item routerLink="overview" routerLinkActive="active-link">
-        <mat-icon>dashboard</mat-icon>
-        <span>Overview</span>
-      </a>
-      <a mat-list-item routerLink="team" routerLinkActive="active-link">
-        <mat-icon>groups</mat-icon>
-        <span>Gerenciar Equipe</span>
-      </a>
-      <mat-divider></mat-divider>
-      <a mat-list-item (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Sair</span>
-      </a>
-    </mat-nav-list>
+  <a mat-list-item routerLink="overview" routerLinkActive="active-link">
+    <mat-icon>dashboard</mat-icon>
+    <span>Overview</span>
+  </a>
+  <a mat-list-item routerLink="team" routerLinkActive="active-link">
+    <mat-icon>groups</mat-icon>
+    <span>Gerenciar Equipe</span>
+  </a>
+  <a mat-list-item routerLink="sales" routerLinkActive="active-link">
+    <mat-icon>point_of_sale</mat-icon>
+    <span>Gerenciar Vendas</span>
+  </a>
+  <mat-divider></mat-divider>
+  
+  <a mat-list-item (click)="openChat()">
+    <mat-icon>chat</mat-icon>
+    <span>CHAT</span>
+  </a>
+  <a mat-list-item (click)="clearChat()">
+    <mat-icon>delete_sweep</mat-icon>
+    <span>Limpar Chat</span>
+  </a>
+  <mat-divider></mat-divider>
+  <a mat-list-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Sair</span>
+  </a>
+</mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content class="admin-content">
