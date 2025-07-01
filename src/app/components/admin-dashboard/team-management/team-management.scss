@@ -2,43 +2,86 @@
 $border-color: rgba(255, 255, 255, 0.1);
 
 .page-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 
-  h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-  }
-  p {
-    margin: 0 0 16px 0;
-    color: rgba(255, 255, 255, 0.6);
-  }
+    h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    p {
+        margin: 0 0 16px 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
 }
 
 // Estilização da tabela do Angular Material
 table.mat-mdc-table {
-  background-color: #1f2937; // Fundo da tabela
+    background-color: #1f2937;
+    width: 100%;
 }
 
 th.mat-mdc-header-cell {
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap; // Impede que o cabeçalho quebre a linha
 }
 
 td.mat-mdc-cell {
-  color: rgba(255, 255, 255, 0.9);
-  border-bottom-color: $border-color;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom-color: $border-color;
 }
 
 tr.mat-mdc-header-row, tr.mat-mdc-row {
-  border-bottom-color: $border-color;
+    border-bottom-color: $border-color;
 }
 
 .mat-mdc-table .mat-mdc-row:hover .mat-mdc-cell {
-  background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.kpi-cell {
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center; // Centraliza os números de KPI
+  
+  &.success { color: #22c55e; }
+  &.danger { color: #ef4444; }
+  &.warning { color: #eab308; }
+  &.info { color: #3b82f6; }
+  &.total {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+// Centraliza os cabeçalhos das colunas de KPI também
+th.mat-mdc-header-cell {
+    &:nth-child(n+4):not(:last-child) { // Seleciona todos os cabeçalhos de KPI
+        text-align: center;
+    }
+}
+
+// Estilos para a célula da barra de progresso
+.meta-progress-cell {
+  min-width: 150px;
+
+  .meta-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px;
+    display: block;
+    text-align: center;
+  }
+
+  mat-progress-bar {
+    // Cor da barra de progresso
+    --mdc-linear-progress-active-indicator-color: #22c55e;
+    --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.1);
+  }
 }

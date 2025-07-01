@@ -1,0 +1,70 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    p {
+        margin: 0 0 16px 0;
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.kpi-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+// ESTILO DO CARD APRIMORADO
+.kpi-card {
+    background-color: #1f2937;
+    border-radius: 12px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; // Centraliza verticalmente
+    border-left: 4px solid transparent; // Borda base transparente
+
+    .kpi-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kpi-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0 0 4px 0;
+    }
+
+    .kpi-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .kpi-sub-value {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 2px;
+    }
+
+    .kpi-icon {
+        font-size: 48px;
+        height: 48px;
+        width: 48px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    // Cores específicas dos cards
+    &.orange { border-left-color: #f97316; .kpi-icon { color: #f97316; } }
+    &.green { border-left-color: #22c55e; .kpi-icon { color: #22c55e; } }
+    &.blue { border-left-color: #3b82f6; .kpi-icon { color: #3b82f6; } }
+    &.purple { border-left-color: #8b5cf6; .kpi-icon { color: #8b5cf6; } }
+}

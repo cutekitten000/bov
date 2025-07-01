@@ -1,1 +1,47 @@
-<p>overview works!</p>
+<div class="page-container" *ngIf="kpis$ | async as kpis; else loading">
+  <h1>Overview da Equipe</h1>
+  <p>Um resumo geral do desempenho e atividades da sua equipe no mês atual.</p>
+
+  <div class="kpi-cards-container">
+
+    <mat-card class="kpi-card orange">
+      <div class="kpi-content">
+        <p class="kpi-title">Solicitações Pendentes</p>
+        <span class="kpi-value">{{ kpis.pendingRequests }}</span>
+      </div>
+      <mat-icon class="kpi-icon">rule</mat-icon>
+    </mat-card>
+
+    <mat-card class="kpi-card green">
+      <div class="kpi-content">
+        <p class="kpi-title">Agentes Ativos</p>
+        <span class="kpi-value">{{ kpis.activeAgents }}</span>
+      </div>
+      <mat-icon class="kpi-icon">groups</mat-icon>
+    </mat-card>
+
+    <mat-card class="kpi-card blue">
+      <div class="kpi-content">
+        <p class="kpi-title">Vendas no Mês</p>
+        <span class="kpi-value">{{ kpis.monthlySales }}</span>
+      </div>
+      <mat-icon class="kpi-icon">trending_up</mat-icon>
+    </mat-card>
+
+    <mat-card class="kpi-card purple">
+      <div class="kpi-content">
+        <p class="kpi-title">Destaque do Mês</p>
+        <span class="kpi-value">{{ kpis.topAgent.name }}</span>
+        <span class="kpi-sub-value">{{ kpis.topAgent.sales }} vendas</span>
+      </div>
+      <mat-icon class="kpi-icon">star</mat-icon>
+    </mat-card>
+
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="page-container">
+    <p>Calculando métricas...</p>
+  </div>
+</ng-template>

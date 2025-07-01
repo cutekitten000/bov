@@ -1,44 +1,90 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, from, of } from 'rxjs';
+import { Component, inject, OnInit } from '@angular/core';
+import { combineLatest, from, Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-// Imports do Material
-import { MatTableModule } from '@angular/material/table';
+// Imports do Angular Material
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Imports de Serviços e Componentes
-import { DatabaseService } from '../../../services/database.service';
 import { AppUser } from '../../../services/auth';
+import { DatabaseService } from '../../../services/database.service';
+import { ConfirmDialog } from '../../dialogs/confirm-dialog/confirm-dialog';
 import { EditUser } from '../../dialogs/edit-user/edit-user';
-import { ConfirmDialog } from '../../dialogs/confirm-dialog/confirm-dialog'; // <-- IMPORTE O DIALOG DE CONFIRMAÇÃO
 
 @Component({
   selector: 'app-team-management',
   standalone: true,
-  imports: [ CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule ],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressBarModule
+  ],
   templateUrl: './team-management.html',
   styleUrl: './team-management.scss'
 })
 export class TeamManagement implements OnInit {
   private dbService = inject(DatabaseService);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
-  public users$: Observable<AppUser[]>;
-  public displayedColumns: string[] = ['name', 'email', 'th', 'role', 'actions'];
+  public usersWithKpis$: Observable<any[]>;
+  
+  public displayedColumns: string[] = ['name', 'th', 'instalada', 'aprovisionamento', 'cancelada', 'pendencia', 'total', 'metaProgress', 'actions'];
 
   constructor() {
-    this.users$ = of([]);
+    this.usersWithKpis$ = of([]);
   }
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadUsersAndSalesData();
   }
 
-  loadUsers(): void {
-    this.users$ = from(this.dbService.getAgents());
+  loadUsersAndSalesData(): void {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    // Busca agentes e as vendas do mês em paralelo
+    this.usersWithKpis$ = combineLatest({
+      agents: from(this.dbService.getAgents()),
+      sales: from(this.dbService.getAllSalesForMonth(year, month))
+    }).pipe(
+      map(result => {
+        const { agents, sales } = result;
+
+        // Para cada agente, calcula seus KPIs de vendas
+        return agents.map(agent => {
+          const agentSales = sales.filter(sale => sale.agentUid === agent.uid);
+          
+          const kpis = {
+            instalada: agentSales.filter(s => s.status === 'Instalada').length,
+            aprovisionamento: agentSales.filter(s => s.status === 'Em Aprovisionamento').length,
+            cancelada: agentSales.filter(s => s.status === 'Cancelada').length,
+            pendencia: agentSales.filter(s => s.status === 'Pendência').length,
+            total: 0,
+            metaProgress: 0
+          };
+
+          kpis.total = kpis.instalada + kpis.aprovisionamento;
+
+          if (agent.salesGoal > 0) {
+            kpis.metaProgress = (kpis.instalada / agent.salesGoal) * 100;
+          }
+
+          return { ...agent, kpis };
+        });
+      })
+    );
   }
 
   onEditUser(user: AppUser): void {
@@ -52,36 +98,25 @@ export class TeamManagement implements OnInit {
       if (result) {
         this.dbService.updateUserProfile(user.uid, result)
           .then(() => {
-            console.log("Usuário atualizado com sucesso!");
-            this.loadUsers();
+            this.snackBar.open("Usuário atualizado com sucesso!", 'Fechar', { duration: 3000 });
+            this.loadUsersAndSalesData();
           })
           .catch(err => console.error("Erro ao atualizar usuário:", err));
       }
     });
   }
 
-  // ***** MÉTODO IMPLEMENTADO *****
   onDeleteUser(user: AppUser): void {
-    // 1. Abre o dialog de confirmação
     const dialogRef = this.dialog.open(ConfirmDialog, {
-      data: {
-        message: `Tem certeza que deseja excluir o agente "${user.name}"? Esta ação removerá seus dados do sistema.`
-      }
+      data: { message: `Tem certeza que deseja excluir o agente "${user.name}"?` }
     });
 
-    // 2. Ouve o resultado do dialog
     dialogRef.afterClosed().subscribe(confirmed => {
-      // 3. Se o admin confirmou...
       if (confirmed) {
-        // ...chama o serviço para deletar o perfil do usuário
         this.dbService.deleteUserProfile(user.uid)
           .then(() => {
-            alert('Usuário excluído com sucesso!');
-            this.loadUsers(); // Recarrega a tabela para remover o usuário da lista
-          })
-          .catch(err => {
-            console.error("Erro ao excluir usuário:", err);
-            alert("Ocorreu um erro ao excluir o usuário.");
+            this.snackBar.open('Usuário excluído com sucesso!', 'Fechar', { duration: 3000 });
+            this.loadUsersAndSalesData();
           });
       }
     });
