@@ -35,14 +35,17 @@ export class DatabaseService {
         additionalData: { name: string; th: string }
     ): Promise<void> {
         const userDocRef = doc(this.firestore, `users/${user.uid}`);
+        // Este objeto userData é a "fonte da verdade" para um novo usuário
         const userData: AppUser = {
             uid: user.uid,
             email: user.email,
             name: additionalData.name,
             th: additionalData.th,
             role: 'agent',
-            salesGoal: 26, // Meta padrão
+            salesGoal: 26,
+            status: 'pending' // <-- Garante que todo novo usuário seja criado como pendente
         };
+        console.log("Criando perfil para novo usuário com os seguintes dados:", userData); // Log para depuração
         return setDoc(userDocRef, userData);
     }
 
@@ -61,14 +64,14 @@ export class DatabaseService {
     }
 
     // ****** ADICIONE ESTE NOVO MÉTODO ******
-/**
- * Busca todos os usuários que têm a permissão de 'agent'.
- */
-async getAgents(): Promise<AppUser[]> {
-    const q = query(this.usersCollection, where('role', '==', 'agent'));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as unknown as AppUser));
-}
+    /**
+     * Busca todos os usuários que têm a permissão de 'agent'.
+     */
+    async getAgents(): Promise<AppUser[]> {
+        const q = query(this.usersCollection, where('role', '==', 'agent'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as unknown as AppUser));
+    }
 
     // ****** ADICIONE ESTE NOVO MÉTODO ******
     /**
@@ -294,7 +297,7 @@ async getAgents(): Promise<AppUser[]> {
         const batch = writeBatch(this.firestore);
         const defaultScripts = this.getDefaultScripts();
 
-        
+
         defaultScripts.forEach(async (script) => {
             console.log("script: " + script);
             const scriptDocRef = doc(scriptsColRef); // Cria uma nova referência de documento
@@ -516,7 +519,7 @@ async getAgents(): Promise<AppUser[]> {
         return deleteDoc(scriptDocRef);
     }
 
-     // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
+    // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
     /**
      * Exclui o documento de um usuário da coleção 'users'.
      * @param uid O ID do usuário a ser excluído.
@@ -535,7 +538,7 @@ async getAgents(): Promise<AppUser[]> {
         console.log("Iniciando exclusão do chat em grupo...");
         const groupChatCollection = collection(this.firestore, 'group-chat');
         const querySnapshot = await getDocs(groupChatCollection);
-        
+
         if (querySnapshot.empty) {
             console.log("Chat em grupo já está vazio.");
             return; // Sai da função se não houver nada para deletar
@@ -552,14 +555,14 @@ async getAgents(): Promise<AppUser[]> {
         console.log(`Excluídos ${querySnapshot.size} documentos do chat em grupo.`);
     }
 
-      // ****** ADICIONE ESTE NOVO MÉTODO ******
+    // ****** ADICIONE ESTE NOVO MÉTODO ******
     /**
      * Busca todas as vendas de todos os agentes, ordenadas pela data mais recente.
      */
     async getAllSales(): Promise<Sale[]> {
         const q = query(this.salesCollection, orderBy('saleDate', 'desc'));
         const querySnapshot = await getDocs(q);
-        
+
         const sales: Sale[] = [];
         querySnapshot.forEach(doc => {
             const data = doc.data();
@@ -572,5 +575,17 @@ async getAgents(): Promise<AppUser[]> {
             } as Sale);
         });
         return sales;
+    }
+
+
+    // ****** ADICIONE ESTE NOVO MÉTODO ******
+    /**
+     * Busca todos os usuários que têm o status de 'pending'.
+     */
+    async getPendingUsers(): Promise<AppUser[]> {
+        const q = query(this.usersCollection, where('status', '==', 'pending'));
+        const querySnapshot = await getDocs(q);
+        // Usamos o doc.id para garantir que o uid está presente, mesmo que não esteja no documento
+        return querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as AppUser));
     }
 }

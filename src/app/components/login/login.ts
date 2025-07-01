@@ -67,39 +67,36 @@ export class Login {
 
   // Submissão do formulário de Login
   async onLoginSubmit(): Promise<void> {
-  if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) return;
 
-  try {
-    const { email, password } = this.loginForm.value;
-    // 1. Faz o login no Firebase Auth
-    const userCredential = await this.authService.login(email!, password!);
+    try {
+      const { email, password } = this.loginForm.value;
+      const userCredential = await this.authService.login(email!, password!);
+      const userProfile = await this.dbService.getUserProfile(userCredential.user.uid);
 
-    // 2. Com o login bem-sucedido, busca o perfil do usuário no Firestore
-    const userProfile = await this.dbService.getUserProfile(userCredential.user.uid);
+      if (userProfile) {
+        // VERIFICAÇÃO DE STATUS ADICIONADA AQUI
+        if (userProfile.status !== 'active') {
+          await this.authService.logout(); // Desloga imediatamente
+          alert('Sua conta está pendente de aprovação ou inativa. Fale com um administrador.');
+          return;
+        }
 
-    // 3. Se o perfil foi encontrado...
-    if (userProfile) {
-      // 4. ...redireciona com base na 'role' vinda do banco de dados
-      if (userProfile.role === 'admin') {
-        // Navega para a rota PAI do admin, que redirecionará para 'overview'
-        this.router.navigate(['/admin']);
-      } else if (userProfile.role === 'agent') {
-        this.router.navigate(['/agent/dashboard']);
+        // Se o status for 'active', continua com o redirecionamento por role
+        if (userProfile.role === 'admin') {
+          this.router.navigate(['/admin']);
+        } else { // Assume que qualquer outra role ativa é 'agent'
+          this.router.navigate(['/agent/dashboard']);
+        }
       } else {
-        // Caso exista um perfil mas sem uma role conhecida
         await this.authService.logout();
-        alert('Permissões de usuário não reconhecidas.');
+        alert('Não foi possível encontrar o perfil para este usuário.');
       }
-    } else {
-      // Caso o usuário exista no Auth mas não tenha perfil no Firestore
-      await this.authService.logout();
-      alert('Não foi possível encontrar o perfil para este usuário.');
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert('Email ou senha inválidos.');
     }
-  } catch (error) {
-    console.error("Erro no login:", error);
-    alert('Email ou senha inválidos.');
   }
-}
 
   // Submissão do formulário de Cadastro
   async onSignUpSubmit(): Promise<void> {
@@ -108,8 +105,8 @@ export class Login {
       const { email, password, name, th } = this.signUpForm.value;
       const userCredential = await this.authService.signUp(email!, password!);
       await this.dbService.createUserProfile(userCredential.user, { name: name!, th: th! });
-      
-      alert('Cadastro realizado com sucesso! Por favor, faça o login.');
+
+      alert('Cadastro realizado com sucesso! Sua conta precisa ser aprovada por um administrador antes de você poder fazer o login.');
       this.togglePanel(false); // Volta para a tela de login
       this.signUpForm.reset();
 

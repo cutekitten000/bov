@@ -9,8 +9,9 @@ export interface AppUser {
   name: string;
   th: string;
   role: 'agent' | 'admin';
-  salesGoal: number; // Adicionamos o campo da meta
-}
+  salesGoal: number;
+  status: 'active' | 'pending' | 'inactive';
+} 
 
 @Injectable({
   providedIn: 'root'

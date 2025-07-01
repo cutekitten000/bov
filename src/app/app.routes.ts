@@ -11,6 +11,7 @@ import { adminGuard } from './auth/admin-guard';
 import { Overview } from './components/admin-dashboard/overview/overview';
 import { TeamManagement } from './components/admin-dashboard/team-management/team-management';
 import { SalesManagement } from './components/admin-dashboard/sales-management/sales-management'; // <-- IMPORTE O NOVO COMPONENTE
+import { Requests } from './components/admin-dashboard/requests/requests';
 
 export const routes: Routes = [
   // Rotas Públicas
@@ -29,6 +30,7 @@ export const routes: Routes = [
     children: [
       { path: 'overview', component: Overview },
       { path: 'team', component: TeamManagement },
+      { path: 'requests', component: Requests },
       { path: 'sales', component: SalesManagement }, // <-- ROTA ADICIONADA AQUI
       
       { path: '', redirectTo: 'overview', pathMatch: 'full' }
