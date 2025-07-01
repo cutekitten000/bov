@@ -19,9 +19,21 @@
     <mat-icon>groups</mat-icon>
     <span>Gerenciar Equipe</span>
   </a>
-  <a mat-list-item routerLink="sales" routerLinkActive="active-link">
+  <a mat-list-item routerLink="sales" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
     <mat-icon>point_of_sale</mat-icon>
     <span>Gerenciar Vendas</span>
+  </a>
+  <a mat-list-item routerLink="sales/month" routerLinkActive="active-link">
+    <mat-icon>calendar_month</mat-icon>
+    <span>Vendas do Mês</span>
+  </a>
+  <a mat-list-item routerLink="sales/week" routerLinkActive="active-link">
+    <mat-icon>calendar_view_week</mat-icon>
+    <span>Vendas da Semana</span>
+  </a>
+  <a mat-list-item routerLink="sales/day" routerLinkActive="active-link">
+    <mat-icon>today</mat-icon>
+    <span>Vendas do Dia</span>
   </a>
   <mat-divider></mat-divider>
   

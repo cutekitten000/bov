@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, combineLatest, from, of, startWith } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
-// Imports do Material
+// Imports do Angular Material
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +21,7 @@ import { DatabaseService } from '../../../services/database.service';
 import { Sale } from '../../../models/sale.model';
 import { ViewNotesDialog } from '../../dialogs/view-notes-dialog/view-notes-dialog';
 import { ConfirmDialog } from '../../dialogs/confirm-dialog/confirm-dialog';
-import { SaleDialog } from '../../dialogs/sale-dialog/sale-dialog'; // <-- Importe o dialog de venda
+import { SaleDialog } from '../../dialogs/sale-dialog/sale-dialog';
 
 @Component({
   selector: 'app-sales-management',
@@ -36,6 +37,7 @@ export class SalesManagement implements OnInit {
   private dbService = inject(DatabaseService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private route = inject(ActivatedRoute);
 
   public dataSource = new MatTableDataSource<any>();
   public displayedColumns: string[] = ['status', 'agentName', 'saleDate', 'customerCpfCnpj', 'customerPhone', 'ticket', 'os', 'actions'];
@@ -54,10 +56,16 @@ export class SalesManagement implements OnInit {
   }
 
   loadAllSales(): void {
-    combineLatest({
-      users: from(this.dbService.getAllUsers()),
-      sales: from(this.dbService.getAllSales())
-    }).pipe(
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const period = params.get('period');
+        this.setInitialDateFilter(period);
+
+        return combineLatest({
+          users: from(this.dbService.getAllUsers()),
+          sales: from(this.dbService.getAllSales())
+        });
+      }),
       map(result => {
         const { users, sales } = result;
         const userMap = new Map(users.map(u => [u.uid, u.name]));
@@ -69,29 +77,76 @@ export class SalesManagement implements OnInit {
     ).subscribe(enrichedSales => {
       this.originalData = enrichedSales;
       this.dataSource.data = enrichedSales;
+      // Dispara o filtro uma vez na carga inicial para aplicar o filtro de data vindo da rota
+      this.dateRangeFilter.updateValueAndValidity({ onlySelf: true, emitEvent: true });
     });
   }
   
+   setInitialDateFilter(period: string | null): void {
+    const today = new Date();
+    let startDate: Date | null = null;
+    let endDate: Date | null = null;
+
+    if (period === 'day') {
+      startDate = new Date(today);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(today);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (period === 'week') {
+      const firstDayOfWeek = new Date(today);
+      // Subtrai o dia da semana (domingo=0, segunda=1...) para encontrar o último domingo
+      firstDayOfWeek.setDate(today.getDate() - today.getDay());
+      firstDayOfWeek.setHours(0, 0, 0, 0);
+
+      const lastDayOfWeek = new Date(firstDayOfWeek);
+      lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6); // Adiciona 6 dias para chegar no sábado
+      lastDayOfWeek.setHours(23, 59, 59, 999);
+
+      startDate = firstDayOfWeek;
+      endDate = lastDayOfWeek;
+    } else if (period === 'month') {
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      startDate = new Date(year, month, 1); // Primeiro dia do mês corrente
+      endDate = new Date(year, month + 1, 0); // Último dia do mês corrente
+    }
+
+    // Usamos patchValue para definir os valores do formulário
+    this.dateRangeFilter.patchValue({ start: startDate, end: endDate }, { emitEvent: false });
+  }
+
   setupCombinedFilters(): void {
     combineLatest([
       this.textFilter.valueChanges.pipe(startWith('')),
-      this.dateRangeFilter.valueChanges.pipe(startWith({ start: null, end: null }))
+      this.dateRangeFilter.valueChanges.pipe(startWith(this.dateRangeFilter.value))
     ]).subscribe(([text, dateRange]) => {
+      
       const filterText = (text || '').trim().toLowerCase();
-      const { start, end } = dateRange;
+      const { start, end } = dateRange || { start: null, end: null };
+
+      // 1. Filtra por data
       let dateFilteredData = this.originalData;
       if (start && end) {
         const inclusiveEndDate = new Date(end);
         inclusiveEndDate.setHours(23, 59, 59, 999);
+
         dateFilteredData = this.originalData.filter(item => {
           const itemDate = new Date(item.saleDate);
           return itemDate >= start && itemDate <= inclusiveEndDate;
         });
       }
+
+      // 2. Filtra o resultado do filtro de data pelo texto
       const textAndDateFilteredData = dateFilteredData.filter(item => {
-        const searchString = ((item.agentName || '') + (item.customerCpfCnpj || '') + (item.ticket || '') + (item.os || '')).toLowerCase();
+        const searchString = (
+          (item.agentName || '') +
+          (item.customerCpfCnpj || '') +
+          (item.ticket || '') +
+          (item.os || '')
+        ).toLowerCase();
         return searchString.includes(filterText);
       });
+      
       this.dataSource.data = textAndDateFilteredData;
     });
   }
@@ -109,6 +164,7 @@ export class SalesManagement implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialog, {
       data: { message: `Tem certeza que deseja excluir a venda do CPF/CNPJ ${sale.customerCpfCnpj}?` }
     });
+
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.dbService.deleteSale(sale.id).then(() => {
@@ -119,30 +175,26 @@ export class SalesManagement implements OnInit {
     });
   }
 
-  // ***** MÉTODO IMPLEMENTADO *****
-  onEditSale(sale: Sale): void {
+  onEditSale(sale: Sale): void { 
     const dialogRef = this.dialog.open(SaleDialog, {
       width: '1000px',
       maxWidth: '95vw',
       disableClose: true,
       panelClass: ['custom-dialog-container', 'custom-overlay-panel'],
-      data: { sale: sale } // Passa os dados da venda selecionada para o dialog
+      data: { sale: sale }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      // Se o dialog retornou um resultado (ou seja, o usuário salvou)...
       if (result) {
         const saleDate = result.saleDate?.toDate ? result.saleDate.toDate() : result.saleDate;
         const installationDate = result.installationDate?.toDate ? result.installationDate.toDate() : result.installationDate;
-
         const updatedData = { ...result, saleDate, installationDate };
         
         this.dbService.updateSale(sale.id, updatedData)
           .then(() => {
             this.snackBar.open('Venda atualizada com sucesso!', 'Fechar', { duration: 3000 });
-            this.loadAllSales(); // Recarrega os dados para mostrar a alteração
-          })
-          .catch(err => console.error("Erro ao atualizar venda:", err));
+            this.loadAllSales();
+          });
       }
     });
   }

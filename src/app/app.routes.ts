@@ -31,7 +31,8 @@ export const routes: Routes = [
       { path: 'overview', component: Overview },
       { path: 'team', component: TeamManagement },
       { path: 'requests', component: Requests },
-      { path: 'sales', component: SalesManagement }, // <-- ROTA ADICIONADA AQUI
+      { path: 'sales', component: SalesManagement }, // Rota padrão, mostra tudo
+      { path: 'sales/:period', component: SalesManagement },
       
       { path: '', redirectTo: 'overview', pathMatch: 'full' }
     ]
