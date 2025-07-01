@@ -26,7 +26,7 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <th mat-header-cell *matHeaderCellDef > <span class="actionsMargin">Ações </span></th>
         <td mat-cell *matCellDef="let user">
           <button mat-flat-button color="primary" (click)="onApprove(user)" matTooltip="Aprovar Cadastro">
             <mat-icon>check</mat-icon>

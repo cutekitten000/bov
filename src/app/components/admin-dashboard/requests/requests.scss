@@ -42,17 +42,25 @@ tr.mat-mdc-header-row, tr.mat-mdc-row {
 }
 
 // --- CORREÇÃO DE ESTILO PARA A COLUNA DE AÇÕES ---
-th.mat-mdc-header-cell:last-of-type,
+th.mat-mdc-header-cell:last-of-type {
+    // Força o texto do cabeçalho a se alinhar à direita
+    text-align: right;
+    justify-content: flex-end;
+}
+
 td.mat-mdc-cell:last-of-type {
-    // Alinha o conteúdo da célula (os botões) à direita
+    // Alinha os botões à direita
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 8px; // Adiciona um espaço entre os botões
+    gap: 8px;
 }
 // ----------------------------------------------------
 
-// Mensagem para quando não há solicitações
+button[mat-flat-button] {
+    margin-right: 8px;
+}
+
 .no-requests-message {
     display: flex;
     flex-direction: column;
@@ -70,4 +78,9 @@ td.mat-mdc-cell:last-of-type {
         width: 48px;
         height: 48px;
     }
+}
+
+.actionsMargin {
+    margin-right: 90px;
+    font-size: 0.9rem;
 }
