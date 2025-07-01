@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Editar Usuário: {{ data.user.name }}</h2>
+
+<mat-dialog-content [formGroup]="editForm">
+  <mat-form-field appearance="outline">
+    <mat-label>Nome</mat-label>
+    <input matInput formControlName="name">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" type="email">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>TH</mat-label>
+    <input matInput formControlName="th">
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="editForm.invalid">Salvar</button>
+</mat-dialog-actions>

@@ -1,0 +1,72 @@
+// Paleta de Cores (pode ajustar se necessário)
+$primary-color: #3b82f6;
+$border-color: rgba(255, 255, 255, 0.1);
+$sidenav-bg: #1f2937;
+$content-bg: #111827;
+$text-color-light: rgba(255, 255, 255, 0.7);
+$text-color-bright: #ffffff;
+
+// Container principal que ocupa toda a tela
+.admin-dashboard-container {
+  height: 100vh;
+  width: 100%;
+  background-color: $content-bg;
+}
+
+// Estilos da Barra Lateral (Sidenav)
+.admin-sidenav {
+  width: 260px;
+  background-color: $sidenav-bg;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+
+  .sidenav-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-color;
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $text-color-bright;
+    }
+  }
+
+  // Estilos para a lista de navegação
+  mat-nav-list {
+    padding-top: 8px;
+
+    a[mat-list-item] {
+      color: $text-color-light;
+      margin: 4px 12px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+
+      mat-icon {
+        margin-right: 16px;
+        color: $text-color-light;
+        transition: color 0.2s ease-in-out;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      // Estilo do link ATIVO (página atual)
+      &.active-link {
+        background-color: $primary-color;
+        color: $text-color-bright;
+        font-weight: 500;
+
+        mat-icon {
+          color: $text-color-bright;
+        }
+      }
+    }
+  }
+}
+
+// Estilos da Área de Conteúdo Principal
+.admin-content {
+  padding: 24px 32px; // Adiciona um respiro para o conteúdo
+}

@@ -60,6 +60,27 @@ export class DatabaseService {
         });
     }
 
+    // ****** ADICIONE ESTE NOVO MÉTODO ******
+/**
+ * Busca todos os usuários que têm a permissão de 'agent'.
+ */
+async getAgents(): Promise<AppUser[]> {
+    const q = query(this.usersCollection, where('role', '==', 'agent'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as unknown as AppUser));
+}
+
+    // ****** ADICIONE ESTE NOVO MÉTODO ******
+    /**
+     * Atualiza os dados de um perfil de usuário existente.
+     * @param uid O ID do usuário a ser atualizado.
+     * @param data Um objeto com os campos a serem modificados.
+     */
+    updateUserProfile(uid: string, data: Partial<AppUser>): Promise<void> {
+        const userDocRef = doc(this.firestore, `users/${uid}`);
+        return updateDoc(userDocRef, data);
+    }
+
     /**
      * Adiciona uma nova venda ao Firestore.
      */

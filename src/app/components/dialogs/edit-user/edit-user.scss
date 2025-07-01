@@ -1,0 +1,69 @@
+// Cores para consistência
+$text-color-bright: #ffffff;
+$text-color-light: rgba(255, 255, 255, 0.7);
+$border-color: rgba(255, 255, 255, 0.2);
+$primary-color: #3b82f6;
+
+// Remove o fundo padrão do dialog para usar o do nosso painel customizado, se houver
+:host {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background: none;
+  }
+}
+
+h2[mat-dialog-title] {
+  color: $text-color-bright;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; // Espaçamento entre os campos
+
+  // Estiliza os campos de formulário para o tema escuro
+  mat-form-field {
+    width: 100%;
+
+    // Cor da label flutuante
+    .mdc-floating-label, .mat-mdc-floating-label {
+      color: $text-color-light !important;
+    }
+
+    // Cor do texto do input
+    .mat-mdc-form-field-input-control {
+      color: $text-color-bright;
+    }
+
+    // Cor da borda
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $border-color !important;
+    }
+
+    // Cor do ícone (se houver)
+    mat-icon {
+      color: $text-color-light;
+    }
+
+    // Cor da borda quando focado
+    &.mat-focused {
+      .mdc-floating-label, .mat-mdc-floating-label {
+        color: $primary-color !important;
+      }
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: $primary-color !important;
+        border-width: 2px;
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 24px 0 0 0; // Ajusta o espaçamento dos botões
+}
