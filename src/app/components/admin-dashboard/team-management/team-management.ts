@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// ADICIONE 'from' e 'of' AOS IMPORTS DO RXJS
 import { Observable, from, of } from 'rxjs';
 
 // Imports do Material
@@ -14,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DatabaseService } from '../../../services/database.service';
 import { AppUser } from '../../../services/auth';
 import { EditUser } from '../../dialogs/edit-user/edit-user';
+import { ConfirmDialog } from '../../dialogs/confirm-dialog/confirm-dialog'; // <-- IMPORTE O DIALOG DE CONFIRMAÇÃO
 
 @Component({
   selector: 'app-team-management',
@@ -30,7 +30,6 @@ export class TeamManagement implements OnInit {
   public displayedColumns: string[] = ['name', 'email', 'th', 'role', 'actions'];
 
   constructor() {
-    // Inicializa o observable com um array vazio para evitar erros
     this.users$ = of([]);
   }
 
@@ -46,7 +45,7 @@ export class TeamManagement implements OnInit {
     const dialogRef = this.dialog.open(EditUser, {
       width: '450px',
       data: { user: user },
-      panelClass: 'custom-dialog-container' 
+      panelClass: 'custom-dialog-container'
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -54,15 +53,38 @@ export class TeamManagement implements OnInit {
         this.dbService.updateUserProfile(user.uid, result)
           .then(() => {
             console.log("Usuário atualizado com sucesso!");
-            this.loadUsers(); // Recarrega a lista para mostrar as alterações
+            this.loadUsers();
           })
           .catch(err => console.error("Erro ao atualizar usuário:", err));
       }
     });
   }
 
+  // ***** MÉTODO IMPLEMENTADO *****
   onDeleteUser(user: AppUser): void {
-    alert(`Futuramente, aqui deletaremos o usuário: ${user.name}`);
+    // 1. Abre o dialog de confirmação
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      data: {
+        message: `Tem certeza que deseja excluir o agente "${user.name}"? Esta ação removerá seus dados do sistema.`
+      }
+    });
+
+    // 2. Ouve o resultado do dialog
+    dialogRef.afterClosed().subscribe(confirmed => {
+      // 3. Se o admin confirmou...
+      if (confirmed) {
+        // ...chama o serviço para deletar o perfil do usuário
+        this.dbService.deleteUserProfile(user.uid)
+          .then(() => {
+            alert('Usuário excluído com sucesso!');
+            this.loadUsers(); // Recarrega a tabela para remover o usuário da lista
+          })
+          .catch(err => {
+            console.error("Erro ao excluir usuário:", err);
+            alert("Ocorreu um erro ao excluir o usuário.");
+          });
+      }
+    });
   }
 
   onResetPassword(user: AppUser): void {

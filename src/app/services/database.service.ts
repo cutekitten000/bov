@@ -515,4 +515,14 @@ async getAgents(): Promise<AppUser[]> {
         );
         return deleteDoc(scriptDocRef);
     }
+
+     // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
+    /**
+     * Exclui o documento de um usuário da coleção 'users'.
+     * @param uid O ID do usuário a ser excluído.
+     */
+    deleteUserProfile(uid: string): Promise<void> {
+        const userDocRef = doc(this.firestore, `users/${uid}`);
+        return deleteDoc(userDocRef);
+    }
 }
