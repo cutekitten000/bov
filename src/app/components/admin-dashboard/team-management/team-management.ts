@@ -41,7 +41,7 @@ export class TeamManagement implements OnInit {
   private authService = inject(AuthService);
 
   public usersWithKpis$: Observable<any[]>;
-  
+
   public displayedColumns: string[] = ['name', 'th', 'instalada', 'aprovisionamento', 'cancelada', 'pendencia', 'total', 'metaProgress', 'actions'];
 
   constructor() {
@@ -68,7 +68,7 @@ export class TeamManagement implements OnInit {
         // Para cada agente, calcula seus KPIs de vendas
         return agents.map(agent => {
           const agentSales = sales.filter(sale => sale.agentUid === agent.uid);
-          
+
           const kpis = {
             instalada: agentSales.filter(s => s.status === 'Instalada').length,
             aprovisionamento: agentSales.filter(s => s.status === 'Em Aprovisionamento').length,
@@ -112,17 +112,18 @@ export class TeamManagement implements OnInit {
   onDeleteUser(user: AppUser): void {
     const dialogRef = this.dialog.open(ConfirmDialog, {
       data: {
+        // Mensagem de confirmação mais forte
         message: `Tem certeza que deseja excluir PERMANENTEMENTE o agente "${user.name}"? Todas as suas vendas e seu acesso serão removidos.`
       }
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        // MUDANÇA AQUI: Chama a nova função de exclusão completa
+        // MUDANÇA AQUI: Chama a nova função de exclusão completa do serviço
         this.dbService.fullyDeleteAgent(user.uid)
           .then(() => {
             this.snackBar.open('Agente e todos os seus dados foram excluídos.', 'Fechar', { duration: 4000 });
-            this.loadUsersAndSalesData();
+            this.loadUsersAndSalesData(); // Recarrega a tabela
           })
           .catch(err => {
             console.error("Erro na exclusão completa:", err);
@@ -137,7 +138,7 @@ export class TeamManagement implements OnInit {
       this.snackBar.open('Este usuário não possui um email cadastrado.', 'Fechar', { duration: 3000 });
       return;
     }
-    
+
     const dialogRef = this.dialog.open(ConfirmDialog, {
       data: { message: `Tem certeza que deseja enviar um link de redefinição de senha para ${user.name}?` }
     });

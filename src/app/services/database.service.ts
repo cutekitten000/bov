@@ -524,13 +524,13 @@ export class DatabaseService {
 
     // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
     /**
-     * Exclui o documento de um usuário da coleção 'users'.
-     * @param uid O ID do usuário a ser excluído.
-     */
+   * Chama a Cloud Function para realizar a exclusão completa de um agente e seus dados.
+   * @param uid O ID do usuário a ser excluído.
+   */
     fullyDeleteAgent(uid: string): Promise<any> {
-    const deleteFunction = httpsCallable(this.functions, 'deleteUserAndData');
-    return deleteFunction({ uid: uid });
-  }
+        const deleteFunction = httpsCallable(this.functions, 'deleteUserAndData');
+        return deleteFunction({ uid: uid });
+    }
 
     // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
     /**
@@ -599,7 +599,7 @@ export class DatabaseService {
     async getRecentSales(count: number): Promise<Sale[]> {
         const q = query(this.salesCollection, orderBy('createdAt', 'desc'), limit(count));
         const querySnapshot = await getDocs(q);
-        
+
         const sales: Sale[] = [];
         querySnapshot.forEach(doc => {
             sales.push({ id: doc.id, ...doc.data() } as Sale);

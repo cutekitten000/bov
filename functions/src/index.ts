@@ -65,60 +65,51 @@ export const sendPasswordResetEmailFromAdmin = onCall(async (request) => {
  * e todos os seus dados associados (vendas, scripts, etc).
  */
 export const deleteUserAndData = onCall(async (request) => {
-    const callerUid = request.auth?.uid;
-    const uidToDelete = request.data.uid;
-  
-    if (!callerUid) {
-      throw new HttpsError("unauthenticated", "Ação não autorizada.");
-    }
-    if (!uidToDelete) {
-      throw new HttpsError("invalid-argument", "O UID do usuário a ser deletado é necessário.");
-    }
-  
-    // Verifica se quem está chamando é admin
-    const callerDoc = await db.collection("users").doc(callerUid).get();
-    if (callerDoc.data()?.role !== "admin") {
-      throw new HttpsError("permission-denied", "Você não tem permissão para realizar esta ação.");
-    }
-  
-    try {
-      console.log(`Iniciando exclusão completa para o usuário: ${uidToDelete}`);
-  
-      const batch = db.batch();
-  
-      // 1. Encontrar e marcar para exclusão todas as vendas do usuário
-      const salesQuery = db.collection("sales").where("agentUid", "==", uidToDelete);
-      const salesSnapshot = await salesQuery.get();
-      salesSnapshot.docs.forEach((doc) => {
-        console.log(`Marcando venda para exclusão: ${doc.id}`);
-        batch.delete(doc.ref);
-      });
-  
-      // 2. Encontrar e marcar para exclusão todos os scripts do usuário
-      const scriptsQuery = db.collection("users").doc(uidToDelete).collection("scripts");
-      const scriptsSnapshot = await scriptsQuery.get();
-      scriptsSnapshot.docs.forEach((doc) => {
-        console.log(`Marcando script para exclusão: ${doc.id}`);
-        batch.delete(doc.ref);
-      });
-  
-      // 3. Marcar o perfil do usuário no Firestore para exclusão
-      const userProfileRef = db.collection("users").doc(uidToDelete);
-      batch.delete(userProfileRef);
-  
-      // 4. Executa todas as exclusões no banco de dados
-      await batch.commit();
-      console.log(`Dados do Firestore para o usuário ${uidToDelete} excluídos.`);
-  
-      // 5. Por último, exclui o usuário do Firebase Authentication
-      await admin.auth().deleteUser(uidToDelete);
-      console.log(`Usuário ${uidToDelete} excluído do Authentication com sucesso.`);
-  
-      return { success: true, message: "Usuário e todos os seus dados foram excluídos com sucesso." };
-      
-    } catch (error) {
-      console.error("Erro na exclusão completa do usuário:", error);
-      throw new HttpsError("internal", "Ocorreu um erro ao tentar excluir o usuário e seus dados.");
-    }
-  });
+  const callerUid = request.auth?.uid;
+  const uidToDelete = request.data.uid;
+
+  if (!callerUid) {
+    throw new HttpsError("unauthenticated", "Ação não autorizada.");
+  }
+  if (!uidToDelete) {
+    throw new HttpsError("invalid-argument", "O UID do usuário a ser deletado é necessário.");
+  }
+
+  // Verifica se quem está chamando é admin
+  const callerDoc = await db.collection("users").doc(callerUid).get();
+  if (callerDoc.data()?.role !== "admin") {
+    throw new HttpsError("permission-denied", "Você não tem permissão para realizar esta ação.");
+  }
+
+  try {
+    console.log(`Iniciando exclusão completa para o usuário: ${uidToDelete}`);
+    const batch = db.batch();
+
+    // 1. Encontra e marca para exclusão todas as vendas do usuário
+    const salesQuery = db.collection("sales").where("agentUid", "==", uidToDelete);
+    const salesSnapshot = await salesQuery.get();
+    salesSnapshot.docs.forEach((doc) => {
+      console.log(`Marcando venda para exclusão: ${doc.id}`);
+      batch.delete(doc.ref);
+    });
+
+    // 2. Marcar o perfil do usuário no Firestore para exclusão
+    const userProfileRef = db.collection("users").doc(uidToDelete);
+    batch.delete(userProfileRef);
+
+    // 3. Executa todas as exclusões no banco de dados Firestore
+    await batch.commit();
+    console.log(`Dados do Firestore para o usuário ${uidToDelete} excluídos.`);
+
+    // 4. Por último, exclui o usuário do Firebase Authentication (impede o login)
+    await admin.auth().deleteUser(uidToDelete);
+    console.log(`Usuário ${uidToDelete} excluído do Authentication com sucesso.`);
+
+    return { success: true, message: "Usuário e todos os seus dados foram excluídos com sucesso." };
+    
+  } catch (error) {
+    console.error("Erro na exclusão completa do usuário:", error);
+    throw new HttpsError("internal", "Ocorreu um erro ao tentar excluir o usuário e seus dados.");
+  }
+});
   
