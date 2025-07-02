@@ -1,15 +1,17 @@
-.page-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+// Cores para os ícones e destaques
+$orange: #f97316;
+$green: #22c55e;
+$blue: #3b82f6;
+$purple: #8b5cf6;
 
+.page-container {
     h1 {
         margin: 0;
         font-size: 1.8rem;
         font-weight: 600;
     }
     p {
-        margin: 0 0 16px 0;
+        margin: 0 0 24px 0;
         color: rgba(255, 255, 255, 0.6);
     }
 }
@@ -20,7 +22,7 @@
     gap: 24px;
 }
 
-// ESTILO DO CARD APRIMORADO
+// NOVO ESTILO DO CARD
 .kpi-card {
     background-color: #1f2937;
     border-radius: 12px;
@@ -28,8 +30,14 @@
     color: #fff;
     display: flex;
     justify-content: space-between;
-    align-items: center; // Centraliza verticalmente
-    border-left: 4px solid transparent; // Borda base transparente
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
 
     .kpi-content {
         display: flex;
@@ -44,9 +52,9 @@
     }
 
     .kpi-value {
-        font-size: 2.25rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        line-height: 1.2;
+        line-height: 1.1;
     }
 
     .kpi-sub-value {
@@ -55,16 +63,31 @@
         margin-top: 2px;
     }
 
-    .kpi-icon {
-        font-size: 48px;
-        height: 48px;
-        width: 48px;
-        color: rgba(255, 255, 255, 0.5);
-    }
+    // Estilo para o círculo que envolve o ícone
+    .kpi-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0; // Impede que o círculo se achate
 
-    // Cores específicas dos cards
-    &.orange { border-left-color: #f97316; .kpi-icon { color: #f97316; } }
-    &.green { border-left-color: #22c55e; .kpi-icon { color: #22c55e; } }
-    &.blue { border-left-color: #3b82f6; .kpi-icon { color: #3b82f6; } }
-    &.purple { border-left-color: #8b5cf6; .kpi-icon { color: #8b5cf6; } }
+        mat-icon {
+            font-size: 32px;
+            height: 32px;
+            width: 32px;
+        }
+
+        // Cores específicas para cada card
+        &.orange { background-color: rgba($orange, 0.1); mat-icon { color: $orange; } }
+        &.green { background-color: rgba($green, 0.1); mat-icon { color: $green; } }
+        &.blue { background-color: rgba($blue, 0.1); mat-icon { color: $blue; } }
+        &.purple { background-color: rgba($purple, 0.1); mat-icon { color: $purple; } }
+    }
+}
+
+// Template de loading
+.page-container > p {
+    color: rgba(255, 255, 255, 0.6);
 }

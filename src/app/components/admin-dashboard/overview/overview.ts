@@ -1,5 +1,5 @@
+import { AsyncPipe, CommonModule } from '@angular/common'; // Importe AsyncPipe
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -8,8 +8,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 // Imports de Serviços
-import { DatabaseService } from '../../../services/database.service';
+import { Sale } from '../../../models/sale.model';
 import { AppUser } from '../../../services/auth';
+import { DatabaseService } from '../../../services/database.service';
 
 // Interface para organizar os dados dos nossos KPIs
 export interface AdminKpis {
@@ -22,7 +23,7 @@ export interface AdminKpis {
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, AsyncPipe, MatCardModule, MatIconModule],
   templateUrl: './overview.html',
   styleUrl: './overview.scss'
 })
@@ -67,8 +68,8 @@ export class Overview implements OnInit {
     );
   }
 
-  private calculateTopAgent(sales: any[], agents: AppUser[]): { name: string, sales: number } {
-    if (sales.length === 0) {
+  private calculateTopAgent(sales: Sale[], agents: AppUser[]): { name: string, sales: number } {
+    if (sales.length === 0 || agents.length === 0) {
       return { name: 'N/A', sales: 0 };
     }
 
@@ -78,6 +79,10 @@ export class Overview implements OnInit {
     for (const sale of sales) {
       const count = salesByAgent.get(sale.agentUid) || 0;
       salesByAgent.set(sale.agentUid, count + 1);
+    }
+
+    if (salesByAgent.size === 0) {
+      return { name: 'N/A', sales: 0 };
     }
 
     // Encontra o ID do agente com mais vendas
