@@ -111,15 +111,22 @@ export class TeamManagement implements OnInit {
 
   onDeleteUser(user: AppUser): void {
     const dialogRef = this.dialog.open(ConfirmDialog, {
-      data: { message: `Tem certeza que deseja excluir o agente "${user.name}"?` }
+      data: {
+        message: `Tem certeza que deseja excluir PERMANENTEMENTE o agente "${user.name}"? Todas as suas vendas e seu acesso serão removidos.`
+      }
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.dbService.deleteUserProfile(user.uid)
+        // MUDANÇA AQUI: Chama a nova função de exclusão completa
+        this.dbService.fullyDeleteAgent(user.uid)
           .then(() => {
-            this.snackBar.open('Usuário excluído com sucesso!', 'Fechar', { duration: 3000 });
+            this.snackBar.open('Agente e todos os seus dados foram excluídos.', 'Fechar', { duration: 4000 });
             this.loadUsersAndSalesData();
+          })
+          .catch(err => {
+            console.error("Erro na exclusão completa:", err);
+            this.snackBar.open('Ocorreu um erro na exclusão completa do agente.', 'Fechar', { duration: 4000 });
           });
       }
     });

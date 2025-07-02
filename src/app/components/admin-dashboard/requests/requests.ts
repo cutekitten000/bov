@@ -60,7 +60,7 @@ export class Requests implements OnInit {
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.dbService.deleteUserProfile(user.uid)
+        this.dbService.fullyDeleteAgent(user.uid)
           .then(() => {
             this.snackBar.open('Cadastro rejeitado com sucesso.', 'Fechar', { duration: 3000 });
             this.loadRequests(); // Recarrega a lista

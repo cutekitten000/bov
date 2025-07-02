@@ -22,12 +22,14 @@ import {
 import { Sale } from '../models/sale.model';
 import { Script } from '../models/script.model';
 import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
+import { Functions, httpsCallable } from '@angular/fire/functions'; // Importe
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
     private firestore: Firestore = inject(Firestore);
     private usersCollection = collection(this.firestore, 'users');
     private salesCollection = collection(this.firestore, 'sales');
+    private functions: Functions = inject(Functions);
 
     // --- MÉTODOS DE USUÁRIO (Já existentes e aprimorados) ---
 
@@ -525,10 +527,10 @@ export class DatabaseService {
      * Exclui o documento de um usuário da coleção 'users'.
      * @param uid O ID do usuário a ser excluído.
      */
-    deleteUserProfile(uid: string): Promise<void> {
-        const userDocRef = doc(this.firestore, `users/${uid}`);
-        return deleteDoc(userDocRef);
-    }
+    fullyDeleteAgent(uid: string): Promise<any> {
+    const deleteFunction = httpsCallable(this.functions, 'deleteUserAndData');
+    return deleteFunction({ uid: uid });
+  }
 
     // ****** ADICIONE ESTE NOVO MÉTODO NO FINAL DA CLASSE ******
     /**
