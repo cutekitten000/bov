@@ -1,61 +1,64 @@
-<ng-container *ngIf="kpis$ | async as kpis; else loading">
+<div class="page-container" *ngIf="kpis$ | async as kpis; else loading">
+  <h1>Overview da Equipe</h1>
+  <p>Um resumo geral do desempenho e atividades da sua equipe no mês atual.</p>
 
-  <div class="page-container">
-    <h1>Overview da Equipe</h1>
-    <p>Um resumo geral do desempenho e atividades da sua equipe no mês atual.</p>
+  <div class="kpi-cards-container" [@listAnimation]="kpis.activeAgents">
 
-    <div class="kpi-cards-container">
+    <mat-card class="kpi-card">
+      <p class="kpi-title">Destaque do Mês (Instaladas)</p>
+      <mat-icon class="kpi-icon purple">star</mat-icon>
+      
+      <ng-container *ngIf="kpis.topAgent.name !== 'N/A'; else noTopAgent">
+        <span class="kpi-value">{{ kpis.topAgent.name }}</span>
+        <span class="kpi-sub-value">{{ kpis.topAgent.sales }} vendas</span>
+      </ng-container>
+      <ng-template #noTopAgent>
+        <span class="kpi-value">-</span>
+        <span class="kpi-sub-value">Nenhuma venda instalada</span>
+      </ng-template>
+    </mat-card>
 
-      <mat-card class="kpi-card">
-        <div class="kpi-content">
-          <p class="kpi-title">Solicitações Pendentes</p>
-          <span class="kpi-value">{{ kpis.pendingRequests }}</span>
-        </div>
-        <div class="kpi-icon-wrapper orange">
-          <mat-icon>rule</mat-icon>
-        </div>
-      </mat-card>
+    <mat-card class="kpi-card">
+      <p class="kpi-title">Taxa de Conversão</p>
+      <mat-icon class="kpi-icon green">request_quote</mat-icon>
+      <span class="kpi-value">{{ kpis.conversionRate }}%</span>
+    </mat-card>
+    
+    <mat-card class="kpi-card">
+      <p class="kpi-title">Agentes Ativos</p>
+      <mat-icon class="kpi-icon blue">groups</mat-icon>
+      <span class="kpi-value">{{ kpis.activeAgents }}</span>
+    </mat-card>
 
-      <mat-card class="kpi-card">
-        <div class="kpi-content">
-          <p class="kpi-title">Agentes Ativos</p>
-          <span class="kpi-value">{{ kpis.activeAgents }}</span>
-        </div>
-        <div class="kpi-icon-wrapper green">
-          <mat-icon>groups</mat-icon>
-        </div>
-      </mat-card>
-
-      <mat-card class="kpi-card">
-        <div class="kpi-content">
-          <p class="kpi-title">Vendas no Mês</p>
-          <span class="kpi-value">{{ kpis.monthlySales }}</span>
-        </div>
-        <div class="kpi-icon-wrapper blue">
-          <mat-icon>trending_up</mat-icon>
-        </div>
-      </mat-card>
-
-      <mat-card class="kpi-card">
-        <div class="kpi-content">
-          <p class="kpi-title">Destaque do Mês</p>
-          <span class="kpi-value">{{ kpis.topAgent.name }}</span>
-          <span class="kpi-sub-value">{{ kpis.topAgent.sales }} vendas</span>
-        </div>
-        <div class="kpi-icon-wrapper purple">
-          <mat-icon>star</mat-icon>
-        </div>
-      </mat-card>
-
-    </div>
+    <mat-card class="kpi-card">
+      <p class="kpi-title">Solicitações Pendentes</p>
+      <mat-icon class="kpi-icon orange">rule</mat-icon>
+      <span class="kpi-value">{{ kpis.pendingRequests }}</span>
+    </mat-card>
   </div>
 
-</ng-container>
+  <div class="kpi-cards-container secondary" [@listAnimation]="kpis.salesByStatus.length">
+      <mat-card class="kpi-card-small">
+        <p class="kpi-title">Instaladas</p>
+        <span class="kpi-value green">{{ kpis.salesByStatus[0].value }}</span>
+      </mat-card>
+      <mat-card class="kpi-card-small">
+        <p class="kpi-title">Canceladas</p>
+        <span class="kpi-value red">{{ kpis.salesByStatus[1].value }}</span>
+      </mat-card>
+      <mat-card class="kpi-card-small">
+        <p class="kpi-title">Pendências</p>
+        <span class="kpi-value yellow">{{ kpis.salesByStatus[2].value }}</span>
+      </mat-card>
+      <mat-card class="kpi-card-small">
+        <p class="kpi-title">Em Aprovisionamento</p>
+        <span class="kpi-value blue">{{ kpis.salesByStatus[3].value }}</span>
+      </mat-card>
+  </div>
+</div>
 
 <ng-template #loading>
   <div class="page-container">
-    <h1>Overview da Equipe</h1>
-    <p>Um resumo geral do desempenho e atividades da sua equipe no mês atual.</p>
     <p>Calculando métricas...</p>
-    </div>
+  </div>
 </ng-template>
