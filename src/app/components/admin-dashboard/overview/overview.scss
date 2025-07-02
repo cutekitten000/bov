@@ -1,13 +1,15 @@
-// Cores para os ícones e destaques
-$orange: #f97316;
+// Cores Padrão da Aplicação
 $green: #22c55e;
 $blue: #3b82f6;
 $purple: #8b5cf6;
-$yellow: #eab308;
-$red: #ef4444;
+$orange: #f97316;
+$red: #ef4444;     // <-- Variável que estava faltando
+$yellow: #eab308; // <-- Variável que estava faltando
+$surface-color: #1f2937;
+$border-color: rgba(255, 255, 255, 0.1);
+$text-light: rgba(255, 255, 255, 0.7);
 
-:host {
-    // Necessário para as animações do ngx-charts funcionarem bem
+:host { 
     display: block; 
 }
 
@@ -16,119 +18,126 @@ $red: #ef4444;
     p { margin: 0 0 24px 0; color: rgba(255, 255, 255, 0.6); }
 }
 
-.kpi-cards-container {
+.kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 24px;
-
-    &.secondary {
-      margin-top: 32px;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
 }
 
-// NOVO ESTILO CENTRALIZADO PARA OS CARDS PRINCIPAIS
+// NOVO ESTILO PROFISSIONAL PARA OS CARDS
 .kpi-card {
-    background-color: #1f2937;
+    background: $surface-color;
     border-radius: 12px;
     padding: 24px;
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    // A mágica do alinhamento acontece aqui
+    border: 1px solid $border-color;
+    // A borda superior colorida dá a identidade visual
+    border-top: 4px solid transparent; 
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 4px; // Espaçamento vertical entre os elementos
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY(-5px);
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
     }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    &__title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: $text-light;
+        margin: 0;
+    }
+
+    &__icon {
+        font-size: 24px;
+        height: 24px;
+        width: 24px;
+    }
+
+    &__content {
+        margin-top: 16px;
+        width: 100%;
+    }
+
+    &__value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    &__sub-value {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+        display: block;
+    }
+
+    // Modificadores de cor para a borda e o ícone
+    &--purple { border-top-color: $purple; .kpi-card__icon { color: $purple; } }
+    &--green { border-top-color: $green; .kpi-card__icon { color: $green; } }
+    &--blue { border-top-color: $blue; .kpi-card__icon { color: $blue; } }
+    &--orange { border-top-color: $orange; .kpi-card__icon { color: $orange; } }
 }
 
-.kpi-title {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-    order: 1; // Ordem de exibição: título
+// Seção principal (gráfico e feed)
+.main-section-grid {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: flex-start;
+    @media (max-width: 1200px) { grid-template-columns: 1fr; }
 }
 
-.kpi-icon {
-    font-size: 36px;
-    height: 36px;
-    width: 36px;
-    margin: 12px 0;
-    order: 2; // Ordem de exibição: ícone
-
-    // Cores dos ícones
-    &.purple { color: $purple; }
-    &.green { color: $green; }
-    &.blue { color: $blue; }
-    &.orange { color: $orange; }
-}
-
-.kpi-value {
-    font-size: 2.75rem;
-    font-weight: 700;
-    line-height: 1.1;
-    order: 3; // Ordem de exibição: valor principal
-}
-
-.kpi-sub-value {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 2px;
-    font-style: italic;
-    order: 4; // Ordem de exibição: sub-valor
-}
-
-// Estilos para os cards secundários (menores e com cores no texto)
-.kpi-card-small {
-  background-color: #1f2937;
-  border-radius: 12px;
-  padding: 20px;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-
-  .kpi-value {
-    font-size: 2rem;
-    margin-top: 8px;
-    display: block;
-    font-weight: 600;
-    &.green { color: $green; }
-    &.blue { color: $blue; }
-    &.yellow { color: $yellow; }
-    &.red { color: $red; }
-  }
-}
-
-// Estilo para o container do gráfico
-.chart-container {
-    margin-top: 48px;
-    background-color: #1f2937;
-    padding: 24px;
+.chart-container, .activity-feed-container {
+    background: $surface-color;
+    border: 1px solid $border-color;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    h2 { margin-top: 0; margin-bottom: 24px; font-weight: 600; font-size: 1.2rem; }
+}
 
-    h2 {
-        margin-top: 0;
-        margin-bottom: 24px;
-        font-weight: 600;
-    }
-
-    // Customização do ngx-charts para o tema escuro
+.chart-wrapper {
+    height: 350px;
+    width: 100%;
     ::ng-deep .ngx-charts {
-        text {
-            fill: rgba(255, 255, 255, 0.7) !important;
-        }
-        .grid-panel line {
-            stroke: rgba(255, 255, 255, 0.1) !important;
-        }
+        text, .axis-label, .tick-label text { fill: $text-light !important; }
+        .grid-panel line { stroke: $border-color !important; }
     }
+}
+
+.no-data-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-light;
+}
+
+.activity-feed {
+    padding-top: 0;
+    max-height: 350px;
+    overflow-y: auto;
+    .activity-item {
+        height: auto !important;
+        padding: 12px 0 !important;
+        border-bottom: 1px solid $border-color;
+        &:last-child { border-bottom: none; }
+    }
+    .activity-icon {
+        &.status--instalada { color: $green; }
+        &.status--cancelada { color: $red; } // Agora funciona
+        &.status--pendencia { color: $yellow; } // Agora funciona
+        &.status--em-aprovisionamento { color: $blue; }
+    }
+    .activity-title { font-size: 0.9rem; }
+    .activity-subtitle { font-size: 0.8rem; color: $text-light; }
 }

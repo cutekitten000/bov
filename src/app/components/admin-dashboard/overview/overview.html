@@ -1,59 +1,49 @@
-<div class="page-container" *ngIf="kpis$ | async as kpis; else loading">
+<div class="page-container" *ngIf="overviewData$ | async as data; else loading">
   <h1>Overview da Equipe</h1>
   <p>Um resumo geral do desempenho e atividades da sua equipe no mês atual.</p>
 
-  <div class="kpi-cards-container" [@listAnimation]="kpis.activeAgents">
-
-    <mat-card class="kpi-card">
-      <p class="kpi-title">Destaque do Mês (Instaladas)</p>
-      <mat-icon class="kpi-icon purple">star</mat-icon>
-      
-      <ng-container *ngIf="kpis.topAgent.name !== 'N/A'; else noTopAgent">
-        <span class="kpi-value">{{ kpis.topAgent.name }}</span>
-        <span class="kpi-sub-value">{{ kpis.topAgent.sales }} vendas</span>
-      </ng-container>
-      <ng-template #noTopAgent>
-        <span class="kpi-value">-</span>
-        <span class="kpi-sub-value">Nenhuma venda instalada</span>
-      </ng-template>
-    </mat-card>
-
-    <mat-card class="kpi-card">
-      <p class="kpi-title">Taxa de Conversão</p>
-      <mat-icon class="kpi-icon green">request_quote</mat-icon>
-      <span class="kpi-value">{{ kpis.conversionRate }}%</span>
-    </mat-card>
-    
-    <mat-card class="kpi-card">
-      <p class="kpi-title">Agentes Ativos</p>
-      <mat-icon class="kpi-icon blue">groups</mat-icon>
-      <span class="kpi-value">{{ kpis.activeAgents }}</span>
-    </mat-card>
-
-    <mat-card class="kpi-card">
-      <p class="kpi-title">Solicitações Pendentes</p>
-      <mat-icon class="kpi-icon orange">rule</mat-icon>
-      <span class="kpi-value">{{ kpis.pendingRequests }}</span>
+  <div class="kpi-grid" [@listAnimation]="data.kpiCards.length">
+    <mat-card *ngFor="let kpi of data.kpiCards" [ngClass]="'kpi-card--' + kpi.color" class="kpi-card">
+      <div class="kpi-card__header">
+        <p class="kpi-card__title">{{ kpi.title }}</p>
+        <mat-icon class="kpi-card__icon">{{ kpi.icon }}</mat-icon>
+      </div>
+      <div class="kpi-card__content">
+        <span class="kpi-card__value">{{ kpi.value }}</span>
+        <span *ngIf="kpi.subValue" class="kpi-card__sub-value">{{ kpi.subValue }}</span>
+      </div>
     </mat-card>
   </div>
 
-  <div class="kpi-cards-container secondary" [@listAnimation]="kpis.salesByStatus.length">
-      <mat-card class="kpi-card-small">
-        <p class="kpi-title">Instaladas</p>
-        <span class="kpi-value green">{{ kpis.salesByStatus[0].value }}</span>
-      </mat-card>
-      <mat-card class="kpi-card-small">
-        <p class="kpi-title">Canceladas</p>
-        <span class="kpi-value red">{{ kpis.salesByStatus[1].value }}</span>
-      </mat-card>
-      <mat-card class="kpi-card-small">
-        <p class="kpi-title">Pendências</p>
-        <span class="kpi-value yellow">{{ kpis.salesByStatus[2].value }}</span>
-      </mat-card>
-      <mat-card class="kpi-card-small">
-        <p class="kpi-title">Em Aprovisionamento</p>
-        <span class="kpi-value blue">{{ kpis.salesByStatus[3].value }}</span>
-      </mat-card>
+  <div class="main-section-grid">
+    <div class="chart-container" [@listAnimation]="data.salesByAgentChart.length">
+      <h2>Desempenho por Agente (Instaladas no Mês)</h2>
+      <div class="chart-wrapper">
+        <ngx-charts-bar-vertical
+          *ngIf="data.salesByAgentChart.length > 0; else noChartData"
+          [results]="data.salesByAgentChart"
+          [xAxis]="true"
+          [yAxis]="true"
+          [scheme]="chartColorScheme"
+          [barPadding]="8"
+          [roundDomains]="true">
+        </ngx-charts-bar-vertical>
+        <ng-template #noChartData>
+          <div class="no-data-placeholder">Nenhuma venda instalada para exibir no gráfico.</div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="activity-feed-container" [@listAnimation]="data.activityFeed.length">
+      <h2>Atividades Recentes</h2>
+      <mat-list class="activity-feed">
+        <mat-list-item *ngFor="let item of data.activityFeed" class="activity-item">
+          <mat-icon matListItemIcon [ngClass]="'status--' + item.status">{{ item.status === 'instalada' ? 'check_circle' : 'info' }}</mat-icon>
+          <div matListItemTitle class="activity-title"><strong>{{ item.agentName }}</strong> {{ item.action }}</div>
+          <div matListItemLine class="activity-subtitle">{{ item.saleInfo }} | {{ item.timestamp | date:'dd/MM HH:mm' }}</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
   </div>
 </div>
 

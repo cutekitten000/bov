@@ -10,6 +10,7 @@ import {
     doc,
     getDoc,
     getDocs,
+    limit,
     orderBy,
     query,
     setDoc,
@@ -587,5 +588,20 @@ export class DatabaseService {
         const querySnapshot = await getDocs(q);
         // Usamos o doc.id para garantir que o uid está presente, mesmo que não esteja no documento
         return querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id } as AppUser));
+    }
+
+    /**
+     * Busca as últimas N vendas registradas, para um feed de atividades.
+     * @param count O número de vendas recentes a serem buscadas.
+     */
+    async getRecentSales(count: number): Promise<Sale[]> {
+        const q = query(this.salesCollection, orderBy('createdAt', 'desc'), limit(count));
+        const querySnapshot = await getDocs(q);
+        
+        const sales: Sale[] = [];
+        querySnapshot.forEach(doc => {
+            sales.push({ id: doc.id, ...doc.data() } as Sale);
+        });
+        return sales;
     }
 }
