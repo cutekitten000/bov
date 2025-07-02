@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 // IMPORTANTE: Adicione 'createUserWithEmailAndPassword' na linha abaixo
 import { Auth, authState, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User, UserCredential } from '@angular/fire/auth';
 import { firstValueFrom, Observable } from 'rxjs';
+import { Functions, httpsCallable } from '@angular/fire/functions'; // <-- ADICIONE ESTE IMPORT
 
 export interface AppUser {
   uid: string;
@@ -18,6 +19,7 @@ export interface AppUser {
 })
 export class AuthService {
   private auth: Auth = inject(Auth);
+  private functions: Functions = inject(Functions);
 
   // Observable para saber o estado do usuário (logado ou não)
   readonly authState$: Observable<User | null> = authState(this.auth);
@@ -45,5 +47,17 @@ export class AuthService {
   // Função de Redefinição de Senha
   sendPasswordResetEmail(email: string): Promise<void> {
     return sendPasswordResetEmail(this.auth, email);
+  }
+
+  // ****** ADICIONE ESTE NOVO MÉTODO ******
+  /**
+   * Chama a Cloud Function para enviar um email de reset de senha para um usuário.
+   * @param email O email do usuário alvo.
+   */
+  resetPasswordForUser(email: string): Promise<any> {
+    // Cria uma referência para a nossa função na nuvem
+    const resetFunction = httpsCallable(this.functions, 'sendPasswordResetEmailFromAdmin');
+    // Chama a função, passando o email como dado
+    return resetFunction({ email: email });
   }
 }

@@ -13,10 +13,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Imports de Serviços e Componentes
-import { AppUser } from '../../../services/auth';
+import { AppUser, AuthService } from '../../../services/auth';
 import { DatabaseService } from '../../../services/database.service';
 import { ConfirmDialog } from '../../dialogs/confirm-dialog/confirm-dialog';
 import { EditUser } from '../../dialogs/edit-user/edit-user';
+
+
 
 @Component({
   selector: 'app-team-management',
@@ -36,6 +38,7 @@ export class TeamManagement implements OnInit {
   private dbService = inject(DatabaseService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private authService = inject(AuthService);
 
   public usersWithKpis$: Observable<any[]>;
   
@@ -123,6 +126,26 @@ export class TeamManagement implements OnInit {
   }
 
   onResetPassword(user: AppUser): void {
-    alert(`Futuramente, aqui resetaremos a senha de: ${user.name}`);
+    if (!user.email) {
+      this.snackBar.open('Este usuário não possui um email cadastrado.', 'Fechar', { duration: 3000 });
+      return;
+    }
+    
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      data: { message: `Tem certeza que deseja enviar um link de redefinição de senha para ${user.name}?` }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.authService.resetPasswordForUser(user.email!)
+          .then(() => {
+            this.snackBar.open(`Email de redefinição enviado para ${user.email}.`, 'Fechar', { duration: 4000 });
+          })
+          .catch(err => {
+            console.error("Erro ao resetar senha:", err);
+            this.snackBar.open('Ocorreu um erro ao enviar o email.', 'Fechar', { duration: 4000 });
+          });
+      }
+    });
   }
 }
