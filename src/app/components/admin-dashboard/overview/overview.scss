@@ -95,6 +95,7 @@ $text-light: rgba(255, 255, 255, 0.7);
     gap: 24px;
     align-items: flex-start;
     @media (max-width: 1200px) { grid-template-columns: 1fr; }
+    margin-bottom: 100px;
 }
 
 .chart-container, .activity-feed-container {
