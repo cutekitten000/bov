@@ -35,6 +35,11 @@
     <mat-icon>today</mat-icon>
     <span>Vendas do Dia</span>
   </a>
+
+  <a mat-list-item routerLink="sales/yesterday" routerLinkActive="active-link">
+    <mat-icon>event_repeat</mat-icon>
+    <span>Vendas de Ontem</span>
+  </a>
   <mat-divider></mat-divider>
 
   <a mat-list-item (click)="openAdminLinksDialog()">

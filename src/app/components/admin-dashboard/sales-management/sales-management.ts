@@ -92,6 +92,13 @@ export class SalesManagement implements OnInit {
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(today);
       endDate.setHours(23, 59, 59, 999);
+    } else if (period === 'yesterday') {
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+      startDate = new Date(yesterday);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(yesterday);
+      endDate.setHours(23, 59, 59, 999)
     } else if (period === 'week') {
       const firstDayOfWeek = new Date(today);
       // Subtrai o dia da semana (domingo=0, segunda=1...) para encontrar o último domingo
