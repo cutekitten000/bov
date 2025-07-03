@@ -184,3 +184,32 @@ $received-bubble-bg: #334155;
   justify-content: center;
   align-items: center;
 }
+
+// Estilo especial para as bolhas de mensagem do Admin
+.message-bubble.admin-message {
+  // Inverte o esquema de cores para um destaque forte
+  background-color: #e0e7ff; // Um azul bem claro, quase branco
+  color: #1e3a8a; // Texto em azul escuro
+
+  // Adiciona um pequeno ícone de "verificado" ou "admin"
+  .sender-name::after {
+    content: 'verified'; // Nome do ícone do Material Icons
+    font-family: 'Material Icons';
+    font-size: 1rem;
+    vertical-align: middle;
+    margin-left: 6px;
+    color: $primary-color; // Usa sua variável de cor primária
+  }
+
+  .message-timestamp {
+    color: rgba(30, 58, 138, 0.7); // Cor do timestamp mais escura
+  }
+}
+
+// Garante que o balão do admin, mesmo quando enviado por ele, tenha o estilo correto
+.sent .message-bubble.admin-message {
+  background-color: #e0e7ff;
+  color: #1e3a8a;
+  border-top-right-radius: 20px; // Mantém o balão totalmente arredondado
+  border-top-left-radius: 5px;   // Adiciona o "rabicho" no lado certo
+}

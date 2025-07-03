@@ -20,9 +20,9 @@
             <div class="section-title">Mensagens Diretas</div>
 
             <a mat-list-item *ngFor="let item of chatListItems$ | async"
-   (click)="selectChat({ type: 'dm', id: item.uid, name: item.name }, item.id)"
-   [class.active]="selectedChat.id === item.uid"
-   [class.unread]="currentUser && item.lastMessage?.timestamp?.toDate() > item.lastRead?.[currentUser.uid]?.toDate()">
+    (click)="selectChat({ type: 'dm', id: item.uid, name: item.name }, item.id)"
+    [class.active]="selectedChat.id === item.uid"
+    [class.unread]="currentUser && item.lastMessage?.timestamp?.toDate() > item.lastRead?.[currentUser.uid]?.toDate()">
 
   <div class="links-content">
     <mat-icon class="icon">person</mat-icon>
@@ -50,16 +50,17 @@
                 [class.sent]="msg.senderUid === currentUser?.uid"
                 [class.received]="msg.senderUid !== currentUser?.uid"
             >
-                <div class="message-bubble">
+                <div class="message-bubble" [class.admin-message]="msg.senderRole === 'admin'">
                     <div
                         class="sender-name"
                         *ngIf="msg.senderUid !== currentUser?.uid"
                     >
-                        {{ msg.senderName }}
+                        <span>{{ msg.senderName }}</span>
+                        <mat-icon *ngIf="msg.senderRole === 'admin'" class="admin-badge" matTooltip="Administrador">verified</mat-icon>
                     </div>
                     <div class="message-text">{{ msg.text }}</div>
                     <div class="message-timestamp">
-                        {{ msg.timestamp.toDate() | date:'HH:mm' }}
+                        {{ msg.timestamp?.toDate() | date:'HH:mm' }}
                     </div>
                 </div>
             </div>

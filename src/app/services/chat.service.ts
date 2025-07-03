@@ -48,7 +48,8 @@ export class ChatService {
     const newMessage: Omit<ChatMessage, 'id'> = {
       text: text,
       senderUid: user.uid,
-      senderName: user.name, // Assumindo que AppUser tem 'name'
+      senderName: user.name,
+      senderRole: user.role,
       timestamp: Timestamp.now()
     };
     return addDoc(messagesColRef, newMessage);
@@ -110,6 +111,7 @@ export class ChatService {
       text: text,
       senderUid: sender.uid,
       senderName: sender.name,
+      senderRole: sender.role,
       timestamp: newTimestamp // <-- Usa a timestamp gerada
     };
     

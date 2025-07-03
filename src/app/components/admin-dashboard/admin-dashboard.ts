@@ -23,7 +23,7 @@ import { AdminLinks } from '../dialogs/admin-links/admin-links';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
-    AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive,
+    RouterOutlet, RouterLink, RouterLinkActive,
     MatSidenavModule, MatListModule, MatIconModule, MatDividerModule
   ],
   templateUrl: './admin-dashboard.html',
