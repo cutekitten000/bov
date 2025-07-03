@@ -17,6 +17,7 @@ import { AuthService, AppUser } from '../../services/auth';
 import { DatabaseService } from '../../services/database.service';
 import { ConfirmDialog } from '../../components/dialogs/confirm-dialog/confirm-dialog';
 import { ChatDialog } from '../../components/dialogs/chat-dialog/chat-dialog'; // <-- IMPORT FALTANTE ADICIONADO
+import { AdminLinks } from '../dialogs/admin-links/admin-links';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -44,6 +45,14 @@ export class AdminDashboard implements OnInit {
       if (admin) {
         this.adminName = admin.name;
       }
+    });
+  }
+
+  openAdminLinksDialog(): void {
+    this.dialog.open(AdminLinks, {
+      width: '1400px',
+      maxWidth: '100%',
+      panelClass: 'custom-dialog-container'
     });
   }
   

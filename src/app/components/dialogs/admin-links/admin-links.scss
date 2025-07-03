@@ -1,0 +1,46 @@
+:host ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: #1f2937 !important;
+    border-radius: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+
+  h2[mat-dialog-title] {
+    margin: 0;
+    padding: 20px 0;
+  }
+}
+
+mat-dialog-content {
+  padding: 24px;
+  max-height: 70vh;
+}
+
+.links-grid {
+  display: grid;
+  // Cria colunas que se ajustam automaticamente, com um tamanho mínimo de 240px
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px; // Espaçamento entre os botões
+}
+
+// Estilo de cada botão na grade
+.links-grid a[mat-stroked-button] {
+  display: flex;
+  justify-content: flex-start; // Alinha o conteúdo (ícone e texto) à esquerda
+  padding: 16px;
+  height: 60px;
+  font-size: 0.9rem;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: none; // Evita que o texto fique em maiúsculas
+
+  mat-icon {
+    margin-right: 12px;
+  }
+}

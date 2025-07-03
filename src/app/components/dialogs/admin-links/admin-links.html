@@ -1,0 +1,19 @@
+<div class="header">
+  <h2 mat-dialog-title>Links Úteis</h2>
+  <button mat-icon-button mat-dialog-close aria-label="Fechar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <div class="links-grid">
+    <a *ngFor="let link of usefulLinks"
+       mat-stroked-button
+       [href]="link.url"
+       target="_blank"
+       rel="noopener noreferrer">
+      <mat-icon>{{ link.icon || 'link' }}</mat-icon>
+      <span>{{ link.name }}</span>
+    </a>
+  </div>
+</mat-dialog-content>

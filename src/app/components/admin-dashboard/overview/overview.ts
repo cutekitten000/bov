@@ -63,7 +63,7 @@ export class Overview implements OnInit {
       pendingUsers: from(this.dbService.getPendingUsers()),
       agents: from(this.dbService.getAgents()),
       monthlySales: from(this.dbService.getAllSalesForMonth(year, month)),
-      recentSales: from(this.dbService.getRecentSales(5))
+      recentSales: from(this.dbService.getRecentSales(30))
     }).pipe(
       map(result => {
         const { pendingUsers, agents, monthlySales, recentSales } = result;
