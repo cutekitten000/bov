@@ -184,22 +184,27 @@ export class ChatDialog implements OnInit, AfterViewChecked {
     }
 
     sendMessage(): void {
-        if (this.newMessageControl.invalid || !this.currentUser) return;
-        const messageText = this.newMessageControl.value!;
-        if (this.selectedChat.type === 'group') {
-            this.chatService.sendGroupChatMessage(
-                messageText,
-                this.currentUser
-            );
-        } else {
-            this.chatService.sendDirectMessage(
-                messageText,
-                this.currentUser,
-                this.selectedChat.id
-            );
-        }
-        this.newMessageControl.reset();
+    if (this.newMessageControl.invalid || !this.currentUser) return;
+    
+    const messageText = this.newMessageControl.value?.trim();
+    if (!messageText) return; // Não envia mensagens vazias
+
+    // Cria um objeto de mensagem do tipo 'text'
+    const message: Partial<ChatMessage> = {
+      text: messageText,
+      fileType: 'text', // Define explicitamente o tipo
+    };
+
+    if (this.selectedChat.type === 'group') {
+      // Envia o objeto 'message' em vez do 'messageText'
+      this.chatService.sendGroupChatMessage(message, this.currentUser);
+    } else {
+      // Envia o objeto 'message' em vez do 'messageText'
+      this.chatService.sendDirectMessage(message, this.currentUser, this.selectedChat.id);
     }
+    
+    this.newMessageControl.reset();
+  }
 
     close(): void {
         this.dialogRef.close();

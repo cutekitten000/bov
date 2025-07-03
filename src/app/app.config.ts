@@ -19,6 +19,8 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { getFunctions, provideFunctions } from '@angular/fire/functions';
 
+import { getStorage, provideStorage } from '@angular/fire/storage';
+
 // --- 1. CRIE A CONSTANTE COM OS FORMATOS PT-BR ---
 export const MY_DATE_FORMATS = {
   parse: {
@@ -54,6 +56,7 @@ export const appConfig: ApplicationConfig = {
     provideFirestore(() => getFirestore()),
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
     provideFunctions(() => getFunctions()),
+    provideStorage(() => getStorage()),
     provideMomentDateAdapter(),
      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }, // <-- 2. ADICIONE O PROVEDOR DE FORMATOS
     provideNgxMask(),

@@ -21,6 +21,7 @@
     "@angular/material-moment-adapter": "^20.0.3",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@firebase/storage": "^0.13.14",
     "@swimlane/ngx-charts": "^23.0.0-alpha.0",
     "moment": "^2.30.1",
     "ngx-mask": "^19.0.7",

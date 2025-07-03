@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AppUser } from './auth';
@@ -9,6 +10,7 @@ import { AppUser } from './auth';
 })
 export class ChatService {
   private firestore: Firestore = inject(Firestore);
+  private storage: Storage = inject(Storage);
 
   /**
   * NOVO MÉTODO: Garante que uma sala de DM exista entre dois usuários.
@@ -27,6 +29,18 @@ export class ChatService {
     return chatRoomId;
   }
 
+   /**
+   * Faz o upload de um arquivo para um caminho específico no Firebase Storage.
+   * @param file O arquivo a ser enviado.
+   * @param path O caminho completo no Storage (ex: 'uploads/file123.jpg').
+   * @returns A URL de download pública do arquivo.
+   */
+  async uploadFile(file: File, path: string): Promise<string> {
+    const storageRef = ref(this.storage, path);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  }
+
   /**
    * Busca as mensagens do chat em grupo em tempo real, ordenadas por data.
    * @returns Um Observable com o array de mensagens.
@@ -43,14 +57,18 @@ export class ChatService {
   /**
    * Envia uma nova mensagem para o chat em grupo.
    */
-  sendGroupChatMessage(text: string, user: AppUser): Promise<any> {
+  sendGroupChatMessage(messageData: Partial<ChatMessage>, user: AppUser): Promise<any> {
     const messagesColRef = collection(this.firestore, 'group-chat');
     const newMessage: Omit<ChatMessage, 'id'> = {
-      text: text,
       senderUid: user.uid,
       senderName: user.name,
       senderRole: user.role,
-      timestamp: Timestamp.now()
+      timestamp: Timestamp.now(),
+      // Adiciona os novos dados
+      text: messageData.text || '',
+      fileUrl: messageData.fileUrl || '',
+      fileName: messageData.fileName || '',
+      fileType: messageData.fileType || 'text'
     };
     return addDoc(messagesColRef, newMessage);
   }
@@ -87,44 +105,38 @@ export class ChatService {
    * @param sender O usuário que está enviando.
    * @param recipientUid O UID do usuário que receberá a mensagem.
    */
-   async sendDirectMessage(text: string, sender: AppUser, recipientUid: string) {
-    
-
-    if (!sender.uid) {
-      console.error('8. [CHAT SERVICE] Bloqueado: UID do remetente é nulo!');
-      return;
-    }
+   async sendDirectMessage(messageData: Partial<ChatMessage>, sender: AppUser, recipientUid: string) {
+    if (!sender.uid) return;
 
     const chatRoomId = this.getChatRoomId(sender.uid, recipientUid);
-
     const chatRoomRef = doc(this.firestore, `direct-messages/${chatRoomId}`);
     const messagesCollectionRef = collection(chatRoomRef, 'messages');
-
-    // Usar um batch para garantir que todas as escritas aconteçam juntas
     const batch = writeBatch(this.firestore);
+    const newMessageRef = doc(messagesCollectionRef);
+    const newTimestamp = Timestamp.now();
     
-    // 1. Prepara a nova mensagem
-    const newMessageRef = doc(messagesCollectionRef); // Cria a referência para a nova mensagem
-    const newTimestamp = Timestamp.now(); // <-- USA A MESMA TIMESTAMP PARA TUDO
-    
-    const newMessageData = {
-      text: text,
+    const newMessage: ChatMessage = {
+      id: newMessageRef.id,
       senderUid: sender.uid,
       senderName: sender.name,
       senderRole: sender.role,
-      timestamp: newTimestamp // <-- Usa a timestamp gerada
+      timestamp: newTimestamp,
+      // Adiciona os novos dados
+      text: messageData.text || '',
+      fileUrl: messageData.fileUrl || '',
+      fileName: messageData.fileName || '',
+      fileType: messageData.fileType || 'text'
     };
     
-    batch.set(newMessageRef, newMessageData);
+    batch.set(newMessageRef, newMessage);
 
-    // 2. Atualiza o documento principal da sala
     batch.update(chatRoomRef, {
-      lastMessage: { // Atualiza a cópia da última mensagem
-        text: text,
-        timestamp: newTimestamp // <-- Usa a mesma timestamp
+      lastMessage: {
+        // Atualiza lastMessage para mostrar o nome do arquivo se for um anexo
+        text: messageData.fileType === 'text' ? messageData.text : messageData.fileName || 'Arquivo',
+        timestamp: newTimestamp
       },
-      // Atualiza o timestamp de 'lido' para quem enviou a mensagem
-      [`lastRead.${sender.uid}`]: newTimestamp // <-- Usa a mesma timestamp
+      [`lastRead.${sender.uid}`]: newTimestamp
     });
 
     return await batch.commit();
