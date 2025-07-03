@@ -3,6 +3,7 @@ $border-color: rgba(255, 255, 255, 0.12);
 $primary-color: #3b82f6;
 $surface-color: #1f2937;
 $received-bubble-bg: #334155;
+$admin-highlight-color: #fbfd7b; // Roxo para o admin
 
 // Estrutura principal do modal
 :host {
@@ -37,7 +38,6 @@ $received-bubble-bg: #334155;
   mat-icon { font-size: 28px; height: 28px; width: 28px; }
 }
 
-// ESTILOS UNIFICADOS E CORRIGIDOS PARA A LISTA DE NAVEGAÇÃO
 .navlist {
   padding-top: 8px !important;
   flex-grow: 1;
@@ -58,7 +58,7 @@ $received-bubble-bg: #334155;
     margin: 4px 12px;
     border-radius: 6px;
     width: auto;
-    position: relative; // Essencial para a barra 'unread'
+    position: relative; 
     
     .links-content {
       display: flex;
@@ -73,9 +73,8 @@ $received-bubble-bg: #334155;
 
     // Estilo para o item ATIVO (SELECIONADO)
     &.active {
-      background-color: rgba($primary-color, 0.25); // Fundo azul suave
-      color: #fff; // Texto branco para destaque
-      // Sem font-weight para não deslocar o texto
+      background-color: rgba($primary-color, 0.25);
+      color: #fff;
     }
 
     // Estilo para o item NÃO LIDO
@@ -138,9 +137,6 @@ $received-bubble-bg: #334155;
     justify-content: center;
     outline: none;
   }
-  .message-input {
-    flex-grow: 1;
-  }
   button[mat-fab] {
     flex-shrink: 0;
   }
@@ -165,8 +161,22 @@ $received-bubble-bg: #334155;
   padding: 12px 18px;
   border-radius: 20px;
   line-height: 1.5;
-  .sender-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; opacity: 0.9; }
-  .message-timestamp { font-size: 0.7rem; text-align: right; opacity: 0.7; margin-top: 8px; display: block; }
+  .sender-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    opacity: 0.9;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .message-timestamp {
+    font-size: 0.7rem;
+    text-align: right;
+    opacity: 0.7;
+    margin-top: 8px;
+    display: block;
+  }
 }
 .sent .message-bubble {
   background-color: $primary-color;
@@ -185,31 +195,29 @@ $received-bubble-bg: #334155;
   align-items: center;
 }
 
-// Estilo especial para as bolhas de mensagem do Admin
+// --- ESTILOS PARA O ADMIN ---
+.admin-badge {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+  color: $admin-highlight-color;
+}
+
 .message-bubble.admin-message {
-  // Inverte o esquema de cores para um destaque forte
-  background-color: #e0e7ff; // Um azul bem claro, quase branco
-  color: #1e3a8a; // Texto em azul escuro
+  background: linear-gradient(145deg, lighten($received-bubble-bg, 5%), $received-bubble-bg);
+  border: 1px solid rgba($admin-highlight-color, 0.5);
+  color: #fff;
 
-  // Adiciona um pequeno ícone de "verificado" ou "admin"
-  .sender-name::after {
-    content: 'verified'; // Nome do ícone do Material Icons
-    font-family: 'Material Icons';
-    font-size: 1rem;
-    vertical-align: middle;
-    margin-left: 6px;
-    color: $primary-color; // Usa sua variável de cor primária
+  .sender-name {
+    color: $admin-highlight-color;
+    font-weight: 700;
   }
-
   .message-timestamp {
-    color: rgba(30, 58, 138, 0.7); // Cor do timestamp mais escura
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 
-// Garante que o balão do admin, mesmo quando enviado por ele, tenha o estilo correto
 .sent .message-bubble.admin-message {
-  background-color: #e0e7ff;
-  color: #1e3a8a;
-  border-top-right-radius: 20px; // Mantém o balão totalmente arredondado
-  border-top-left-radius: 5px;   // Adiciona o "rabicho" no lado certo
+  border-top-right-radius: 5px;
+  border-top-left-radius: 20px;
 }
