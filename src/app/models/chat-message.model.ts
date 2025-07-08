@@ -14,4 +14,5 @@ export interface ChatMessage {
   fileUrl?: string;   // A URL para baixar ou ver o arquivo
   fileName?: string;  // O nome original do arquivo (ex: "relatorio.pdf")
   fileType?: string;  // O tipo do arquivo (ex: "image/jpeg" ou "application/pdf")
+  filePath?: string;
 }

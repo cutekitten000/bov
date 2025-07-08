@@ -1,5 +1,5 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 // Inicializa o Admin SDK para ter acesso aos serviços do Firebase no backend.
 admin.initializeApp();
@@ -112,4 +112,61 @@ export const deleteUserAndData = onCall(async (request) => {
     throw new HttpsError("internal", "Ocorreu um erro ao tentar excluir o usuário e seus dados.");
   }
 });
-  
+
+
+/**
+ * Limpa completamente o chat em grupo.
+ * Apaga todos os arquivos associados no Storage e todas as mensagens no Firestore.
+ * Requer que o chamador seja um administrador.
+ */
+export const clearGroupChat = onCall(async (request) => {
+  const callerUid = request.auth?.uid;
+
+  if (!callerUid) {
+    throw new HttpsError("unauthenticated", "Ação não autorizada.");
+  }
+
+  const callerDoc = await db.collection("users").doc(callerUid).get();
+  if (callerDoc.data()?.role !== "admin") {
+    throw new HttpsError("permission-denied", "Você não tem permissão para realizar esta ação.");
+  }
+
+  console.log(`Iniciando limpeza completa do chat em grupo a pedido de ${callerUid}`);
+
+  const messagesRef = db.collection('group-chat');
+  const messagesSnapshot = await messagesRef.get();
+
+  if (messagesSnapshot.empty) {
+    console.log("Nenhuma mensagem encontrada para limpar.");
+    return { success: true, message: "O chat em grupo já estava vazio." };
+  }
+
+  const storage = admin.storage();
+  const bucket = storage.bucket();
+
+  for (const doc of messagesSnapshot.docs) {
+    const data = doc.data();
+    // A MUDANÇA ESTÁ AQUI: Usamos o campo 'filePath' que salvamos
+    if (data.filePath) {
+      try {
+        await bucket.file(data.filePath).delete();
+        console.log(`Arquivo deletado do Storage: ${data.filePath}`);
+      } catch (error: any) {
+        if (error.code === 404) {
+          console.warn(`Arquivo não encontrado no Storage, mas a mensagem será deletada: ${data.filePath}`);
+        } else {
+          console.error(`Erro ao deletar o arquivo ${data.filePath} do Storage:`, error);
+        }
+      }
+    }
+  }
+
+  const batch = db.batch();
+  messagesSnapshot.docs.forEach(doc => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+
+  console.log(`${messagesSnapshot.size} mensagens foram deletadas do Firestore.`);
+  return { success: true, message: "Chat em grupo e todos os arquivos associados foram limpos com sucesso." };
+});

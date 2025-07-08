@@ -68,7 +68,8 @@ export class ChatService {
       text: messageData.text || '',
       fileUrl: messageData.fileUrl || '',
       fileName: messageData.fileName || '',
-      fileType: messageData.fileType || 'text'
+      fileType: messageData.fileType || 'text',
+      filePath: messageData.filePath || ''
     };
     return addDoc(messagesColRef, newMessage);
   }
@@ -125,7 +126,8 @@ export class ChatService {
       text: messageData.text || '',
       fileUrl: messageData.fileUrl || '',
       fileName: messageData.fileName || '',
-      fileType: messageData.fileType || 'text'
+      fileType: messageData.fileType || 'text',
+      filePath: messageData.filePath || ''
     };
     
     batch.set(newMessageRef, newMessage);

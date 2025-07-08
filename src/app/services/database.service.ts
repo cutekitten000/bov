@@ -19,10 +19,10 @@ import {
     writeBatch,
 } from '@angular/fire/firestore';
 
+import { Functions, httpsCallable } from '@angular/fire/functions'; // Importe
 import { Sale } from '../models/sale.model';
 import { Script } from '../models/script.model';
 import { AppUser } from './auth'; // Vamos criar essa interface no próximo passo
-import { Functions, httpsCallable } from '@angular/fire/functions'; // Importe
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -537,26 +537,10 @@ export class DatabaseService {
      * Exclui todas as mensagens da coleção 'group-chat'.
      * Esta é uma operação destrutiva e deve ser usada com cuidado.
      */
-    async clearGroupChat(): Promise<void> {
-        console.log("Iniciando exclusão do chat em grupo...");
-        const groupChatCollection = collection(this.firestore, 'group-chat');
-        const querySnapshot = await getDocs(groupChatCollection);
-
-        if (querySnapshot.empty) {
-            console.log("Chat em grupo já está vazio.");
-            return; // Sai da função se não houver nada para deletar
-        }
-
-        // Para deletar múltiplos documentos de forma eficiente, usamos um WriteBatch.
-        const batch = writeBatch(this.firestore);
-        querySnapshot.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-
-        // Executa todas as operações de exclusão de uma só vez.
-        await batch.commit();
-        console.log(`Excluídos ${querySnapshot.size} documentos do chat em grupo.`);
-    }
+    clearGroupChat(): Promise<any> {
+    const clearChatFunction = httpsCallable(this.functions, 'clearGroupChat');
+    return clearChatFunction();
+}
 
     // ****** ADICIONE ESTE NOVO MÉTODO ******
     /**

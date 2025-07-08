@@ -246,6 +246,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                 fileType: file.type,
                 fileUrl: downloadUrl,
                 fileName: file.name,
+                filePath: path,
                 text: '',
             };
 
