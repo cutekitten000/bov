@@ -3,6 +3,7 @@ import {
     AfterViewChecked,
     Component,
     ElementRef,
+    HostListener,
     inject,
     OnDestroy,
     OnInit,
@@ -82,6 +83,89 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     ngOnDestroy(): void {
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
+        }
+    }
+
+    private async uploadFile(file: File): Promise<void> {
+        if (!file) return;
+
+        // 1. Validação de Tamanho (3MB)
+        const maxSize = 3 * 1024 * 1024;
+        if (file.size > maxSize) {
+            this.snackBar.open(
+                'Erro: O arquivo excede o limite de 3MB.',
+                'Fechar',
+                { duration: 3000 }
+            );
+            return;
+        }
+
+        // 2. Validação de Tipo
+        const allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+        ];
+        if (!allowedMimeTypes.includes(file.type)) {
+            this.snackBar.open(
+                'Erro: Tipo de arquivo não permitido.',
+                'Fechar',
+                { duration: 3000 }
+            );
+            return;
+        }
+
+        if (!this.currentUser) return;
+        this.isUploading = true;
+
+        // 3. Lógica de Upload (exatamente como antes)
+        try {
+            const chatScope =
+                this.selectedChat.type === 'group'
+                    ? 'group-chat'
+                    : this.getChatRoomId(
+                          this.currentUser.uid,
+                          this.selectedChat.id
+                      );
+            const path = `uploads/${chatScope}/${Date.now()}_${file.name}`;
+            const downloadUrl = await this.chatService.uploadFile(file, path);
+            const messageType = file.type.startsWith('image/')
+                ? 'image'
+                : file.type;
+
+            const message: Partial<ChatMessage> = {
+                fileType: messageType,
+                fileUrl: downloadUrl,
+                fileName: file.name,
+                text: this.newMessageControl.value?.trim() || '', // Envia o texto junto se houver
+            };
+
+            if (this.selectedChat.type === 'group') {
+                await this.chatService.sendGroupChatMessage(
+                    message,
+                    this.currentUser
+                );
+            } else {
+                await this.chatService.sendDirectMessage(
+                    message,
+                    this.currentUser,
+                    this.selectedChat.id
+                );
+            }
+            this.newMessageControl.reset(); // Limpa o campo de texto após o envio
+        } catch (error) {
+            console.error('Erro no upload do arquivo:', error);
+            this.snackBar.open(
+                'Ocorreu um erro ao enviar o arquivo.',
+                'Fechar',
+                { duration: 3000 }
+            );
+        } finally {
+            this.isUploading = false;
         }
     }
 
@@ -193,85 +277,39 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
         this.newMessageControl.reset();
     }
 
-    async onFileSelected(event: any): Promise<void> {
-        const file: File = event.target.files[0];
+    onFileSelected(event: any): void {
         const fileInput = event.target as HTMLInputElement;
-        if (!file) return;
-
-        const maxSize = 3 * 1024 * 1024; // 3MB
-        if (file.size > maxSize) {
-            this.snackBar.open(
-                'Erro: O arquivo excede o limite de 3MB.',
-                'Fechar',
-                { duration: 3000 }
-            );
-            fileInput.value = '';
-            return;
+        const file = fileInput.files?.[0];
+        if (file) {
+            this.uploadFile(file);
         }
+        // Limpa o input para permitir selecionar o mesmo arquivo novamente
+        fileInput.value = '';
+    }
 
-        const allowedMimeTypes = [
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-        ];
-        if (!allowedMimeTypes.includes(file.type)) {
-            this.snackBar.open(
-                'Erro: Tipo de arquivo não permitido.',
-                'Fechar',
-                { duration: 3000 }
-            );
-            fileInput.value = '';
-            return;
-        }
+    @HostListener('paste', ['$event'])
+    handlePaste(event: ClipboardEvent): void {
+        // Impede que o texto/imagem seja colado no campo de input
+        event.preventDefault();
 
-        if (!this.currentUser) return;
-        this.isUploading = true;
+        const items = event.clipboardData?.items;
+        if (!items) return;
 
-        try {
-            const chatScope =
-                this.selectedChat.type === 'group'
-                    ? 'group-chat'
-                    : this.getChatRoomId(
-                          this.currentUser.uid,
-                          this.selectedChat.id
-                      );
-            const path = `uploads/${chatScope}/${Date.now()}_${file.name}`;
-            const downloadUrl = await this.chatService.uploadFile(file, path);
-
-            const message: Partial<ChatMessage> = {
-                fileType: file.type,
-                fileUrl: downloadUrl,
-                fileName: file.name,
-                filePath: path,
-                text: '',
-            };
-
-            if (this.selectedChat.type === 'group') {
-                await this.chatService.sendGroupChatMessage(
-                    message,
-                    this.currentUser
-                );
-            } else {
-                await this.chatService.sendDirectMessage(
-                    message,
-                    this.currentUser,
-                    this.selectedChat.id
-                );
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file) {
+                    console.log('Imagem colada detectada!', file);
+                    // CRIA UM NOVO ARQUIVO COM UM NOME ÚNICO
+                    const newFileName = `colado_${Date.now()}.png`;
+                    const namedFile = new File([file], newFileName, {
+                        type: file.type,
+                    });
+                    this.uploadFile(namedFile);
+                    return;
+                }
             }
-        } catch (error) {
-            console.error('Erro no upload do arquivo:', error);
-            this.snackBar.open(
-                'Ocorreu um erro ao enviar o arquivo.',
-                'Fechar',
-                { duration: 3000 }
-            );
-        } finally {
-            this.isUploading = false;
-            fileInput.value = '';
         }
     }
 

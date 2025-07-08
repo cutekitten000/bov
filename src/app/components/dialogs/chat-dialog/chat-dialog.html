@@ -47,25 +47,24 @@
                             matTooltip="Administrador">verified</mat-icon>
                     </div>
 
-                    <ng-container [ngSwitch]="true">
-                        <div *ngSwitchCase="msg.fileType?.startsWith('image/')" class="message-image">
-                            <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
-                                <img [src]="msg.fileUrl" alt="Imagem enviada" loading="lazy">
-                            </a>
-                            <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
-                        </div>
+                    <ng-container [ngSwitch]="msg.fileType">
+    <div *ngSwitchCase="'image'" class="message-image">
+      <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
+        <img [src]="msg.fileUrl" [alt]="msg.fileName" loading="lazy">
+      </a>
+      <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
+    </div>
 
-                        <div *ngSwitchCase="msg.fileType?.startsWith('application/') || msg.fileType?.startsWith('text/')"
-                            class="message-file">
-                            <mat-icon>description</mat-icon>
-                            <div class="file-info">
-                                <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
-                                <span *ngIf="msg.text" class="message-text file-caption">{{ msg.text }}</span>
-                            </div>
-                        </div>
+    <div *ngSwitchCase="'file'" class="message-file">
+      <mat-icon>description</mat-icon>
+      <div class="file-info">
+        <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
+        <span *ngIf="msg.text" class="message-text file-caption">{{ msg.text }}</span>
+      </div>
+    </div>
 
-                        <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
-                    </ng-container>
+    <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
+</ng-container>
 
                     <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
                 </div>
