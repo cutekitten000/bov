@@ -4,31 +4,24 @@
             <mat-icon>forum</mat-icon>
             <h2>Chat</h2>
         </div>
-
         <mat-nav-list class="navlist">
-            <a
-                mat-list-item
-                (click)="selectChat({ type: 'group', id: 'equipe', name: 'Chat da Equipe' })"
-                [class.active]="selectedChat.type === 'group'"
-            >
+            <a mat-list-item (click)="selectChat({ type: 'group', id: 'equipe', name: 'Chat da Equipe' })"
+                [class.active]="selectedChat.type === 'group'">
                 <div class="links-content">
                     <mat-icon class="icon">groups</mat-icon>
                     <span>Chat da Equipe</span>
                 </div>
             </a>
-
             <div class="section-title">Mensagens Diretas</div>
-
             <a mat-list-item *ngFor="let item of chatListItems$ | async"
-    (click)="selectChat({ type: 'dm', id: item.uid, name: item.name }, item.id)"
-    [class.active]="selectedChat.id === item.uid"
-    [class.unread]="currentUser && item.lastMessage?.timestamp?.toDate() > item.lastRead?.[currentUser.uid]?.toDate()">
-
-  <div class="links-content">
-    <mat-icon class="icon">person</mat-icon>
-    <span>{{ item.name }}</span>
-  </div>
-</a>
+                (click)="selectChat({ type: 'dm', id: item.uid, name: item.name }, item.id)"
+                [class.active]="selectedChat.id === item.uid"
+                [class.unread]="currentUser && item.lastMessage?.timestamp?.toDate() > item.lastRead?.[currentUser.uid]?.toDate()">
+                <div class="links-content">
+                    <mat-icon class="icon">person</mat-icon>
+                    <span>{{ item.name }}</span>
+                </div>
+            </a>
         </mat-nav-list>
     </mat-sidenav>
 
@@ -41,48 +34,58 @@
         </div>
 
         <div class="message-area" #messageContainer>
-            <div class="spinner-container" *ngIf="isLoading">
+            <div class="spinner-container" *ngIf="isLoading || isUploading">
                 <mat-spinner diameter="50"></mat-spinner>
+                <span *ngIf="isUploading" class="uploading-text">Enviando arquivo...</span>
             </div>
-            <div
-                *ngFor="let msg of messages$ | async"
-                class="message-bubble-wrapper"
-                [class.sent]="msg.senderUid === currentUser?.uid"
-                [class.received]="msg.senderUid !== currentUser?.uid"
-            >
+            <div *ngFor="let msg of messages$ | async" class="message-bubble-wrapper"
+                [class.sent]="msg.senderUid === currentUser?.uid" [class.received]="msg.senderUid !== currentUser?.uid">
                 <div class="message-bubble" [class.admin-message]="msg.senderRole === 'admin'">
-                    <div
-                        class="sender-name"
-                        *ngIf="msg.senderUid !== currentUser?.uid"
-                    >
+                    <div class="sender-name" *ngIf="msg.senderUid !== currentUser?.uid">
                         <span>{{ msg.senderName }}</span>
-                        <mat-icon *ngIf="msg.senderRole === 'admin'" class="admin-badge" matTooltip="Administrador">verified</mat-icon>
+                        <mat-icon *ngIf="msg.senderRole === 'admin'" class="admin-badge"
+                            matTooltip="Administrador">verified</mat-icon>
                     </div>
-                    <div class="message-text">{{ msg.text }}</div>
-                    <div class="message-timestamp">
-                        {{ msg.timestamp?.toDate() | date:'HH:mm' }}
-                    </div>
+
+                    <ng-container [ngSwitch]="true">
+                        <div *ngSwitchCase="msg.fileType?.startsWith('image/')" class="message-image">
+                            <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
+                                <img [src]="msg.fileUrl" alt="Imagem enviada" loading="lazy">
+                            </a>
+                            <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
+                        </div>
+
+                        <div *ngSwitchCase="msg.fileType?.startsWith('application/') || msg.fileType?.startsWith('text/')"
+                            class="message-file">
+                            <mat-icon>description</mat-icon>
+                            <div class="file-info">
+                                <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
+                                <span *ngIf="msg.text" class="message-text file-caption">{{ msg.text }}</span>
+                            </div>
+                        </div>
+
+                        <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
+                    </ng-container>
+
+                    <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
                 </div>
             </div>
         </div>
 
         <div class="message-input-area">
+            <button mat-icon-button (click)="fileInput.click()" [disabled]="isUploading" matTooltip="Anexar arquivo"
+                aria-label="Anexar arquivo">
+                <mat-icon>attachment</mat-icon>
+            </button>
+            <input type="file" #fileInput hidden (change)="onFileSelected($event)"
+                accept="image/png, image/jpeg, image/gif, application/pdf, .doc, .docx, .txt">
+
             <mat-form-field class="expand" appearance="outline">
-                <input
-                    matInput
-                    placeholder="Digite sua mensagem..."
-                    [formControl]="newMessageControl"
-                    (keydown.enter)="sendMessage(); $event.preventDefault()"
-                />
+                <input matInput placeholder="Digite sua mensagem..." [formControl]="newMessageControl"
+                    (keydown.enter)="sendMessage()" />
             </mat-form-field>
-            <button
-                class="btn-expand"
-                mat-fab
-                color="accent"
-                (click)="sendMessage()"
-                [disabled]="newMessageControl.invalid"
-                aria-label="Enviar mensagem"
-            >
+            <button class="btn-expand" mat-fab color="accent" (click)="sendMessage()"
+                [disabled]="newMessageControl.invalid || isUploading" aria-label="Enviar mensagem">
                 <mat-icon>send</mat-icon>
             </button>
         </div>

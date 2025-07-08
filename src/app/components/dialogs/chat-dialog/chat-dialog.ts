@@ -1,17 +1,14 @@
-// Imports necessários, incluindo OnDestroy e Subscription para gerenciar o "ouvinte"
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     AfterViewChecked,
     Component,
     ElementRef,
     inject,
+    OnDestroy,
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { combineLatest, from, map, Observable, of } from 'rxjs';
-
-// Imports do Material
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,26 +17,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
-
-// Nossos serviços e modelos
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { combineLatest, from, map, Observable, of, Subscription } from 'rxjs';
 import { ChatMessage } from '../../../models/chat-message.model';
 import { AppUser, AuthService } from '../../../services/auth';
 import { ChatService } from '../../../services/chat.service';
 import { DatabaseService } from '../../../services/database.service';
 
 type ChatSelection =
-    | {
-          type: 'group';
-          id: 'equipe';
-          name: string;
-      }
-    | {
-          type: 'dm';
-          id: string; // UID do outro usuário
-          name: string;
-      };
+    | { type: 'group'; id: 'equipe'; name: string }
+    | { type: 'dm'; id: string; name: string };
 
-// Adicionamos 'OnDestroy' para garantir que vamos limpar nosso "ouvinte" ao fechar o chat
 @Component({
     selector: 'app-chat-dialog',
     standalone: true,
@@ -55,22 +44,25 @@ type ChatSelection =
         MatSidenavModule,
         MatListModule,
         DatePipe,
+        MatTooltipModule,
     ],
     templateUrl: './chat-dialog.html',
     styleUrl: './chat-dialog.scss',
 })
-export class ChatDialog implements OnInit, AfterViewChecked {
+export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     private chatService = inject(ChatService);
     private authService = inject(AuthService);
     private dbService = inject(DatabaseService);
     private dialogRef = inject(MatDialogRef<ChatDialog>);
+    private snackBar = inject(MatSnackBar);
 
     @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
     messages$: Observable<ChatMessage[]> = of([]);
-    newMessageControl = new FormControl('', [Validators.required]);
+    newMessageControl = new FormControl('', { nonNullable: true });
     currentUser: AppUser | null = null;
     isLoading = true;
+    isUploading = false; // Flag para controlar o estado de upload
 
     chatListItems$: Observable<any[]> = of([]);
     selectedChat: ChatSelection = {
@@ -79,65 +71,31 @@ export class ChatDialog implements OnInit, AfterViewChecked {
         name: 'Chat da Equipe',
     };
 
+    private messagesSubscription: Subscription | null = null;
+
     ngOnInit(): void {
         this.loadInitialData();
     }
-
     ngAfterViewChecked() {
         this.scrollToBottom();
+    }
+    ngOnDestroy(): void {
+        if (this.messagesSubscription) {
+            this.messagesSubscription.unsubscribe();
+        }
     }
 
     async loadInitialData(): Promise<void> {
         this.isLoading = true;
         try {
             const firebaseUser = await this.authService.getCurrentUser();
-            if (!firebaseUser) {
-                this.isLoading = false;
-                throw new Error('Usuário não autenticado.');
-            }
+            if (!firebaseUser) throw new Error('Usuário não autenticado.');
             this.currentUser = await this.dbService.getUserProfile(
                 firebaseUser.uid
             );
-            if (!this.currentUser) {
-                this.isLoading = false;
+            if (!this.currentUser)
                 throw new Error('Perfil do usuário não encontrado.');
-            }
-            const users$ = from(this.dbService.getAllUsers());
-            const conversations$ = this.chatService.getConversations(
-                this.currentUser.uid
-            );
-
-            console.log('%c[ESPIÃO ChatDialog] Tentando chamar getConversations com o userId:', 'color: cyan; font-weight: bold;', this.currentUser.uid);
-
-            this.chatListItems$ = combineLatest([users$, conversations$]).pipe(
-                map(([users, conversations]) => {
-                    const otherUsers = users.filter(
-                        (u) =>
-                            u &&
-                            u.uid &&
-                            u.name &&
-                            u.uid !== this.currentUser?.uid
-                    );
-                    const conversationsMap = new Map(
-                        conversations.map((c) => [c.id, c])
-                    );
-                    return otherUsers.map((user) => {
-                        const chatRoomId = this.getChatRoomId(
-                            this.currentUser!.uid,
-                            user.uid
-                        );
-                        const conversationData =
-                            conversationsMap.get(chatRoomId);
-                        return {
-                            id: chatRoomId,
-                            uid: user.uid,
-                            name: user.name,
-                            lastMessage: conversationData?.lastMessage,
-                            lastRead: conversationData?.lastRead,
-                        };
-                    });
-                })
-            );
+            this.setupChatList();
             this.loadMessagesForSelection();
         } catch (error) {
             console.error('Erro ao carregar dados do chat:', error);
@@ -145,25 +103,58 @@ export class ChatDialog implements OnInit, AfterViewChecked {
         }
     }
 
+    setupChatList(): void {
+        const users$ = from(this.dbService.getAllUsers());
+        const conversations$ = this.chatService.getConversations(
+            this.currentUser!.uid
+        );
+        this.chatListItems$ = combineLatest([users$, conversations$]).pipe(
+            map(([users, conversations]) => {
+                const otherUsers = users.filter(
+                    (u) =>
+                        u && u.uid && u.name && u.uid !== this.currentUser?.uid
+                );
+                const conversationsMap = new Map(
+                    conversations.map((c) => [c.id, c])
+                );
+                return otherUsers.map((user) => {
+                    const chatRoomId = this.getChatRoomId(
+                        this.currentUser!.uid,
+                        user.uid
+                    );
+                    const conversationData = conversationsMap.get(chatRoomId);
+                    return {
+                        id: chatRoomId,
+                        uid: user.uid,
+                        name: user.name,
+                        lastMessage: conversationData?.lastMessage,
+                        lastRead: conversationData?.lastRead,
+                    };
+                });
+            })
+        );
+    }
+
     loadMessagesForSelection(): void {
         if (!this.currentUser) return;
         this.isLoading = true;
-        if (this.selectedChat.type === 'group') {
-            this.messages$ = this.chatService.getGroupChatMessages();
-        } else {
-            this.messages$ = this.chatService.getDirectMessages(
-                this.currentUser.uid,
-                this.selectedChat.id
-            );
+        if (this.messagesSubscription) {
+            this.messagesSubscription.unsubscribe();
         }
-        const subscription = this.messages$.subscribe(() => {
-            this.isLoading = false;
+        const messages$ =
+            this.selectedChat.type === 'group'
+                ? this.chatService.getGroupChatMessages()
+                : this.chatService.getDirectMessages(
+                      this.currentUser.uid,
+                      this.selectedChat.id
+                  );
+        this.messages$ = messages$;
+        this.messagesSubscription = messages$.subscribe(() => {
+            if (this.isLoading) this.isLoading = false;
             setTimeout(() => this.scrollToBottom(), 50);
-            subscription.unsubscribe(); // A inscrição volta a ser de curta duração
         });
     }
 
-    // O restante dos métodos permanece igual
     async selectChat(
         selection: ChatSelection,
         chatRoomId?: string
@@ -171,45 +162,121 @@ export class ChatDialog implements OnInit, AfterViewChecked {
         if (this.selectedChat.id === selection.id) return;
         this.selectedChat = selection;
         if (selection.type === 'dm' && this.currentUser && chatRoomId) {
-            this.isLoading = true;
             await this.chatService.ensureChatRoomExists(
                 this.currentUser.uid,
                 selection.id
             );
             await this.chatService.markAsRead(chatRoomId, this.currentUser.uid);
         }
-        // Ao selecionar uma nova conversa, a função abaixo é chamada,
-        // reativando o "ouvinte" para a conversa correta.
         this.loadMessagesForSelection();
     }
 
     sendMessage(): void {
-    if (this.newMessageControl.invalid || !this.currentUser) return;
-    
-    const messageText = this.newMessageControl.value?.trim();
-    if (!messageText) return; // Não envia mensagens vazias
+        if (this.newMessageControl.invalid || !this.currentUser) return;
+        const messageText = this.newMessageControl.value.trim();
+        if (!messageText) return;
 
-    // Cria um objeto de mensagem do tipo 'text'
-    const message: Partial<ChatMessage> = {
-      text: messageText,
-      fileType: 'text', // Define explicitamente o tipo
-    };
+        const message: Partial<ChatMessage> = {
+            text: messageText,
+            fileType: 'text',
+        };
 
-    if (this.selectedChat.type === 'group') {
-      // Envia o objeto 'message' em vez do 'messageText'
-      this.chatService.sendGroupChatMessage(message, this.currentUser);
-    } else {
-      // Envia o objeto 'message' em vez do 'messageText'
-      this.chatService.sendDirectMessage(message, this.currentUser, this.selectedChat.id);
+        if (this.selectedChat.type === 'group') {
+            this.chatService.sendGroupChatMessage(message, this.currentUser);
+        } else {
+            this.chatService.sendDirectMessage(
+                message,
+                this.currentUser,
+                this.selectedChat.id
+            );
+        }
+        this.newMessageControl.reset();
     }
-    
-    this.newMessageControl.reset();
-  }
+
+    async onFileSelected(event: any): Promise<void> {
+        const file: File = event.target.files[0];
+        const fileInput = event.target as HTMLInputElement;
+        if (!file) return;
+
+        const maxSize = 3 * 1024 * 1024; // 3MB
+        if (file.size > maxSize) {
+            this.snackBar.open(
+                'Erro: O arquivo excede o limite de 3MB.',
+                'Fechar',
+                { duration: 3000 }
+            );
+            fileInput.value = '';
+            return;
+        }
+
+        const allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+        ];
+        if (!allowedMimeTypes.includes(file.type)) {
+            this.snackBar.open(
+                'Erro: Tipo de arquivo não permitido.',
+                'Fechar',
+                { duration: 3000 }
+            );
+            fileInput.value = '';
+            return;
+        }
+
+        if (!this.currentUser) return;
+        this.isUploading = true;
+
+        try {
+            const chatScope =
+                this.selectedChat.type === 'group'
+                    ? 'group-chat'
+                    : this.getChatRoomId(
+                          this.currentUser.uid,
+                          this.selectedChat.id
+                      );
+            const path = `uploads/${chatScope}/${Date.now()}_${file.name}`;
+            const downloadUrl = await this.chatService.uploadFile(file, path);
+
+            const message: Partial<ChatMessage> = {
+                fileType: file.type,
+                fileUrl: downloadUrl,
+                fileName: file.name,
+                text: '',
+            };
+
+            if (this.selectedChat.type === 'group') {
+                await this.chatService.sendGroupChatMessage(
+                    message,
+                    this.currentUser
+                );
+            } else {
+                await this.chatService.sendDirectMessage(
+                    message,
+                    this.currentUser,
+                    this.selectedChat.id
+                );
+            }
+        } catch (error) {
+            console.error('Erro no upload do arquivo:', error);
+            this.snackBar.open(
+                'Ocorreu um erro ao enviar o arquivo.',
+                'Fechar',
+                { duration: 3000 }
+            );
+        } finally {
+            this.isUploading = false;
+            fileInput.value = '';
+        }
+    }
 
     close(): void {
         this.dialogRef.close();
     }
-
     private scrollToBottom(): void {
         try {
             if (this.messageContainer) {
@@ -218,7 +285,6 @@ export class ChatDialog implements OnInit, AfterViewChecked {
             }
         } catch (err) {}
     }
-
     private getChatRoomId(uid1: string, uid2: string): string {
         return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
     }
