@@ -38,6 +38,7 @@
                 <mat-spinner diameter="50"></mat-spinner>
                 <span *ngIf="isUploading" class="uploading-text">Enviando arquivo...</span>
             </div>
+
             <div *ngFor="let msg of messages$ | async" class="message-bubble-wrapper"
                 [class.sent]="msg.senderUid === currentUser?.uid" [class.received]="msg.senderUid !== currentUser?.uid">
                 <div class="message-bubble" [class.admin-message]="msg.senderRole === 'admin'">
@@ -48,23 +49,23 @@
                     </div>
 
                     <ng-container [ngSwitch]="msg.fileType">
-    <div *ngSwitchCase="'image'" class="message-image">
-      <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
-        <img [src]="msg.fileUrl" [alt]="msg.fileName" loading="lazy">
-      </a>
-      <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
-    </div>
+                        <div *ngSwitchCase="'image'" class="message-image">
+                            <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
+                                <img [src]="msg.fileUrl" [alt]="msg.fileName" loading="lazy">
+                            </a>
+                            <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
+                        </div>
 
-    <div *ngSwitchCase="'file'" class="message-file">
-      <mat-icon>description</mat-icon>
-      <div class="file-info">
-        <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
-        <span *ngIf="msg.text" class="message-text file-caption">{{ msg.text }}</span>
-      </div>
-    </div>
+                        <div *ngSwitchCase="'file'" class="message-file">
+                            <mat-icon>description</mat-icon>
+                            <div class="file-info">
+                                <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
+                                <span *ngIf="msg.text" class="message-text file-caption">{{ msg.text }}</span>
+                            </div>
+                        </div>
 
-    <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
-</ng-container>
+                        <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
+                    </ng-container>
 
                     <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
                 </div>
@@ -72,7 +73,7 @@
         </div>
 
         <div class="message-input-area">
-            <button mat-icon-button (click)="fileInput.click()" [disabled]="isUploading" matTooltip="Anexar arquivo"
+            <button mat-icon-button class="btn-attach" (click)="fileInput.click()" [disabled]="isUploading" matTooltip="Anexar arquivo"
                 aria-label="Anexar arquivo">
                 <mat-icon>attachment</mat-icon>
             </button>

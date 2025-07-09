@@ -125,7 +125,7 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
   align-items: center;
   flex-shrink: 0;
   background-color: var(--mat-sys-color-surface);
-  
+
   .expand {
     width: 100%;
     display: flex;
@@ -133,16 +133,45 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
     justify-content: center;
     outline: none;
   }
-  button[mat-fab] {
+
+  // Estilo para TODOS os botões redondos na área de input
+  .action-button {
+    // Essas propriedades são copiadas do 'mat-fab' para garantir o mesmo tamanho
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px; // Mantém o alinhamento vertical
     flex-shrink: 0;
+    transition: background-color 0.2s;
   }
+
+  // Botão de enviar (mantém a cor de destaque)
   .btn-expand {
-    margin-bottom: 25px;
+    @extend .action-button; // Herda todos os estilos do .action-button
     background-color: #1a74c9;
-    transition: background .2s;
+
+    &:disabled {
+      background-color: #334155;
+    }
   }
-  .btn-expand:disabled {
-    background-color: #334155;
+
+  // Novo estilo para o botão de anexo
+  .btn-attach {
+    @extend .action-button; // Herda todos os estilos do .action-button
+    background-color: $received-bubble-bg; // Usa uma cor secundária
+    color: rgba(255, 255, 255, 0.7);
+
+    &:hover {
+      background-color: lighten($received-bubble-bg, 5%);
+    }
+    
+    &:disabled {
+      background-color: #334155;
+      opacity: 0.5;
+    }
   }
 }
 

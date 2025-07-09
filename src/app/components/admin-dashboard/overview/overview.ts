@@ -164,7 +164,7 @@ export class Overview implements OnInit {
             {
                 title: 'Total de Vendas no Mês',
                 value: monthlySales.length,
-                subValue: 'Todos os status somados',
+                subValue: '',
                 icon: 'summarize',
                 color: 'green',
             },
