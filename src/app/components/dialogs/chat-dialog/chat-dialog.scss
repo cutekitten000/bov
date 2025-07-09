@@ -307,3 +307,45 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
     }
   }
 }
+
+.pinned-message-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 8px 24px;
+  background-color: rgba($primary-color, 0.1);
+  border-bottom: 1px solid $border-color;
+  flex-shrink: 0;
+
+  .pin-icon {
+    color: $primary-color;
+    margin-right: 12px;
+  }
+
+  .pinned-message-content {
+    display: flex;
+    align-items: center;
+    overflow: hidden; // Previne que o texto quebre o layout
+  }
+
+  .pinned-message-details {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pinned-sender {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .pinned-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

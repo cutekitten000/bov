@@ -33,6 +33,19 @@
             </button>
         </div>
 
+        <div class="pinned-message-container" *ngIf="(pinnedMessage$ | async) as pinnedMsg">
+            <div class="pinned-message-content">
+                <mat-icon class="pin-icon">push_pin</mat-icon>
+                <div class="pinned-message-details">
+                    <span class="pinned-sender">{{ pinnedMsg.senderName }}</span>
+                    <span class="pinned-text">{{ pinnedMsg.text || 'Arquivo: ' + pinnedMsg.fileName }}</span>
+                </div>
+            </div>
+            <button mat-icon-button *ngIf="currentUser?.role === 'admin'" (click)="unpinMessage(pinnedMsg.id!)"
+                aria-label="Desafixar mensagem" matTooltip="Desafixar">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
         <div class="message-area" #messageContainer>
             <div class="spinner-container" *ngIf="isLoading || isUploading">
                 <mat-spinner diameter="50"></mat-spinner>
@@ -41,22 +54,31 @@
 
             <div *ngFor="let msg of messages$ | async" class="message-bubble-wrapper"
                 [class.sent]="msg.senderUid === currentUser?.uid" [class.received]="msg.senderUid !== currentUser?.uid">
-                <div class="message-bubble" [class.admin-message]="msg.senderRole === 'admin'">
+
+                <div class="message-actions"
+                    *ngIf="currentUser?.role === 'admin' && selectedChat.type === 'group' && !msg.isPinned">
+                    <button mat-icon-button (click)="pinMessage(msg)" aria-label="Fixar mensagem"
+                        matTooltip="Fixar Mensagem">
+                        <mat-icon>push_pin</mat-icon>
+                    </button>
+                </div>
+                <div class="message-bubble" [class.admin-message]="msg.senderRole === 'admin'"
+                    [class.pinned]="msg.isPinned">
                     <div class="sender-name" *ngIf="msg.senderUid !== currentUser?.uid">
                         <span>{{ msg.senderName }}</span>
                         <mat-icon *ngIf="msg.senderRole === 'admin'" class="admin-badge"
                             matTooltip="Administrador">verified</mat-icon>
                     </div>
 
-                    <ng-container [ngSwitch]="msg.fileType">
-                        <div *ngSwitchCase="'image'" class="message-image">
+                    <ng-container [ngSwitch]="true">
+                        <div *ngIf="msg.fileType?.startsWith('image/')" class="message-image">
                             <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
                                 <img [src]="msg.fileUrl" [alt]="msg.fileName" loading="lazy">
                             </a>
                             <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
                         </div>
 
-                        <div *ngSwitchCase="'file'" class="message-file">
+                        <div *ngIf="msg.fileType && !msg.fileType.startsWith('image/')" class="message-file">
                             <mat-icon>description</mat-icon>
                             <div class="file-info">
                                 <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
@@ -64,7 +86,7 @@
                             </div>
                         </div>
 
-                        <div *ngSwitchDefault class="message-text">{{ msg.text }}</div>
+                        <div *ngIf="!msg.fileType" class="message-text">{{ msg.text }}</div>
                     </ng-container>
 
                     <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
@@ -73,8 +95,8 @@
         </div>
 
         <div class="message-input-area">
-            <button mat-icon-button class="btn-attach" (click)="fileInput.click()" [disabled]="isUploading" matTooltip="Anexar arquivo"
-                aria-label="Anexar arquivo">
+            <button mat-icon-button class="btn-attach" (click)="fileInput.click()" [disabled]="isUploading"
+                matTooltip="Anexar arquivo" aria-label="Anexar arquivo">
                 <mat-icon>attachment</mat-icon>
             </button>
             <input type="file" #fileInput hidden (change)="onFileSelected($event)"

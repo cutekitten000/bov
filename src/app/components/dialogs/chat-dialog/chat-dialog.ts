@@ -72,10 +72,13 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
         name: 'Chat da Equipe',
     };
 
+    pinnedMessage$: Observable<ChatMessage | null> = of(null);
+
     private messagesSubscription: Subscription | null = null;
 
     ngOnInit(): void {
         this.loadInitialData();
+        this.pinnedMessage$ = this.chatService.getPinnedMessageFromGroupChat();
     }
     ngAfterViewChecked() {
         this.scrollToBottom();
@@ -85,6 +88,36 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
             this.messagesSubscription.unsubscribe();
         }
     }
+
+    loadPinnedMessage(): void {
+        if (this.selectedChat.type === 'group') {
+            this.pinnedMessage$ = this.chatService.getPinnedMessageFromGroupChat();
+        } else {
+            // Futuramente, podemos implementar para DMs também
+            this.pinnedMessage$ = of(null);
+        }
+    }
+
+    async pinMessage(message: ChatMessage): Promise<void> {
+        try {
+            await this.chatService.pinMessageInGroupChat(message);
+            this.snackBar.open('Mensagem fixada!', 'Fechar', { duration: 2000 });
+        } catch (error) {
+            console.error("Erro ao fixar mensagem:", error);
+            this.snackBar.open('Não foi possível fixar a mensagem.', 'Fechar', { duration: 3000 });
+        }
+    }
+
+    async unpinMessage(messageId: string): Promise<void> {
+        try {
+            await this.chatService.unpinMessageInGroupChat(messageId);
+            this.snackBar.open('Mensagem desafixada.', 'Fechar', { duration: 2000 });
+        } catch (error) {
+            console.error("Erro ao desafixar mensagem:", error);
+            this.snackBar.open('Não foi possível desafixar a mensagem.', 'Fechar', { duration: 3000 });
+        }
+    }
+
 
     private async uploadFile(file: File): Promise<void> {
         if (!file) return;
@@ -128,9 +161,9 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                 this.selectedChat.type === 'group'
                     ? 'group-chat'
                     : this.getChatRoomId(
-                          this.currentUser.uid,
-                          this.selectedChat.id
-                      );
+                        this.currentUser.uid,
+                        this.selectedChat.id
+                    );
             const path = `uploads/${chatScope}/${Date.now()}_${file.name}`;
             const downloadUrl = await this.chatService.uploadFile(file, path);
             const messageType = file.type.startsWith('image/')
@@ -229,9 +262,9 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
             this.selectedChat.type === 'group'
                 ? this.chatService.getGroupChatMessages()
                 : this.chatService.getDirectMessages(
-                      this.currentUser.uid,
-                      this.selectedChat.id
-                  );
+                    this.currentUser.uid,
+                    this.selectedChat.id
+                );
         this.messages$ = messages$;
         this.messagesSubscription = messages$.subscribe(() => {
             if (this.isLoading) this.isLoading = false;
@@ -322,7 +355,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                 this.messageContainer.nativeElement.scrollTop =
                     this.messageContainer.nativeElement.scrollHeight;
             }
-        } catch (err) {}
+        } catch (err) { }
     }
     private getChatRoomId(uid1: string, uid2: string): string {
         return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;

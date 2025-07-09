@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, Timestamp, addDoc, collection, collectionData, doc, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { Firestore, Timestamp, addDoc, collection, collectionData, doc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AppUser } from './auth';
 
@@ -158,5 +158,58 @@ export class ChatService {
     // Query para pegar apenas as salas das quais o usuário é membro
     const q = query(roomsCollection, where('members', 'array-contains', userId));
     return collectionData(q, { idField: 'id' });
+  }
+
+   /**
+   * Fixa uma mensagem específica no chat de equipe.
+   * @param message A mensagem completa a ser fixada.
+   */
+  async pinMessageInGroupChat(message: ChatMessage): Promise<void> {
+    if (!message.id) throw new Error("ID da mensagem é necessário para fixá-la.");
+    
+    // Primeiro, remove o pino de qualquer outra mensagem que possa estar fixada
+    await this.unpinAllMessagesInGroupChat();
+
+    // Agora, fixa a nova mensagem
+    const messageRef = doc(this.firestore, `group-chat/${message.id}`);
+    return updateDoc(messageRef, { isPinned: true });
+  }
+
+  /**
+   * Desafixa uma mensagem específica no chat de equipe.
+   * @param messageId O ID da mensagem a ser desafixada.
+   */
+  async unpinMessageInGroupChat(messageId: string): Promise<void> {
+    const messageRef = doc(this.firestore, `group-chat/${messageId}`);
+    return updateDoc(messageRef, { isPinned: false });
+  }
+
+  /**
+   * Busca a mensagem atualmente fixada no chat de equipe.
+   * Retorna a mensagem ou null se não houver nenhuma.
+   */
+  getPinnedMessageFromGroupChat(): Observable<ChatMessage | null> {
+    const messagesRef = collection(this.firestore, 'group-chat');
+    const q = query(messagesRef, where("isPinned", "==", true), limit(1));
+    
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((messages: string | any[]) => messages.length > 0 ? messages[0] as ChatMessage : null)
+    );
+  }
+
+  /**
+   * Método auxiliar para garantir que apenas uma mensagem esteja fixada por vez.
+   */
+  private async unpinAllMessagesInGroupChat(): Promise<void> {
+    const messagesRef = collection(this.firestore, 'group-chat');
+    const q = query(messagesRef, where("isPinned", "==", true));
+    const querySnapshot = await getDocs(q);
+    
+    const batch = writeBatch(this.firestore);
+    querySnapshot.forEach(document => {
+      batch.update(document.ref, { isPinned: false });
+    });
+    
+    return batch.commit();
   }
 }
