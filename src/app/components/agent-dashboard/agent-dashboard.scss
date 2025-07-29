@@ -8,10 +8,11 @@ $color-instalada: #98ff98;
 $color-pendencia: #fdfd96;
 $color-cancelada: #ff6961;
 $color-meta: #b19cd9;
-$dark-bg: #111827;              // Fundo Ébano
-$dark-surface: #1f2937;         // Superfície Grafite
-$dark-surface-hover: #334155;   // Hover Grafite Escuro
-$dark-border: #334155;          // Borda
+$color-total: #a9a9a9; // <-- Cor para o novo card
+$dark-bg: #111827;
+$dark-surface: #1f2937;
+$dark-surface-hover: #334155;
+$dark-border: #334155;
 
 // =============================================
 // 2. LAYOUT GERAL
@@ -54,7 +55,7 @@ $dark-border: #334155;          // Borda
 // =============================================
 .kpi-cards-container {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 24px;
 }
 
@@ -80,6 +81,7 @@ $dark-border: #334155;          // Borda
   &.yellow { border-left-color: $color-pendencia; }
   &.red { border-left-color: $color-cancelada; }
   &.purple { border-left-color: $color-meta; }
+  &.gray { border-left-color: $color-total; }
 
   .kpi-content {
     .kpi-title {
@@ -145,7 +147,6 @@ $dark-border: #334155;          // Borda
   margin-bottom: 50px;
 }
 
-
 .mat-mdc-table {
   background: transparent;
 }
@@ -176,37 +177,28 @@ tr.mat-mdc-row {
   }
 }
 
-// --- "CHIP" DE STATUS PARA A TABELA ---
 .status-chip {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 0.8rem;
   font-weight: 600;
+  transition: transform 0.2s ease, filter 0.2s ease;
+
+  &[aria-haspopup="true"] {
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+  }
 }
 
-// Cores dos chips de status com a nova paleta
 .status-em-aprovisionamento { background-color: rgba($color-aprovisionamento, 0.2); color: $color-aprovisionamento; }
 .status-instalada { background-color: rgba($color-instalada, 0.2); color: $color-instalada; }
 .status-pendencia { background-color: rgba($color-pendencia, 0.2); color: $color-pendencia; }
-.status-cancelada { background-color: rgba($color-cancelada, 0.2); color: $color-cancelada; }// O componente agora herda as cores do tema global.
-
-
-// Cards de KPI
-.kpi-cards-container {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 24px;
-
-
-}
-
-// Barra de Ações
-.actions-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.status-cancelada { background-color: rgba($color-cancelada, 0.2); color: $color-cancelada; }
 
 .table-container table {
   margin-bottom: 0 !important;

@@ -84,11 +84,19 @@
                 <mat-icon class="kpi-icon-bg">cancel</mat-icon>
             </mat-card>
 
+            <mat-card class="kpi-card gray">
+                <div class="kpi-content">
+                    <p class="kpi-title">Vendas Totais</p>
+                    <span class="kpi-value">{{ kpi.totalSales }}</span>
+                </div>
+                <mat-icon class="kpi-icon-bg">summarize</mat-icon>
+            </mat-card>
+            
             <mat-card class="kpi-card purple">
                 <div class="kpi-content">
                     <p class="kpi-title">Total / Meta</p>
                     <span class="kpi-value"
-                        >{{ kpi.total }}/{{ kpi.meta }}</span
+                        >{{ kpi.instalada }}/{{ kpi.meta }}</span
                     >
                 </div>
 
@@ -145,12 +153,23 @@
                 <ng-container matColumnDef="status">
                     <th mat-header-cell *matHeaderCellDef>Status</th>
                     <td mat-cell *matCellDef="let element">
-                        <span
+                        <span 
                             class="status-chip"
                             [ngClass]="getStatusClass(element.status)"
+                            [matMenuTriggerFor]="statusMenu"
+                            matTooltip="Clique para alterar o status"
                         >
                             {{ element.status }}
                         </span>
+                        <mat-menu #statusMenu="matMenu">
+                            <button 
+                                *ngFor="let status of statusOptions" 
+                                mat-menu-item 
+                                (click)="updateSaleStatus(element, status)"
+                            >
+                                <span [ngClass]="getStatusClass(status)">{{ status }}</span>
+                            </button>
+                        </mat-menu>
                     </td>
                 </ng-container>
 
