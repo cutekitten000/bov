@@ -322,7 +322,7 @@ export class DatabaseService {
                 category: 'Fraseologia',
                 title: 'Fraseologia Inicial',
                 content:
-                    'Oi, tudo bem com você?\nSou Danilo, consultor especialista da NIO e estou à sua disposição.\n\n1 - Já possuo\n2 - Aguardando instalação\n3 - Desejo contratar\n\nCaso deseje contratar, vou precisar que me informe os seguintes dados para verificar viabilidade:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*',
+                    'Oi, tudo bem com você?\nSou <Agente>, consultor especialista da NIO e estou à sua disposição.\n\n1 - Já possuo\n2 - Aguardando instalação\n3 - Desejo contratar\n\nCaso deseje contratar, vou precisar que me informe os seguintes dados para verificar viabilidade:\n\n*CEP:*\n*Número de fachada: (quadra e lote se houver)*\n*Nome da rua:*',
                 order: 1,
             },
 
@@ -364,7 +364,6 @@ export class DatabaseService {
                     '*O link para cadastrar o cartão foi enviado com sucesso. Assim que finalizar o cadastro ou, caso encontre alguma dificuldade, por favor, me avise.*',
                 order: 21,
             },
-
             // Análise de Crédito
             {
                 category: 'Análise de Crédito',
