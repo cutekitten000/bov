@@ -42,7 +42,7 @@ export class ScriptTakeDialog implements OnInit {
   private authService = inject(AuthService);
   private dbService = inject(DatabaseService);
   private dialog = inject(MatDialog);
-private dialogRef = inject(MatDialogRef<ScriptTakeDialog>);
+  private dialogRef = inject(MatDialogRef<ScriptTakeDialog>);
   private snackBar = inject(MatSnackBar);
   private clipboard = inject(Clipboard);
 
@@ -74,19 +74,19 @@ private dialogRef = inject(MatDialogRef<ScriptTakeDialog>);
       // Garante que os scripts padrão existam antes de buscá-los
       await this.dbService.checkAndCreateDefaultScripts(this.user as any); // Usamos 'any' para compatibilidade de tipo
       this.scripts = await this.dbService.getScriptsForUser(this.user.uid);
-      
+
       // Define a ordem customizada das categorias na barra lateral
       const categoryOrder = [
         'Fraseologia', 'Ofertas', 'Cartão de Crédito', 'Análise de Crédito',
         'Agendamento', 'Checklist', 'Avisos Finais', 'Infos Úteis'
       ];
-      
+
       const uniqueCategories = [...new Set(this.scripts.map(s => s.category))];
-      
+
       this.categories = uniqueCategories.sort((a, b) => {
         return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
       });
-      
+
       // Seleciona a primeira categoria da lista como padrão
       if (this.categories.length > 0) {
         this.selectCategory(this.categories[0]);
@@ -184,8 +184,8 @@ private dialogRef = inject(MatDialogRef<ScriptTakeDialog>);
     });
   }
 
-// Crie este método para fechar o modal
-    close(): void {
-        this.dialogRef.close();
-    }
+  // Crie este método para fechar o modal
+  close(): void {
+    this.dialogRef.close();
+  }
 }

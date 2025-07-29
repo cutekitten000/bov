@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // 1. IMPORTADO O SNACKBAR
 
 // Imports dos nossos Serviços e Validadores
 import { AuthService } from '../../services/auth';
@@ -19,7 +20,8 @@ import { emailDomainValidator, matchPasswordValidator } from '../../validators/c
   standalone: true,
   imports: [
     ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, CommonModule, RouterLink
+    MatButtonModule, MatIconModule, CommonModule, RouterLink,
+    MatSnackBarModule // Adicionado para garantir a disponibilidade no template, se necessário
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -30,6 +32,7 @@ export class Login {
   private authService = inject(AuthService);
   private dbService = inject(DatabaseService);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar); // 2. SNACKBAR INJETADO
 
   // Controle do painel
   isSignUpActive = false;
@@ -78,7 +81,10 @@ export class Login {
         // VERIFICAÇÃO DE STATUS ADICIONADA AQUI
         if (userProfile.status !== 'active') {
           await this.authService.logout(); // Desloga imediatamente
-          alert('Sua conta está pendente de aprovação ou inativa. Fale com um administrador.');
+          // 3. ALERT SUBSTITUÍDO
+          this.snackBar.open('Sua conta está pendente ou inativa. Fale com um administrador.', 'Fechar', {
+            duration: 7000,
+          });
           return;
         }
 
@@ -90,11 +96,17 @@ export class Login {
         }
       } else {
         await this.authService.logout();
-        alert('Não foi possível encontrar o perfil para este usuário.');
+        // 3. ALERT SUBSTITUÍDO
+        this.snackBar.open('Não foi possível encontrar o perfil para este usuário.', 'Fechar', {
+            duration: 5000,
+        });
       }
     } catch (error) {
       console.error("Erro no login:", error);
-      alert('Email ou senha inválidos.');
+      // 3. ALERT SUBSTITUÍDO
+      this.snackBar.open('Email ou senha inválidos.', 'Fechar', {
+        duration: 3000,
+      });
     }
   }
 
@@ -106,15 +118,23 @@ export class Login {
       const userCredential = await this.authService.signUp(email!, password!);
       await this.dbService.createUserProfile(userCredential.user, { name: name!, th: th! });
 
-      alert('Cadastro realizado com sucesso! Sua conta precisa ser aprovada por um administrador antes de você poder fazer o login.');
+      // 3. ALERT SUBSTITUÍDO
+      this.snackBar.open('Cadastro realizado! Sua conta precisa ser aprovada por um administrador.', 'Fechar', {
+        duration: 7000,
+      });
       this.togglePanel(false); // Volta para a tela de login
       this.signUpForm.reset();
 
     } catch (error: any) {
+      // 3. ALERT SUBSTITUÍDO
       if (error.code === 'auth/email-already-in-use') {
-        alert('Erro: Este e-mail já está em uso.');
+        this.snackBar.open('Erro: Este e-mail já está em uso.', 'Fechar', {
+            duration: 5000,
+        });
       } else {
-        alert('Ocorreu um erro no cadastro.');
+        this.snackBar.open('Ocorreu um erro no cadastro.', 'Fechar', {
+            duration: 5000,
+        });
       }
     }
   }
