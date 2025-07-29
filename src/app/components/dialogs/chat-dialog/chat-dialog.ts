@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+    MatDialog,
+    MatDialogModule,
+    MatDialogRef,
+    MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -30,6 +35,107 @@ type ChatSelection =
     | { type: 'group'; id: 'equipe'; name: string }
     | { type: 'dm'; id: string; name: string };
 
+// --- ALTERAÇÃO: Componente de Diálogo com Estilo Corrigido ---
+@Component({
+    selector: 'pinned-message-dialog',
+    template: `
+        <div class="header">
+            <h2 mat-dialog-title>
+                <mat-icon>push_pin</mat-icon>
+                <span>Mensagem Fixada</span>
+            </h2>
+            <button
+                mat-icon-button
+                mat-dialog-close
+                aria-label="Fechar modal"
+            >
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <mat-dialog-content class="mat-typography">
+            <p class="sender-name">{{ data.senderName }}:</p>
+            <p class="pinned-dialog-text">
+                {{ data.text || 'Esta mensagem contém apenas um anexo.' }}
+            </p>
+            <a
+                *ngIf="data.fileUrl"
+                [href]="data.fileUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="attachment-link"
+            >
+                <mat-icon>attachment</mat-icon>
+                <span>{{ data.fileName }}</span>
+            </a>
+        </mat-dialog-content>
+
+        <mat-dialog-actions align="end">
+            <button mat-flat-button mat-dialog-close color="primary">
+                Fechar
+            </button>
+        </mat-dialog-actions>
+    `,
+    styles: [
+        `
+            :host {
+                --border-color: rgba(255, 255, 255, 0.1);
+                --primary-color: #3b82f6;
+                --text-light: rgba(255, 255, 255, 0.7);
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 12px 0 24px;
+                border-bottom: 1px solid var(--border-color);
+            }
+            h2[mat-dialog-title] {
+                margin: 0;
+                padding: 20px 0;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            mat-dialog-content {
+                padding: 24px !important;
+                line-height: 1.6;
+            }
+            .sender-name {
+                font-weight: 600;
+                margin-bottom: 4px;
+                opacity: 0.9;
+                display: block;
+            }
+            .pinned-dialog-text {
+                white-space: pre-wrap;
+                word-break: break-word;
+                margin-top: 0;
+                opacity: 0.8;
+            }
+            .attachment-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 16px;
+                color: var(--primary-color);
+                text-decoration: none;
+                font-weight: 500;
+                transition: opacity 0.2s;
+            }
+            .attachment-link:hover {
+                opacity: 0.8;
+            }
+        `,
+    ],
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule, CommonModule, MatIconModule], // MatIconModule adicionado
+})
+export class PinnedMessageDialog {
+    data: ChatMessage = inject(MAT_DIALOG_DATA);
+}
+
+// --- COMPONENTE PRINCIPAL DO CHAT (SEM ALTERAÇÕES) ---
 @Component({
     selector: 'app-chat-dialog',
     standalone: true,
@@ -56,6 +162,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     private dbService = inject(DatabaseService);
     private dialogRef = inject(MatDialogRef<ChatDialog>);
     private snackBar = inject(MatSnackBar);
+    private dialog = inject(MatDialog);
 
     @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
@@ -63,7 +170,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     newMessageControl = new FormControl('', { nonNullable: true });
     currentUser: AppUser | null = null;
     isLoading = true;
-    isUploading = false; // Flag para controlar o estado de upload
+    isUploading = false;
 
     chatListItems$: Observable<any[]> = of([]);
     selectedChat: ChatSelection = {
@@ -89,11 +196,19 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
         }
     }
 
+    showPinnedMessage(message: ChatMessage): void {
+        this.dialog.open(PinnedMessageDialog, {
+            data: message,
+            width: '500px',
+            panelClass: 'custom-dialog-container',
+        });
+    }
+
     loadPinnedMessage(): void {
         if (this.selectedChat.type === 'group') {
-            this.pinnedMessage$ = this.chatService.getPinnedMessageFromGroupChat();
+            this.pinnedMessage$ =
+                this.chatService.getPinnedMessageFromGroupChat();
         } else {
-            // Futuramente, podemos implementar para DMs também
             this.pinnedMessage$ = of(null);
         }
     }
@@ -101,28 +216,36 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     async pinMessage(message: ChatMessage): Promise<void> {
         try {
             await this.chatService.pinMessageInGroupChat(message);
-            this.snackBar.open('Mensagem fixada!', 'Fechar', { duration: 2000 });
+            this.snackBar.open('Mensagem fixada!', 'Fechar', {
+                duration: 2000,
+            });
         } catch (error) {
-            console.error("Erro ao fixar mensagem:", error);
-            this.snackBar.open('Não foi possível fixar a mensagem.', 'Fechar', { duration: 3000 });
+            console.error('Erro ao fixar mensagem:', error);
+            this.snackBar.open('Não foi possível fixar a mensagem.', 'Fechar', {
+                duration: 3000,
+            });
         }
     }
 
     async unpinMessage(messageId: string): Promise<void> {
         try {
             await this.chatService.unpinMessageInGroupChat(messageId);
-            this.snackBar.open('Mensagem desafixada.', 'Fechar', { duration: 2000 });
+            this.snackBar.open('Mensagem desafixada.', 'Fechar', {
+                duration: 2000,
+            });
         } catch (error) {
-            console.error("Erro ao desafixar mensagem:", error);
-            this.snackBar.open('Não foi possível desafixar a mensagem.', 'Fechar', { duration: 3000 });
+            console.error('Erro ao desafixar mensagem:', error);
+            this.snackBar.open(
+                'Não foi possível desafixar a mensagem.',
+                'Fechar',
+                { duration: 3000 }
+            );
         }
     }
-
 
     private async uploadFile(file: File): Promise<void> {
         if (!file) return;
 
-        // 1. Validação de Tamanho (3MB)
         const maxSize = 3 * 1024 * 1024;
         if (file.size > maxSize) {
             this.snackBar.open(
@@ -133,7 +256,6 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
             return;
         }
 
-        // 2. Validação de Tipo
         const allowedMimeTypes = [
             'image/jpeg',
             'image/png',
@@ -155,26 +277,22 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
         if (!this.currentUser) return;
         this.isUploading = true;
 
-        // 3. Lógica de Upload (exatamente como antes)
         try {
             const chatScope =
                 this.selectedChat.type === 'group'
                     ? 'group-chat'
                     : this.getChatRoomId(
-                        this.currentUser.uid,
-                        this.selectedChat.id
-                    );
+                          this.currentUser.uid,
+                          this.selectedChat.id
+                      );
             const path = `uploads/${chatScope}/${Date.now()}_${file.name}`;
             const downloadUrl = await this.chatService.uploadFile(file, path);
-            const messageType = file.type.startsWith('image/')
-                ? 'image'
-                : file.type;
 
             const message: Partial<ChatMessage> = {
-                fileType: messageType,
+                fileType: file.type,
                 fileUrl: downloadUrl,
                 fileName: file.name,
-                text: this.newMessageControl.value?.trim() || '', // Envia o texto junto se houver
+                text: this.newMessageControl.value?.trim() || '',
             };
 
             if (this.selectedChat.type === 'group') {
@@ -189,7 +307,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                     this.selectedChat.id
                 );
             }
-            this.newMessageControl.reset(); // Limpa o campo de texto após o envio
+            this.newMessageControl.reset();
         } catch (error) {
             console.error('Erro no upload do arquivo:', error);
             this.snackBar.open(
@@ -262,9 +380,9 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
             this.selectedChat.type === 'group'
                 ? this.chatService.getGroupChatMessages()
                 : this.chatService.getDirectMessages(
-                    this.currentUser.uid,
-                    this.selectedChat.id
-                );
+                      this.currentUser.uid,
+                      this.selectedChat.id
+                  );
         this.messages$ = messages$;
         this.messagesSubscription = messages$.subscribe(() => {
             if (this.isLoading) this.isLoading = false;
@@ -283,7 +401,10 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                 this.currentUser.uid,
                 selection.id
             );
-            await this.chatService.markAsRead(chatRoomId, this.currentUser.uid);
+            await this.chatService.markAsRead(
+                chatRoomId,
+                this.currentUser.uid
+            );
         }
         this.loadMessagesForSelection();
     }
@@ -316,13 +437,11 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
         if (file) {
             this.uploadFile(file);
         }
-        // Limpa o input para permitir selecionar o mesmo arquivo novamente
         fileInput.value = '';
     }
 
     @HostListener('paste', ['$event'])
     handlePaste(event: ClipboardEvent): void {
-        // Impede que o texto/imagem seja colado no campo de input
         event.preventDefault();
 
         const items = event.clipboardData?.items;
@@ -333,8 +452,6 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
             if (item.kind === 'file' && item.type.startsWith('image/')) {
                 const file = item.getAsFile();
                 if (file) {
-                    console.log('Imagem colada detectada!', file);
-                    // CRIA UM NOVO ARQUIVO COM UM NOME ÚNICO
                     const newFileName = `colado_${Date.now()}.png`;
                     const namedFile = new File([file], newFileName, {
                         type: file.type,
@@ -355,7 +472,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
                 this.messageContainer.nativeElement.scrollTop =
                     this.messageContainer.nativeElement.scrollHeight;
             }
-        } catch (err) { }
+        } catch (err) {}
     }
     private getChatRoomId(uid1: string, uid2: string): string {
         return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;

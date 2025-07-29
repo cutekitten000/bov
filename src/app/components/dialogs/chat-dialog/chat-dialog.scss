@@ -260,10 +260,10 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
   }
   
   img {
-    max-width: 350px;     // <-- Define uma largura máxima
-    max-height: 300px;    // <-- Define uma altura máxima
-    width: auto;          // Mantém a proporção
-    height: auto;         // Mantém a proporção
+    max-width: 350px;    // <-- Define uma largura máxima
+    max-height: 300px;   // <-- Define uma altura máxima
+    width: auto;         // Mantém a proporção
+    height: auto;        // Mantém a proporção
     border-radius: 12px;
     cursor: pointer;
     transition: opacity 0.2s;
@@ -308,6 +308,7 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
   }
 }
 
+// ALTERAÇÃO: Adicionado 'cursor: pointer'
 .pinned-message-container {
   display: flex;
   align-items: center;
@@ -316,6 +317,7 @@ $admin-highlight-color: #8b5cf6; // Roxo para o admin
   background-color: rgba($primary-color, 0.1);
   border-bottom: 1px solid $border-color;
   flex-shrink: 0;
+  cursor: pointer; // <-- Adicionado
 
   .pin-icon {
     color: $primary-color;

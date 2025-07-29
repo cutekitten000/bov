@@ -33,7 +33,7 @@
             </button>
         </div>
 
-        <div class="pinned-message-container" *ngIf="(pinnedMessage$ | async) as pinnedMsg">
+        <div class="pinned-message-container" *ngIf="(pinnedMessage$ | async) as pinnedMsg" (click)="showPinnedMessage(pinnedMsg)">
             <div class="pinned-message-content">
                 <mat-icon class="pin-icon">push_pin</mat-icon>
                 <div class="pinned-message-details">
@@ -41,7 +41,7 @@
                     <span class="pinned-text">{{ pinnedMsg.text || 'Arquivo: ' + pinnedMsg.fileName }}</span>
                 </div>
             </div>
-            <button mat-icon-button *ngIf="currentUser?.role === 'admin'" (click)="unpinMessage(pinnedMsg.id!)"
+            <button mat-icon-button *ngIf="currentUser?.role === 'admin'" (click)="unpinMessage(pinnedMsg.id!); $event.stopPropagation()"
                 aria-label="Desafixar mensagem" matTooltip="Desafixar">
                 <mat-icon>close</mat-icon>
             </button>
@@ -70,7 +70,7 @@
                             matTooltip="Administrador">verified</mat-icon>
                     </div>
 
-                    <ng-container [ngSwitch]="true">
+                    <ng-container>
                         <div *ngIf="msg.fileType?.startsWith('image/')" class="message-image">
                             <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">
                                 <img [src]="msg.fileUrl" [alt]="msg.fileName" loading="lazy">
@@ -78,7 +78,7 @@
                             <div *ngIf="msg.text" class="message-text image-caption">{{ msg.text }}</div>
                         </div>
 
-                        <div *ngIf="msg.fileType && !msg.fileType.startsWith('image/')" class="message-file">
+                        <div *ngIf="msg.fileType && !msg.fileType.startsWith('image/') && msg.fileType !== 'text'" class="message-file">
                             <mat-icon>description</mat-icon>
                             <div class="file-info">
                                 <a [href]="msg.fileUrl" target="_blank" rel="noopener noreferrer">{{ msg.fileName }}</a>
@@ -86,7 +86,7 @@
                             </div>
                         </div>
 
-                        <div *ngIf="!msg.fileType" class="message-text">{{ msg.text }}</div>
+                        <div *ngIf="msg.text" class="message-text">{{ msg.text }}</div>
                     </ng-container>
 
                     <div class="message-timestamp">{{ msg.timestamp?.toDate() | date:'HH:mm' }}</div>
