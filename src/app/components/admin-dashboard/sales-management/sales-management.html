@@ -20,11 +20,15 @@
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-date-range-picker #picker></mat-date-range-picker>
         </mat-form-field>
-    </div>
 
-    <div class="summary-container" *ngIf="dataSource.data && dataSource.data.length > 0">
-        <span>Total de Vendas:</span>
-        <span class="total-count">{{ dataSource.data.length }}</span>
+        <!-- Este span vai ocupar o espaço vazio e empurrar o contador para a direita -->
+        <span class="filter-spacer"></span>
+
+        <!-- O contador foi movido para DENTRO do container de filtros -->
+        <div class="summary-container" *ngIf="dataSource.data && dataSource.data.length > 0">
+            <span>Total de Vendas:</span>
+            <span class="total-count">{{ dataSource.data.length }}</span>
+        </div>
     </div>
 
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z4">
