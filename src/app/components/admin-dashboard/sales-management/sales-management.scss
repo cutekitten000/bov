@@ -62,3 +62,24 @@ tr.mat-mdc-header-row, tr.mat-mdc-row {
 .mat-mdc-table .mat-mdc-row:hover .mat-mdc-cell {
     background-color: rgba(255, 255, 255, 0.03);
 }
+
+
+.summary-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  width: fit-content; 
+}
+
+.total-count {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mat-sys-color-primary);
+}
