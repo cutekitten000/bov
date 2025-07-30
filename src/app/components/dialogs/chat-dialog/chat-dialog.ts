@@ -30,12 +30,13 @@ import { ChatMessage } from '../../../models/chat-message.model';
 import { AppUser, AuthService } from '../../../services/auth';
 import { ChatService } from '../../../services/chat.service';
 import { DatabaseService } from '../../../services/database.service';
+import { NotificationService } from '../../../services/notification.service'; // <-- IMPORT ADICIONADO
 
 type ChatSelection =
     | { type: 'group'; id: 'equipe'; name: string }
     | { type: 'dm'; id: string; name: string };
 
-// --- ALTERAÇÃO: Componente de Diálogo com Estilo Corrigido ---
+// --- Componente de Diálogo com Estilo Corrigido (sem alterações aqui) ---
 @Component({
     selector: 'pinned-message-dialog',
     template: `
@@ -129,13 +130,13 @@ type ChatSelection =
         `,
     ],
     standalone: true,
-    imports: [MatDialogModule, MatButtonModule, CommonModule, MatIconModule], // MatIconModule adicionado
+    imports: [MatDialogModule, MatButtonModule, CommonModule, MatIconModule],
 })
 export class PinnedMessageDialog {
     data: ChatMessage = inject(MAT_DIALOG_DATA);
 }
 
-// --- COMPONENTE PRINCIPAL DO CHAT (SEM ALTERAÇÕES) ---
+// --- COMPONENTE PRINCIPAL DO CHAT ---
 @Component({
     selector: 'app-chat-dialog',
     standalone: true,
@@ -163,6 +164,7 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     private dialogRef = inject(MatDialogRef<ChatDialog>);
     private snackBar = inject(MatSnackBar);
     private dialog = inject(MatDialog);
+    private notificationService = inject(NotificationService); // <-- SERVIÇO INJETADO
 
     @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
@@ -184,9 +186,16 @@ export class ChatDialog implements OnInit, AfterViewChecked, OnDestroy {
     private messagesSubscription: Subscription | null = null;
 
     ngOnInit(): void {
+        // A abertura do diálogo é uma interação do usuário.
+        // Chamamos o método para preparar o áudio.
+        this.notificationService.primeAudio(); // <-- CHAMADA DO NOVO MÉTODO
+
         this.loadInitialData();
         this.pinnedMessage$ = this.chatService.getPinnedMessageFromGroupChat();
     }
+
+    // ... O restante do seu componente continua igual ...
+
     ngAfterViewChecked() {
         this.scrollToBottom();
     }

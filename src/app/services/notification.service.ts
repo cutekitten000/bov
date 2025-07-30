@@ -2,7 +2,6 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { AuthService } from './auth';
 import { ChatService } from './chat.service';
 
@@ -15,19 +14,43 @@ export class NotificationService {
 
   private conversationsSubscription: Subscription | null = null;
   private knownConversations = new Map<string, any>();
-  private notificationSound = new Audio('assets/notification.mp3');
+  private notificationSound: HTMLAudioElement;
   private isFirstLoad = true;
+  private isAudioReady = false; // <-- NOVA PROPRIEDADE
 
-   constructor() {
+  constructor() {
+    // Apenas cria o objeto de áudio.
+    this.notificationSound = new Audio('assets/notification.mp3');
+
     this.authService.authState$.subscribe(user => {
-      // CORREÇÃO: Checa se o objeto 'user' E a propriedade 'user.uid' existem.
-      // Isso previne que a função seja chamada com um valor indefinido durante o login.
       if (user && user.uid) {
         this.startListeningForNotifications(user.uid);
       } else {
-        // Isso é chamado no logout ou em estados intermediários, parando o monitoramento.
         this.stopListeningForNotifications();
       }
+    });
+  }
+
+  /**
+   * NOVO MÉTODO: Prepara o áudio para ser tocado.
+   * Deve ser chamado após uma interação do usuário (ex: clique).
+   */
+  public primeAudio(): void {
+    if (this.isAudioReady) {
+      return;
+    }
+
+    console.log('[NotificationService] Tentando preparar o áudio após interação do usuário.');
+    // Tenta tocar o áudio sem som para obter a permissão do navegador.
+    this.notificationSound.muted = true;
+    this.notificationSound.play().then(() => {
+        this.notificationSound.pause();
+        this.notificationSound.currentTime = 0;
+        this.notificationSound.muted = false;
+        this.isAudioReady = true;
+        console.log('[NotificationService] Áudio preparado com sucesso. Notificações sonoras ativadas.');
+    }).catch(error => {
+        console.warn('[NotificationService] Não foi possível preparar o áudio. As notificações podem ficar sem som.', error);
     });
   }
 
@@ -36,9 +59,10 @@ export class NotificationService {
       return;
     }
 
-     console.log('%c[ESPIÃO NotificationService] Tentando chamar getConversations com o userId:', 'color: magenta; font-weight: bold;', userId);
-
     console.log('[NotificationService] Iniciando ouvinte de notificações para o usuário:', userId);
+
+    // Pré-carrega o arquivo de áudio para que ele toque mais rápido quando necessário.
+    this.notificationSound.load();
 
     this.conversationsSubscription = this.chatService.getConversations(userId).subscribe(conversations => {
       if (this.isFirstLoad) {
@@ -51,7 +75,7 @@ export class NotificationService {
         const knownTimestamp = this.knownConversations.get(conv.id);
         const newTimestamp = conv.lastMessage?.timestamp;
         
-        if (newTimestamp && newTimestamp > knownTimestamp && conv.lastMessage?.senderUid !== userId) {
+        if (newTimestamp && (!knownTimestamp || newTimestamp.toMillis() > knownTimestamp.toMillis()) && conv.lastMessage?.senderUid !== userId) {
           console.log(`[NotificationService] Nova mensagem detectada na conversa ${conv.id}. Tocando som.`);
           this.playNotificationSound();
         }
@@ -72,9 +96,14 @@ export class NotificationService {
   }
 
   private playNotificationSound(): void {
+    if (!this.isAudioReady) {
+      console.warn("O áudio não foi preparado por uma interação do usuário. A notificação pode não tocar.");
+      // Mesmo assim, tentamos tocar. Pode funcionar em alguns cenários.
+    }
+
     this.notificationSound.currentTime = 0;
     this.notificationSound.play().catch(error => {
-      console.warn("Navegador pode ter bloqueado a reprodução automática do som.", error);
+      console.warn("Navegador bloqueou a reprodução automática do som. O usuário precisa interagir com a página primeiro (clicar em algo).", error);
     });
   }
 }
